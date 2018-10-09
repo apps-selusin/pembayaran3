@@ -268,6 +268,8 @@ class cdefault {
 		$Security->LoadUserLevel(); // Load User Level
 		if ($Security->AllowList(CurrentProjectID() . 'cf01_home.php'))
 		$this->Page_Terminate("cf01_home.php"); // Exit and go to default page
+		if ($Security->AllowList(CurrentProjectID() . 't00_tahunajaran'))
+			$this->Page_Terminate("t00_tahunajaranlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't96_employees'))
 			$this->Page_Terminate("t96_employeeslist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't97_userlevels'))

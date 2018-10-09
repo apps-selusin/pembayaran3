@@ -589,6 +589,9 @@
     <menu id="6">
       <phrase id="menutext" value="Setup" />
     </menu>
+    <menu id="8">
+      <phrase id="menutext" value="Tahun Ajaran" />
+    </menu>
     <menu id="1">
       <phrase id="menutext" value="User" />
     </menu>
@@ -604,6 +607,78 @@
     <menu id="5">
       <phrase id="menutext" value="User Log" />
     </menu>
+    <table id="cf01_home_php">
+      <phrase id="tblcaption" value="Home" />
+    </table>
+    <table id="t00_tahunajaran">
+      <phrase id="tblcaption" value="Tahun Ajaran" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="awal_bulan">
+        <phrase id="fldcaption" value="Awal Bulan" />
+        <phrase id="fldtagvalue1" value="1" />
+        <phrase id="fldtagcaption1" value="Januari" />
+        <phrase id="fldtagvalue2" value="2" />
+        <phrase id="fldtagcaption2" value="Februari" />
+        <phrase id="fldtagvalue3" value="3" />
+        <phrase id="fldtagcaption3" value="Maret" />
+        <phrase id="fldtagvalue4" value="4" />
+        <phrase id="fldtagcaption4" value="April" />
+        <phrase id="fldtagvalue5" value="5" />
+        <phrase id="fldtagcaption5" value="Mei" />
+        <phrase id="fldtagvalue6" value="6" />
+        <phrase id="fldtagcaption6" value="Juni" />
+        <phrase id="fldtagvalue7" value="7" />
+        <phrase id="fldtagcaption7" value="Juli" />
+        <phrase id="fldtagvalue8" value="8" />
+        <phrase id="fldtagcaption8" value="Agustus" />
+        <phrase id="fldtagvalue9" value="9" />
+        <phrase id="fldtagcaption9" value="September" />
+        <phrase id="fldtagvalue10" value="10" />
+        <phrase id="fldtagcaption10" value="Oktober" />
+        <phrase id="fldtagvalue11" value="11" />
+        <phrase id="fldtagcaption11" value="November" />
+        <phrase id="fldtagvalue12" value="12" />
+        <phrase id="fldtagcaption12" value="Desember" />
+      </field>
+      <field id="awal_tahun">
+        <phrase id="fldcaption" value="Awal Tahun" />
+      </field>
+      <field id="akhir_bulan">
+        <phrase id="fldcaption" value="Akhir Bulan" />
+        <phrase id="fldtagvalue1" value="1" />
+        <phrase id="fldtagcaption1" value="Januari" />
+        <phrase id="fldtagvalue2" value="2" />
+        <phrase id="fldtagcaption2" value="Februari" />
+        <phrase id="fldtagvalue3" value="3" />
+        <phrase id="fldtagcaption3" value="Maret" />
+        <phrase id="fldtagvalue4" value="4" />
+        <phrase id="fldtagcaption4" value="April" />
+        <phrase id="fldtagvalue5" value="5" />
+        <phrase id="fldtagcaption5" value="Mei" />
+        <phrase id="fldtagvalue6" value="6" />
+        <phrase id="fldtagcaption6" value="Juni" />
+        <phrase id="fldtagvalue7" value="7" />
+        <phrase id="fldtagcaption7" value="Juli" />
+        <phrase id="fldtagvalue8" value="8" />
+        <phrase id="fldtagcaption8" value="Agustus" />
+        <phrase id="fldtagvalue9" value="9" />
+        <phrase id="fldtagcaption9" value="September" />
+        <phrase id="fldtagvalue10" value="10" />
+        <phrase id="fldtagcaption10" value="Oktober" />
+        <phrase id="fldtagvalue11" value="11" />
+        <phrase id="fldtagcaption11" value="November" />
+        <phrase id="fldtagvalue12" value="12" />
+        <phrase id="fldtagcaption12" value="Desember" />
+      </field>
+      <field id="akhir_tahun">
+        <phrase id="fldcaption" value="Akhir Tahun" />
+      </field>
+      <field id="tahun_ajaran">
+        <phrase id="fldcaption" value="Tahun Ajaran" />
+      </field>
+    </table>
     <table id="t96_employees">
       <phrase id="tblcaption" value="User" />
       <field id="employeeid">
@@ -700,9 +775,6 @@
       <field id="permission">
         <phrase id="fldcaption" value="permission" />
       </field>
-    </table>
-    <table id="cf01_home_php">
-      <phrase id="tblcaption" value="Home" />
     </table>
     <table id="t99_audittrail">
       <phrase id="tblcaption" value="User Log" />
