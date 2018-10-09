@@ -583,23 +583,29 @@
   <project>
     <phrase id="bodytitle" value="PEMBAYARAN" />
     <phrase id="footertext" value="&amp;copy;2018 Selaras Solusindo. All rights reserved." />
-    <menu id="1">
-      <phrase id="menutext" value="t 96 employees" />
-    </menu>
-    <menu id="2">
-      <phrase id="menutext" value="t 97 userlevels" />
-    </menu>
-    <menu id="3">
-      <phrase id="menutext" value="t 98 userlevelpermissions" />
-    </menu>
     <menu id="4">
       <phrase id="menutext" value="Home" />
     </menu>
+    <menu id="6">
+      <phrase id="menutext" value="Setup" />
+    </menu>
+    <menu id="1">
+      <phrase id="menutext" value="User" />
+    </menu>
+    <menu id="2">
+      <phrase id="menutext" value="Hak Akses" />
+    </menu>
+    <menu id="3">
+      <phrase id="menutext" value="User Level" />
+    </menu>
+    <menu id="7">
+      <phrase id="menutext" value="List" />
+    </menu>
     <menu id="5">
-      <phrase id="menutext" value="t 99 audittrail" />
+      <phrase id="menutext" value="User Log" />
     </menu>
     <table id="t96_employees">
-      <phrase id="tblcaption" value="t 96 employees" />
+      <phrase id="tblcaption" value="User" />
       <field id="employeeid">
         <phrase id="fldcaption" value="Employee ID" />
       </field>
@@ -675,7 +681,7 @@
       </field>
     </table>
     <table id="t97_userlevels">
-      <phrase id="tblcaption" value="t 97 userlevels" />
+      <phrase id="tblcaption" value="Hak Akses" />
       <field id="userlevelid">
         <phrase id="fldcaption" value="userlevelid" />
       </field>
@@ -684,7 +690,7 @@
       </field>
     </table>
     <table id="t98_userlevelpermissions">
-      <phrase id="tblcaption" value="t 98 userlevelpermissions" />
+      <phrase id="tblcaption" value="User Level" />
       <field id="userlevelid">
         <phrase id="fldcaption" value="userlevelid" />
       </field>
@@ -699,7 +705,7 @@
       <phrase id="tblcaption" value="Home" />
     </table>
     <table id="t99_audittrail">
-      <phrase id="tblcaption" value="t 99 audittrail" />
+      <phrase id="tblcaption" value="User Log" />
       <field id="id">
         <phrase id="fldcaption" value="id" />
       </field>
