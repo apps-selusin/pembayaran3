@@ -362,6 +362,9 @@ class ct03_siswa_list extends ct03_siswa {
 			$Security->LoadUserID();
 			$Security->UserID_Loaded();
 		}
+
+		// Create form object
+		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
 
 		// Get grid add count
@@ -541,6 +544,27 @@ class ct03_siswa_list extends ct03_siswa {
 			if ($this->Export == "")
 				$this->SetupBreadcrumb();
 
+			// Check QueryString parameters
+			if (@$_GET["a"] <> "") {
+				$this->CurrentAction = $_GET["a"];
+
+				// Clear inline mode
+				if ($this->CurrentAction == "cancel")
+					$this->ClearInlineMode();
+
+				// Switch to inline edit mode
+				if ($this->CurrentAction == "edit")
+					$this->InlineEditMode();
+			} else {
+				if (@$_POST["a_list"] <> "") {
+					$this->CurrentAction = $_POST["a_list"]; // Get action
+
+					// Inline Update
+					if (($this->CurrentAction == "update" || $this->CurrentAction == "overwrite") && @$_SESSION[EW_SESSION_INLINE_MODE] == "edit")
+						$this->InlineUpdate();
+				}
+			}
+
 			// Hide list options
 			if ($this->Export <> "") {
 				$this->ListOptions->HideAllOptions(array("sequence"));
@@ -647,6 +671,77 @@ class ct03_siswa_list extends ct03_siswa {
 
 		// Search options
 		$this->SetupSearchOptions();
+	}
+
+	//  Exit inline mode
+	function ClearInlineMode() {
+		$this->setKey("id", ""); // Clear inline edit key
+		$this->LastAction = $this->CurrentAction; // Save last action
+		$this->CurrentAction = ""; // Clear action
+		$_SESSION[EW_SESSION_INLINE_MODE] = ""; // Clear inline mode
+	}
+
+	// Switch to Inline Edit mode
+	function InlineEditMode() {
+		global $Security, $Language;
+		if (!$Security->CanEdit())
+			$this->Page_Terminate("login.php"); // Go to login page
+		$bInlineEdit = TRUE;
+		if (@$_GET["id"] <> "") {
+			$this->id->setQueryStringValue($_GET["id"]);
+		} else {
+			$bInlineEdit = FALSE;
+		}
+		if ($bInlineEdit) {
+			if ($this->LoadRow()) {
+				$this->setKey("id", $this->id->CurrentValue); // Set up inline edit key
+				$_SESSION[EW_SESSION_INLINE_MODE] = "edit"; // Enable inline edit
+			}
+		}
+	}
+
+	// Perform update to Inline Edit record
+	function InlineUpdate() {
+		global $Language, $objForm, $gsFormError;
+		$objForm->Index = 1; 
+		$this->LoadFormValues(); // Get form values
+
+		// Validate form
+		$bInlineUpdate = TRUE;
+		if (!$this->ValidateForm()) {	
+			$bInlineUpdate = FALSE; // Form error, reset action
+			$this->setFailureMessage($gsFormError);
+		} else {
+			$bInlineUpdate = FALSE;
+			$rowkey = strval($objForm->GetValue($this->FormKeyName));
+			if ($this->SetupKeyValues($rowkey)) { // Set up key values
+				if ($this->CheckInlineEditKey()) { // Check key
+					$this->SendEmail = TRUE; // Send email on update success
+					$bInlineUpdate = $this->EditRow(); // Update record
+				} else {
+					$bInlineUpdate = FALSE;
+				}
+			}
+		}
+		if ($bInlineUpdate) { // Update success
+			if ($this->getSuccessMessage() == "")
+				$this->setSuccessMessage($Language->Phrase("UpdateSuccess")); // Set up success message
+			$this->ClearInlineMode(); // Clear inline edit mode
+		} else {
+			if ($this->getFailureMessage() == "")
+				$this->setFailureMessage($Language->Phrase("UpdateFailed")); // Set update failed message
+			$this->EventCancelled = TRUE; // Cancel event
+			$this->CurrentAction = "edit"; // Stay in edit mode
+		}
+	}
+
+	// Check Inline Edit key
+	function CheckInlineEditKey() {
+
+		//CheckInlineEditKey = True
+		if (strval($this->getKey("id")) <> strval($this->id->CurrentValue))
+			return FALSE;
+		return TRUE;
 	}
 
 	// Build filter for all keys
@@ -1086,15 +1181,46 @@ class ct03_siswa_list extends ct03_siswa {
 		global $Security, $Language, $objForm;
 		$this->ListOptions->LoadDefault();
 
+		// Set up row action and key
+		if (is_numeric($this->RowIndex) && $this->CurrentMode <> "view") {
+			$objForm->Index = $this->RowIndex;
+			$ActionName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormActionName);
+			$OldKeyName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormOldKeyName);
+			$KeyName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormKeyName);
+			$BlankRowName = str_replace("k_", "k" . $this->RowIndex . "_", $this->FormBlankRowName);
+			if ($this->RowAction <> "")
+				$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $ActionName . "\" id=\"" . $ActionName . "\" value=\"" . $this->RowAction . "\">";
+			if ($this->RowAction == "delete") {
+				$rowkey = $objForm->GetValue($this->FormKeyName);
+				$this->SetupKeyValues($rowkey);
+			}
+			if ($this->RowAction == "insert" && $this->CurrentAction == "F" && $this->EmptyRow())
+				$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $BlankRowName . "\" id=\"" . $BlankRowName . "\" value=\"1\">";
+		}
+
 		// "sequence"
 		$oListOpt = &$this->ListOptions->Items["sequence"];
 		$oListOpt->Body = ew_FormatSeqNo($this->RecCnt);
 
 		// "edit"
 		$oListOpt = &$this->ListOptions->Items["edit"];
+		if ($this->CurrentAction == "edit" && $this->RowType == EW_ROWTYPE_EDIT) { // Inline-Edit
+			$this->ListOptions->CustomItem = "edit"; // Show edit column only
+			$cancelurl = $this->AddMasterUrl($this->PageUrl() . "a=cancel");
+				$oListOpt->Body = "<div" . (($oListOpt->OnLeft) ? " style=\"text-align: right\"" : "") . ">" .
+					"<a class=\"ewGridLink ewInlineUpdate\" title=\"" . ew_HtmlTitle($Language->Phrase("UpdateLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("UpdateLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit('" . ew_GetHashUrl($this->PageName(), $this->PageObjName . "_row_" . $this->RowCnt) . "');\">" . $Language->Phrase("UpdateLink") . "</a>&nbsp;" .
+					"<a class=\"ewGridLink ewInlineCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" href=\"" . $cancelurl . "\">" . $Language->Phrase("CancelLink") . "</a>" .
+					"<input type=\"hidden\" name=\"a_list\" id=\"a_list\" value=\"update\"></div>";
+			$oListOpt->Body .= "<input type=\"hidden\" name=\"k" . $this->RowIndex . "_key\" id=\"k" . $this->RowIndex . "_key\" value=\"" . ew_HtmlEncode($this->id->CurrentValue) . "\">";
+			return;
+		}
+
+		// "edit"
+		$oListOpt = &$this->ListOptions->Items["edit"];
 		$editcaption = ew_HtmlTitle($Language->Phrase("EditLink"));
 		if ($Security->CanEdit()) {
 			$oListOpt->Body = "<a class=\"ewRowLink ewEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" href=\"" . ew_HtmlEncode($this->EditUrl) . "\">" . $Language->Phrase("EditLink") . "</a>";
+			$oListOpt->Body .= "<a class=\"ewRowLink ewInlineEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("InlineEditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InlineEditLink")) . "\" href=\"" . ew_HtmlEncode(ew_GetHashUrl($this->InlineEditUrl, $this->PageObjName . "_row_" . $this->RowCnt)) . "\">" . $Language->Phrase("InlineEditLink") . "</a>";
 		} else {
 			$oListOpt->Body = "";
 		}
@@ -1448,11 +1574,49 @@ class ct03_siswa_list extends ct03_siswa {
 		}
 	}
 
+	// Load default values
+	function LoadDefaultValues() {
+		$this->kelas_id->CurrentValue = NULL;
+		$this->kelas_id->OldValue = $this->kelas_id->CurrentValue;
+		$this->Nomor_Induk->CurrentValue = NULL;
+		$this->Nomor_Induk->OldValue = $this->Nomor_Induk->CurrentValue;
+		$this->Nama->CurrentValue = NULL;
+		$this->Nama->OldValue = $this->Nama->CurrentValue;
+	}
+
 	// Load basic search values
 	function LoadBasicSearchValues() {
 		$this->BasicSearch->Keyword = @$_GET[EW_TABLE_BASIC_SEARCH];
 		if ($this->BasicSearch->Keyword <> "") $this->Command = "search";
 		$this->BasicSearch->Type = @$_GET[EW_TABLE_BASIC_SEARCH_TYPE];
+	}
+
+	// Load form values
+	function LoadFormValues() {
+
+		// Load from form
+		global $objForm;
+		if (!$this->kelas_id->FldIsDetailKey) {
+			$this->kelas_id->setFormValue($objForm->GetValue("x_kelas_id"));
+		}
+		if (!$this->Nomor_Induk->FldIsDetailKey) {
+			$this->Nomor_Induk->setFormValue($objForm->GetValue("x_Nomor_Induk"));
+		}
+		if (!$this->Nama->FldIsDetailKey) {
+			$this->Nama->setFormValue($objForm->GetValue("x_Nama"));
+		}
+		if (!$this->id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
+			$this->id->setFormValue($objForm->GetValue("x_id"));
+	}
+
+	// Restore form values
+	function RestoreFormValues() {
+		global $objForm;
+		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
+			$this->id->CurrentValue = $this->id->FormValue;
+		$this->kelas_id->CurrentValue = $this->kelas_id->FormValue;
+		$this->Nomor_Induk->CurrentValue = $this->Nomor_Induk->FormValue;
+		$this->Nama->CurrentValue = $this->Nama->FormValue;
 	}
 
 	// Load recordset
@@ -1621,11 +1785,245 @@ class ct03_siswa_list extends ct03_siswa {
 			$this->Nama->LinkCustomAttributes = "";
 			$this->Nama->HrefValue = "";
 			$this->Nama->TooltipValue = "";
+		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
+
+			// kelas_id
+			$this->kelas_id->EditAttrs["class"] = "form-control";
+			$this->kelas_id->EditCustomAttributes = "";
+
+			// Nomor_Induk
+			$this->Nomor_Induk->EditAttrs["class"] = "form-control";
+			$this->Nomor_Induk->EditCustomAttributes = "";
+			$this->Nomor_Induk->EditValue = ew_HtmlEncode($this->Nomor_Induk->CurrentValue);
+			$this->Nomor_Induk->PlaceHolder = ew_RemoveHtml($this->Nomor_Induk->FldCaption());
+
+			// Nama
+			$this->Nama->EditAttrs["class"] = "form-control";
+			$this->Nama->EditCustomAttributes = "";
+			$this->Nama->EditValue = ew_HtmlEncode($this->Nama->CurrentValue);
+			$this->Nama->PlaceHolder = ew_RemoveHtml($this->Nama->FldCaption());
+
+			// Add refer script
+			// kelas_id
+
+			$this->kelas_id->LinkCustomAttributes = "";
+			$this->kelas_id->HrefValue = "";
+
+			// Nomor_Induk
+			$this->Nomor_Induk->LinkCustomAttributes = "";
+			$this->Nomor_Induk->HrefValue = "";
+
+			// Nama
+			$this->Nama->LinkCustomAttributes = "";
+			$this->Nama->HrefValue = "";
+		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
+
+			// kelas_id
+			$this->kelas_id->EditCustomAttributes = "";
+			if (trim(strval($this->kelas_id->CurrentValue)) == "") {
+				$sFilterWrk = "0=1";
+			} else {
+				$sFilterWrk = "`id`" . ew_SearchString("=", $this->kelas_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+			}
+			$sSqlWrk = "SELECT `id`, `Nama` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld`, '' AS `SelectFilterFld`, '' AS `SelectFilterFld2`, '' AS `SelectFilterFld3`, '' AS `SelectFilterFld4` FROM `t02_kelas`";
+			$sWhereWrk = "";
+			$this->kelas_id->LookupFilters = array("dx1" => '`Nama`');
+			ew_AddFilter($sWhereWrk, $sFilterWrk);
+			$this->Lookup_Selecting($this->kelas_id, $sWhereWrk); // Call Lookup selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
+				$this->kelas_id->ViewValue = $this->kelas_id->DisplayValue($arwrk);
+			} else {
+				$this->kelas_id->ViewValue = $Language->Phrase("PleaseSelect");
+			}
+			$arwrk = ($rswrk) ? $rswrk->GetRows() : array();
+			if ($rswrk) $rswrk->Close();
+			$this->kelas_id->EditValue = $arwrk;
+
+			// Nomor_Induk
+			$this->Nomor_Induk->EditAttrs["class"] = "form-control";
+			$this->Nomor_Induk->EditCustomAttributes = "";
+			$this->Nomor_Induk->EditValue = ew_HtmlEncode($this->Nomor_Induk->CurrentValue);
+			$this->Nomor_Induk->PlaceHolder = ew_RemoveHtml($this->Nomor_Induk->FldCaption());
+
+			// Nama
+			$this->Nama->EditAttrs["class"] = "form-control";
+			$this->Nama->EditCustomAttributes = "";
+			$this->Nama->EditValue = ew_HtmlEncode($this->Nama->CurrentValue);
+			$this->Nama->PlaceHolder = ew_RemoveHtml($this->Nama->FldCaption());
+
+			// Edit refer script
+			// kelas_id
+
+			$this->kelas_id->LinkCustomAttributes = "";
+			$this->kelas_id->HrefValue = "";
+
+			// Nomor_Induk
+			$this->Nomor_Induk->LinkCustomAttributes = "";
+			$this->Nomor_Induk->HrefValue = "";
+
+			// Nama
+			$this->Nama->LinkCustomAttributes = "";
+			$this->Nama->HrefValue = "";
+		}
+		if ($this->RowType == EW_ROWTYPE_ADD ||
+			$this->RowType == EW_ROWTYPE_EDIT ||
+			$this->RowType == EW_ROWTYPE_SEARCH) { // Add / Edit / Search row
+			$this->SetupFieldTitles();
 		}
 
 		// Call Row Rendered event
 		if ($this->RowType <> EW_ROWTYPE_AGGREGATEINIT)
 			$this->Row_Rendered();
+	}
+
+	// Validate form
+	function ValidateForm() {
+		global $Language, $gsFormError;
+
+		// Initialize form error message
+		$gsFormError = "";
+
+		// Check if validation required
+		if (!EW_SERVER_VALIDATE)
+			return ($gsFormError == "");
+		if (!$this->kelas_id->FldIsDetailKey && !is_null($this->kelas_id->FormValue) && $this->kelas_id->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->kelas_id->FldCaption(), $this->kelas_id->ReqErrMsg));
+		}
+		if (!$this->Nomor_Induk->FldIsDetailKey && !is_null($this->Nomor_Induk->FormValue) && $this->Nomor_Induk->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->Nomor_Induk->FldCaption(), $this->Nomor_Induk->ReqErrMsg));
+		}
+		if (!$this->Nama->FldIsDetailKey && !is_null($this->Nama->FormValue) && $this->Nama->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->Nama->FldCaption(), $this->Nama->ReqErrMsg));
+		}
+
+		// Return validate result
+		$ValidateForm = ($gsFormError == "");
+
+		// Call Form_CustomValidate event
+		$sFormCustomError = "";
+		$ValidateForm = $ValidateForm && $this->Form_CustomValidate($sFormCustomError);
+		if ($sFormCustomError <> "") {
+			ew_AddMessage($gsFormError, $sFormCustomError);
+		}
+		return $ValidateForm;
+	}
+
+	// Update record based on key values
+	function EditRow() {
+		global $Security, $Language;
+		$sFilter = $this->KeyFilter();
+		$sFilter = $this->ApplyUserIDFilters($sFilter);
+		$conn = &$this->Connection();
+		$this->CurrentFilter = $sFilter;
+		$sSql = $this->SQL();
+		$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+		$rs = $conn->Execute($sSql);
+		$conn->raiseErrorFn = '';
+		if ($rs === FALSE)
+			return FALSE;
+		if ($rs->EOF) {
+			$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
+			$EditRow = FALSE; // Update Failed
+		} else {
+
+			// Save old values
+			$rsold = &$rs->fields;
+			$this->LoadDbValues($rsold);
+			$rsnew = array();
+
+			// kelas_id
+			$this->kelas_id->SetDbValueDef($rsnew, $this->kelas_id->CurrentValue, 0, $this->kelas_id->ReadOnly);
+
+			// Nomor_Induk
+			$this->Nomor_Induk->SetDbValueDef($rsnew, $this->Nomor_Induk->CurrentValue, "", $this->Nomor_Induk->ReadOnly);
+
+			// Nama
+			$this->Nama->SetDbValueDef($rsnew, $this->Nama->CurrentValue, "", $this->Nama->ReadOnly);
+
+			// Call Row Updating event
+			$bUpdateRow = $this->Row_Updating($rsold, $rsnew);
+			if ($bUpdateRow) {
+				$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+				if (count($rsnew) > 0)
+					$EditRow = $this->Update($rsnew, "", $rsold);
+				else
+					$EditRow = TRUE; // No field to update
+				$conn->raiseErrorFn = '';
+				if ($EditRow) {
+				}
+			} else {
+				if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
+
+					// Use the message, do nothing
+				} elseif ($this->CancelMessage <> "") {
+					$this->setFailureMessage($this->CancelMessage);
+					$this->CancelMessage = "";
+				} else {
+					$this->setFailureMessage($Language->Phrase("UpdateCancelled"));
+				}
+				$EditRow = FALSE;
+			}
+		}
+
+		// Call Row_Updated event
+		if ($EditRow)
+			$this->Row_Updated($rsold, $rsnew);
+		$rs->Close();
+		return $EditRow;
+	}
+
+	// Add record
+	function AddRow($rsold = NULL) {
+		global $Language, $Security;
+		$conn = &$this->Connection();
+
+		// Load db values from rsold
+		if ($rsold) {
+			$this->LoadDbValues($rsold);
+		}
+		$rsnew = array();
+
+		// kelas_id
+		$this->kelas_id->SetDbValueDef($rsnew, $this->kelas_id->CurrentValue, 0, FALSE);
+
+		// Nomor_Induk
+		$this->Nomor_Induk->SetDbValueDef($rsnew, $this->Nomor_Induk->CurrentValue, "", FALSE);
+
+		// Nama
+		$this->Nama->SetDbValueDef($rsnew, $this->Nama->CurrentValue, "", FALSE);
+
+		// Call Row Inserting event
+		$rs = ($rsold == NULL) ? NULL : $rsold->fields;
+		$bInsertRow = $this->Row_Inserting($rs, $rsnew);
+		if ($bInsertRow) {
+			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+			$AddRow = $this->Insert($rsnew);
+			$conn->raiseErrorFn = '';
+			if ($AddRow) {
+			}
+		} else {
+			if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
+
+				// Use the message, do nothing
+			} elseif ($this->CancelMessage <> "") {
+				$this->setFailureMessage($this->CancelMessage);
+				$this->CancelMessage = "";
+			} else {
+				$this->setFailureMessage($Language->Phrase("InsertCancelled"));
+			}
+			$AddRow = FALSE;
+		}
+		if ($AddRow) {
+
+			// Call Row Inserted event
+			$rs = ($rsold == NULL) ? NULL : $rsold->fields;
+			$this->Row_Inserted($rs, $rsnew);
+		}
+		return $AddRow;
 	}
 
 	// Set up Breadcrumb
@@ -1642,6 +2040,18 @@ class ct03_siswa_list extends ct03_siswa {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
+		case "x_kelas_id":
+			$sSqlWrk = "";
+			$sSqlWrk = "SELECT `id` AS `LinkFld`, `Nama` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t02_kelas`";
+			$sWhereWrk = "{filter}";
+			$this->kelas_id->LookupFilters = array("dx1" => '`Nama`');
+			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "", "f0" => '`id` = {filter_value}', "t0" => "3", "fn0" => "");
+			$sSqlWrk = "";
+			$this->Lookup_Selecting($this->kelas_id, $sWhereWrk); // Call Lookup selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			if ($sSqlWrk <> "")
+				$fld->LookupFilters["s"] .= $sSqlWrk;
+			break;
 		}
 	}
 
@@ -1695,6 +2105,11 @@ class ct03_siswa_list extends ct03_siswa {
 	function Page_Render() {
 
 		//echo "Page Render";
+		// sembunyikan button tambah data master
+		// hanya boleh tambah data pada link add master/detail
+
+		$this->OtherOptions['addedit'] = new cListOptions();
+		$this->OtherOptions['addedit']->Body = "";
 	}
 
 	// Page Data Rendering event
@@ -1736,7 +2151,12 @@ class ct03_siswa_list extends ct03_siswa {
 
 		// Example: 
 		//$this->ListOptions->Items["new"]->Body = "xxx";
+		// sembunyikan button edit dan view data master
+		// hanya boleh edit dan view link master/detail
 
+		$this->ListOptions->Items["edit"]->Body = "";
+
+		//$this->ListOptions->Items["view"]->Body = "";
 	}
 
 	// Row Custom Action event
@@ -1798,6 +2218,38 @@ $t03_siswa_list->Page_Render();
 var CurrentPageID = EW_PAGE_ID = "list";
 var CurrentForm = ft03_siswalist = new ew_Form("ft03_siswalist", "list");
 ft03_siswalist.FormKeyCountName = '<?php echo $t03_siswa_list->FormKeyCountName ?>';
+
+// Validate form
+ft03_siswalist.Validate = function() {
+	if (!this.ValidateRequired)
+		return true; // Ignore validation
+	var $ = jQuery, fobj = this.GetForm(), $fobj = $(fobj);
+	if ($fobj.find("#a_confirm").val() == "F")
+		return true;
+	var elm, felm, uelm, addcnt = 0;
+	var $k = $fobj.find("#" + this.FormKeyCountName); // Get key_count
+	var rowcnt = ($k[0]) ? parseInt($k.val(), 10) : 1;
+	var startcnt = (rowcnt == 0) ? 0 : 1; // Check rowcnt == 0 => Inline-Add
+	var gridinsert = $fobj.find("#a_list").val() == "gridinsert";
+	for (var i = startcnt; i <= rowcnt; i++) {
+		var infix = ($k[0]) ? String(i) : "";
+		$fobj.data("rowindex", infix);
+			elm = this.GetElements("x" + infix + "_kelas_id");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_siswa->kelas_id->FldCaption(), $t03_siswa->kelas_id->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_Nomor_Induk");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_siswa->Nomor_Induk->FldCaption(), $t03_siswa->Nomor_Induk->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_Nama");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t03_siswa->Nama->FldCaption(), $t03_siswa->Nama->ReqErrMsg)) ?>");
+
+			// Fire Form_CustomValidate event
+			if (!this.Form_CustomValidate(fobj))
+				return false;
+	}
+	return true;
+}
 
 // Form_CustomValidate event
 ft03_siswalist.Form_CustomValidate = 
@@ -2032,6 +2484,15 @@ if ($t03_siswa->ExportAll && $t03_siswa->Export <> "") {
 	else
 		$t03_siswa_list->StopRec = $t03_siswa_list->TotalRecs;
 }
+
+// Restore number of post back records
+if ($objForm) {
+	$objForm->Index = -1;
+	if ($objForm->HasValue($t03_siswa_list->FormKeyCountName) && ($t03_siswa->CurrentAction == "gridadd" || $t03_siswa->CurrentAction == "gridedit" || $t03_siswa->CurrentAction == "F")) {
+		$t03_siswa_list->KeyCount = $objForm->GetValue($t03_siswa_list->FormKeyCountName);
+		$t03_siswa_list->StopRec = $t03_siswa_list->StartRec + $t03_siswa_list->KeyCount - 1;
+	}
+}
 $t03_siswa_list->RecCnt = $t03_siswa_list->StartRec - 1;
 if ($t03_siswa_list->Recordset && !$t03_siswa_list->Recordset->EOF) {
 	$t03_siswa_list->Recordset->MoveFirst();
@@ -2046,6 +2507,9 @@ if ($t03_siswa_list->Recordset && !$t03_siswa_list->Recordset->EOF) {
 $t03_siswa->RowType = EW_ROWTYPE_AGGREGATEINIT;
 $t03_siswa->ResetAttrs();
 $t03_siswa_list->RenderRow();
+$t03_siswa_list->EditRowCnt = 0;
+if ($t03_siswa->CurrentAction == "edit")
+	$t03_siswa_list->RowIndex = 1;
 while ($t03_siswa_list->RecCnt < $t03_siswa_list->StopRec) {
 	$t03_siswa_list->RecCnt++;
 	if (intval($t03_siswa_list->RecCnt) >= intval($t03_siswa_list->StartRec)) {
@@ -2058,10 +2522,22 @@ while ($t03_siswa_list->RecCnt < $t03_siswa_list->StopRec) {
 		$t03_siswa->ResetAttrs();
 		$t03_siswa->CssClass = "";
 		if ($t03_siswa->CurrentAction == "gridadd") {
+			$t03_siswa_list->LoadDefaultValues(); // Load default values
 		} else {
 			$t03_siswa_list->LoadRowValues($t03_siswa_list->Recordset); // Load row values
 		}
 		$t03_siswa->RowType = EW_ROWTYPE_VIEW; // Render view
+		if ($t03_siswa->CurrentAction == "edit") {
+			if ($t03_siswa_list->CheckInlineEditKey() && $t03_siswa_list->EditRowCnt == 0) { // Inline edit
+				$t03_siswa->RowType = EW_ROWTYPE_EDIT; // Render edit
+			}
+		}
+		if ($t03_siswa->CurrentAction == "edit" && $t03_siswa->RowType == EW_ROWTYPE_EDIT && $t03_siswa->EventCancelled) { // Update failed
+			$objForm->Index = 1;
+			$t03_siswa_list->RestoreFormValues(); // Restore form values
+		}
+		if ($t03_siswa->RowType == EW_ROWTYPE_EDIT) // Edit row
+			$t03_siswa_list->EditRowCnt++;
 
 		// Set up row id / data-rowindex
 		$t03_siswa->RowAttrs = array_merge($t03_siswa->RowAttrs, array('data-rowindex'=>$t03_siswa_list->RowCnt, 'id'=>'r' . $t03_siswa_list->RowCnt . '_t03_siswa', 'data-rowtype'=>$t03_siswa->RowType));
@@ -2080,26 +2556,55 @@ $t03_siswa_list->ListOptions->Render("body", "left", $t03_siswa_list->RowCnt);
 ?>
 	<?php if ($t03_siswa->kelas_id->Visible) { // kelas_id ?>
 		<td data-name="kelas_id"<?php echo $t03_siswa->kelas_id->CellAttributes() ?>>
+<?php if ($t03_siswa->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $t03_siswa_list->RowCnt ?>_t03_siswa_kelas_id" class="form-group t03_siswa_kelas_id">
+<span class="ewLookupList">
+	<span onclick="jQuery(this).parent().next().click();" tabindex="-1" class="form-control ewLookupText" id="lu_x<?php echo $t03_siswa_list->RowIndex ?>_kelas_id"><?php echo (strval($t03_siswa->kelas_id->ViewValue) == "" ? $Language->Phrase("PleaseSelect") : $t03_siswa->kelas_id->ViewValue); ?></span>
+</span>
+<button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t03_siswa->kelas_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'x<?php echo $t03_siswa_list->RowIndex ?>_kelas_id',m:0,n:10});" class="ewLookupBtn btn btn-default btn-sm"><span class="glyphicon glyphicon-search ewIcon"></span></button>
+<input type="hidden" data-table="t03_siswa" data-field="x_kelas_id" data-multiple="0" data-lookup="1" data-value-separator="<?php echo $t03_siswa->kelas_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t03_siswa_list->RowIndex ?>_kelas_id" id="x<?php echo $t03_siswa_list->RowIndex ?>_kelas_id" value="<?php echo $t03_siswa->kelas_id->CurrentValue ?>"<?php echo $t03_siswa->kelas_id->EditAttributes() ?>>
+<input type="hidden" name="s_x<?php echo $t03_siswa_list->RowIndex ?>_kelas_id" id="s_x<?php echo $t03_siswa_list->RowIndex ?>_kelas_id" value="<?php echo $t03_siswa->kelas_id->LookupFilterQuery() ?>">
+</span>
+<?php } ?>
+<?php if ($t03_siswa->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_siswa_list->RowCnt ?>_t03_siswa_kelas_id" class="t03_siswa_kelas_id">
 <span<?php echo $t03_siswa->kelas_id->ViewAttributes() ?>>
 <?php echo $t03_siswa->kelas_id->ListViewValue() ?></span>
 </span>
+<?php } ?>
 <a id="<?php echo $t03_siswa_list->PageObjName . "_row_" . $t03_siswa_list->RowCnt ?>"></a></td>
 	<?php } ?>
+<?php if ($t03_siswa->RowType == EW_ROWTYPE_EDIT || $t03_siswa->CurrentMode == "edit") { ?>
+<input type="hidden" data-table="t03_siswa" data-field="x_id" name="x<?php echo $t03_siswa_list->RowIndex ?>_id" id="x<?php echo $t03_siswa_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t03_siswa->id->CurrentValue) ?>">
+<?php } ?>
 	<?php if ($t03_siswa->Nomor_Induk->Visible) { // Nomor_Induk ?>
 		<td data-name="Nomor_Induk"<?php echo $t03_siswa->Nomor_Induk->CellAttributes() ?>>
+<?php if ($t03_siswa->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $t03_siswa_list->RowCnt ?>_t03_siswa_Nomor_Induk" class="form-group t03_siswa_Nomor_Induk">
+<input type="text" data-table="t03_siswa" data-field="x_Nomor_Induk" name="x<?php echo $t03_siswa_list->RowIndex ?>_Nomor_Induk" id="x<?php echo $t03_siswa_list->RowIndex ?>_Nomor_Induk" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t03_siswa->Nomor_Induk->getPlaceHolder()) ?>" value="<?php echo $t03_siswa->Nomor_Induk->EditValue ?>"<?php echo $t03_siswa->Nomor_Induk->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php if ($t03_siswa->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_siswa_list->RowCnt ?>_t03_siswa_Nomor_Induk" class="t03_siswa_Nomor_Induk">
 <span<?php echo $t03_siswa->Nomor_Induk->ViewAttributes() ?>>
 <?php echo $t03_siswa->Nomor_Induk->ListViewValue() ?></span>
 </span>
+<?php } ?>
 </td>
 	<?php } ?>
 	<?php if ($t03_siswa->Nama->Visible) { // Nama ?>
 		<td data-name="Nama"<?php echo $t03_siswa->Nama->CellAttributes() ?>>
+<?php if ($t03_siswa->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $t03_siswa_list->RowCnt ?>_t03_siswa_Nama" class="form-group t03_siswa_Nama">
+<input type="text" data-table="t03_siswa" data-field="x_Nama" name="x<?php echo $t03_siswa_list->RowIndex ?>_Nama" id="x<?php echo $t03_siswa_list->RowIndex ?>_Nama" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t03_siswa->Nama->getPlaceHolder()) ?>" value="<?php echo $t03_siswa->Nama->EditValue ?>"<?php echo $t03_siswa->Nama->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php if ($t03_siswa->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t03_siswa_list->RowCnt ?>_t03_siswa_Nama" class="t03_siswa_Nama">
 <span<?php echo $t03_siswa->Nama->ViewAttributes() ?>>
 <?php echo $t03_siswa->Nama->ListViewValue() ?></span>
 </span>
+<?php } ?>
 </td>
 	<?php } ?>
 <?php
@@ -2108,6 +2613,11 @@ $t03_siswa_list->ListOptions->Render("body", "left", $t03_siswa_list->RowCnt);
 $t03_siswa_list->ListOptions->Render("body", "right", $t03_siswa_list->RowCnt);
 ?>
 	</tr>
+<?php if ($t03_siswa->RowType == EW_ROWTYPE_ADD || $t03_siswa->RowType == EW_ROWTYPE_EDIT) { ?>
+<script type="text/javascript">
+ft03_siswalist.UpdateOpts(<?php echo $t03_siswa_list->RowIndex ?>);
+</script>
+<?php } ?>
 <?php
 	}
 	if ($t03_siswa->CurrentAction <> "gridadd")
@@ -2116,6 +2626,9 @@ $t03_siswa_list->ListOptions->Render("body", "right", $t03_siswa_list->RowCnt);
 ?>
 </tbody>
 </table>
+<?php } ?>
+<?php if ($t03_siswa->CurrentAction == "edit") { ?>
+<input type="hidden" name="<?php echo $t03_siswa_list->FormKeyCountName ?>" id="<?php echo $t03_siswa_list->FormKeyCountName ?>" value="<?php echo $t03_siswa_list->KeyCount ?>">
 <?php } ?>
 <?php if ($t03_siswa->CurrentAction == "") { ?>
 <input type="hidden" name="a_list" id="a_list" value="">

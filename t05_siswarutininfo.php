@@ -688,6 +688,8 @@ class ct05_siswarutin extends cTable {
 
 		// Nilai
 		$this->Nilai->ViewValue = $this->Nilai->CurrentValue;
+		$this->Nilai->ViewValue = ew_FormatNumber($this->Nilai->ViewValue, 2, -2, -2, -2);
+		$this->Nilai->CellCssStyle .= "text-align: right;";
 		$this->Nilai->ViewCustomAttributes = "";
 
 		// id
@@ -748,7 +750,7 @@ class ct05_siswarutin extends cTable {
 		$this->Nilai->EditCustomAttributes = "";
 		$this->Nilai->EditValue = $this->Nilai->CurrentValue;
 		$this->Nilai->PlaceHolder = ew_RemoveHtml($this->Nilai->FldCaption());
-		if (strval($this->Nilai->EditValue) <> "" && is_numeric($this->Nilai->EditValue)) $this->Nilai->EditValue = ew_FormatNumber($this->Nilai->EditValue, -2, -1, -2, 0);
+		if (strval($this->Nilai->EditValue) <> "" && is_numeric($this->Nilai->EditValue)) $this->Nilai->EditValue = ew_FormatNumber($this->Nilai->EditValue, -2, -2, -2, -2);
 
 		// Call Row Rendered event
 		$this->Row_Rendered();

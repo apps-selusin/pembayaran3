@@ -635,6 +635,8 @@ class ct05_siswarutin_add extends ct05_siswarutin {
 
 		// Nilai
 		$this->Nilai->ViewValue = $this->Nilai->CurrentValue;
+		$this->Nilai->ViewValue = ew_FormatNumber($this->Nilai->ViewValue, 2, -2, -2, -2);
+		$this->Nilai->CellCssStyle .= "text-align: right;";
 		$this->Nilai->ViewCustomAttributes = "";
 
 			// siswa_id
@@ -695,7 +697,7 @@ class ct05_siswarutin_add extends ct05_siswarutin {
 			$this->Nilai->EditCustomAttributes = "";
 			$this->Nilai->EditValue = ew_HtmlEncode($this->Nilai->CurrentValue);
 			$this->Nilai->PlaceHolder = ew_RemoveHtml($this->Nilai->FldCaption());
-			if (strval($this->Nilai->EditValue) <> "" && is_numeric($this->Nilai->EditValue)) $this->Nilai->EditValue = ew_FormatNumber($this->Nilai->EditValue, -2, -1, -2, 0);
+			if (strval($this->Nilai->EditValue) <> "" && is_numeric($this->Nilai->EditValue)) $this->Nilai->EditValue = ew_FormatNumber($this->Nilai->EditValue, -2, -2, -2, -2);
 
 			// Add refer script
 			// siswa_id
@@ -763,6 +765,26 @@ class ct05_siswarutin_add extends ct05_siswarutin {
 	// Add record
 	function AddRow($rsold = NULL) {
 		global $Language, $Security;
+
+		// Check referential integrity for master table 't03_siswa'
+		$bValidMasterRecord = TRUE;
+		$sMasterFilter = $this->SqlMasterFilter_t03_siswa();
+		if (strval($this->siswa_id->CurrentValue) <> "") {
+			$sMasterFilter = str_replace("@id@", ew_AdjustSql($this->siswa_id->CurrentValue, "DB"), $sMasterFilter);
+		} else {
+			$bValidMasterRecord = FALSE;
+		}
+		if ($bValidMasterRecord) {
+			if (!isset($GLOBALS["t03_siswa"])) $GLOBALS["t03_siswa"] = new ct03_siswa();
+			$rsmaster = $GLOBALS["t03_siswa"]->LoadRs($sMasterFilter);
+			$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
+			$rsmaster->Close();
+		}
+		if (!$bValidMasterRecord) {
+			$sRelatedRecordMsg = str_replace("%t", "t03_siswa", $Language->Phrase("RelatedRecordRequired"));
+			$this->setFailureMessage($sRelatedRecordMsg);
+			return FALSE;
+		}
 		$conn = &$this->Connection();
 
 		// Load db values from rsold

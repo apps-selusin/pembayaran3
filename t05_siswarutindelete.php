@@ -536,6 +536,8 @@ class ct05_siswarutin_delete extends ct05_siswarutin {
 
 		// Nilai
 		$this->Nilai->ViewValue = $this->Nilai->CurrentValue;
+		$this->Nilai->ViewValue = ew_FormatNumber($this->Nilai->ViewValue, 2, -2, -2, -2);
+		$this->Nilai->CellCssStyle .= "text-align: right;";
 		$this->Nilai->ViewCustomAttributes = "";
 
 			// siswa_id
