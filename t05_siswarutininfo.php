@@ -1082,38 +1082,7 @@ class ct05_siswarutin extends cTable {
 	function Row_Inserted($rsold, &$rsnew) {
 
 		//echo "Row Inserted"
-		// ambil data tahun ajaran dan diloop selama satu periode tahun ajaran
-		// mulai awal tahun ajaran hingga akhir tahun ajaran
-
-		$q = "select * from t00_tahunajaran";
-		$r = Conn()->Execute($q);
-		$awal  = $r->fields["Awal_Bulan"].$r->fields["Awal_Tahun"]; // 72018
-		$akhir = $r->fields["Akhir_Bulan"].$r->fields["Akhir_Tahun"]; // 62019
-		$bulan = $r->fields["Awal_Bulan"] - 1;
-		$tahun = $r->fields["Awal_Tahun"];
-		while ($awal != $akhir) {
-			$bulan++;
-			if ($bulan == 13) {
-				$bulan = 1;
-				$tahun++;
-			}
-			$q = "insert into
-				t06_siswarutinbayar (
-					siswa_id,
-					rutin_id,
-					bulan,
-					tahun,
-					bayar_jumlah
-				) values (
-				".$rsnew["siswa_id"].",
-				".$rsnew["rutin_id"].",
-				".$bulan.",
-				".$tahun.",
-				".$rsnew["Nilai"]."
-				)";
-			Conn()->Execute($q);
-			$awal = $bulan.$tahun;
-		}
+		f_isidetailpembayaranrutin($rsold, $rsnew);
 	}
 
 	// Row Updating event
@@ -1129,6 +1098,11 @@ class ct05_siswarutin extends cTable {
 	function Row_Updated($rsold, &$rsnew) {
 
 		//echo "Row Updated";
+		// hapus dulu data detail yang lama
+
+		$q = "delete from t05_siswarutinbayar where siswa_id = ".$rsold["siswa_id"]."";
+		ew_Execute($q);
+		f_isidetailpembayaranrutin($rsold, $rsnew);
 	}
 
 	// Row Update Conflict event

@@ -1817,8 +1817,7 @@ class ct03_siswa_list extends ct03_siswa {
 		// hanya boleh edit dan view link master/detail
 
 		$this->ListOptions->Items["edit"]->Body = "";
-
-		//$this->ListOptions->Items["view"]->Body = "";
+		$this->ListOptions->Items["view"]->Body = "";
 	}
 
 	// Row Custom Action event
