@@ -592,6 +592,9 @@
     <menu id="8">
       <phrase id="menutext" value="Tahun Ajaran" />
     </menu>
+    <menu id="9">
+      <phrase id="menutext" value="Sekolah" />
+    </menu>
     <menu id="1">
       <phrase id="menutext" value="User" />
     </menu>
@@ -677,6 +680,36 @@
       </field>
       <field id="tahun_ajaran">
         <phrase id="fldcaption" value="Tahun Ajaran" />
+      </field>
+    </table>
+    <table id="t01_sekolah">
+      <phrase id="tblcaption" value="Sekolah" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="nama">
+        <phrase id="fldcaption" value="Nama" />
+      </field>
+      <field id="alamat">
+        <phrase id="fldcaption" value="Alamat" />
+      </field>
+      <field id="notelphp">
+        <phrase id="fldcaption" value="No Telp Hp" />
+      </field>
+      <field id="ttd1nama">
+        <phrase id="fldcaption" value="TTD1Nama" />
+      </field>
+      <field id="ttd1jabatan">
+        <phrase id="fldcaption" value="TTD1Jabatan" />
+      </field>
+      <field id="ttd2nama">
+        <phrase id="fldcaption" value="TTD2Nama" />
+      </field>
+      <field id="ttd2jabatan">
+        <phrase id="fldcaption" value="TTD2Jabatan" />
+      </field>
+      <field id="logo">
+        <phrase id="fldcaption" value="Logo" />
       </field>
     </table>
     <table id="t96_employees">
