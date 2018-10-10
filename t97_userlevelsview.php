@@ -965,49 +965,6 @@ $t97_userlevels_view->ShowMessage();
 	</tr>
 <?php } ?>
 </table>
-<?php if (!$t97_userlevels_view->IsModal) { ?>
-<?php if (!isset($t97_userlevels_view->Pager)) $t97_userlevels_view->Pager = new cPrevNextPager($t97_userlevels_view->StartRec, $t97_userlevels_view->DisplayRecs, $t97_userlevels_view->TotalRecs) ?>
-<?php if ($t97_userlevels_view->Pager->RecordCount > 0 && $t97_userlevels_view->Pager->Visible) { ?>
-<div class="ewPager">
-<span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
-<div class="ewPrevNext"><div class="input-group">
-<div class="input-group-btn">
-<!--first page button-->
-	<?php if ($t97_userlevels_view->Pager->FirstButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t97_userlevels_view->PageUrl() ?>start=<?php echo $t97_userlevels_view->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
-	<?php } ?>
-<!--previous page button-->
-	<?php if ($t97_userlevels_view->Pager->PrevButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t97_userlevels_view->PageUrl() ?>start=<?php echo $t97_userlevels_view->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
-	<?php } ?>
-</div>
-<!--current page number-->
-	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t97_userlevels_view->Pager->CurrentPage ?>">
-<div class="input-group-btn">
-<!--next page button-->
-	<?php if ($t97_userlevels_view->Pager->NextButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t97_userlevels_view->PageUrl() ?>start=<?php echo $t97_userlevels_view->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
-	<?php } ?>
-<!--last page button-->
-	<?php if ($t97_userlevels_view->Pager->LastButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t97_userlevels_view->PageUrl() ?>start=<?php echo $t97_userlevels_view->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
-	<?php } ?>
-</div>
-</div>
-</div>
-<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t97_userlevels_view->Pager->PageCount ?></span>
-</div>
-<?php } ?>
-<div class="clearfix"></div>
-<?php } ?>
 </form>
 <script type="text/javascript">
 ft97_userlevelsview.Init();
