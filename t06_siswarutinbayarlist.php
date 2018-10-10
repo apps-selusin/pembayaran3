@@ -616,7 +616,11 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 			}
 
 			// Get default search criteria
+			ew_AddFilter($this->DefaultSearchWhere, $this->BasicSearchWhere(TRUE));
 			ew_AddFilter($this->DefaultSearchWhere, $this->AdvancedSearchWhere(TRUE));
+
+			// Get basic search values
+			$this->LoadBasicSearchValues();
 
 			// Get and validate search values for advanced search
 			$this->LoadSearchValues(); // Get search values
@@ -636,6 +640,10 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 			// Set up sorting order
 			$this->SetUpSortOrder();
 
+			// Get basic search criteria
+			if ($gsSearchError == "")
+				$sSrchBasic = $this->BasicSearchWhere();
+
 			// Get search criteria for advanced search
 			if ($gsSearchError == "")
 				$sSrchAdvanced = $this->AdvancedSearchWhere();
@@ -653,6 +661,11 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 
 		// Load search default if no existing search criteria
 		if (!$this->CheckSearchParms()) {
+
+			// Load basic search from default
+			$this->BasicSearch->LoadDefault();
+			if ($this->BasicSearch->Keyword != "")
+				$sSrchBasic = $this->BasicSearchWhere();
 
 			// Load advanced search from default
 			if ($this->LoadAdvancedSearchDefault()) {
@@ -1052,6 +1065,10 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 		$sFilterList = ew_Concat($sFilterList, $this->Tahun->AdvancedSearch->ToJSON(), ","); // Field Tahun
 		$sFilterList = ew_Concat($sFilterList, $this->Bayar_Tgl->AdvancedSearch->ToJSON(), ","); // Field Bayar_Tgl
 		$sFilterList = ew_Concat($sFilterList, $this->Bayar_Jumlah->AdvancedSearch->ToJSON(), ","); // Field Bayar_Jumlah
+		if ($this->BasicSearch->Keyword <> "") {
+			$sWrk = "\"" . EW_TABLE_BASIC_SEARCH . "\":\"" . ew_JsEncode2($this->BasicSearch->Keyword) . "\",\"" . EW_TABLE_BASIC_SEARCH_TYPE . "\":\"" . ew_JsEncode2($this->BasicSearch->Type) . "\"";
+			$sFilterList = ew_Concat($sFilterList, $sWrk, ",");
+		}
 		$sFilterList = preg_replace('/,$/', "", $sFilterList);
 
 		// Return filter list in json
@@ -1147,6 +1164,8 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 		$this->Bayar_Jumlah->AdvancedSearch->SearchValue2 = @$filter["y_Bayar_Jumlah"];
 		$this->Bayar_Jumlah->AdvancedSearch->SearchOperator2 = @$filter["w_Bayar_Jumlah"];
 		$this->Bayar_Jumlah->AdvancedSearch->Save();
+		$this->BasicSearch->setKeyword(@$filter[EW_TABLE_BASIC_SEARCH]);
+		$this->BasicSearch->setType(@$filter[EW_TABLE_BASIC_SEARCH_TYPE]);
 	}
 
 	// Advanced search WHERE clause based on QueryString
@@ -1226,8 +1245,136 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 		return $Value;
 	}
 
+	// Return basic search SQL
+	function BasicSearchSQL($arKeywords, $type) {
+		$sWhere = "";
+		$this->BuildBasicSearchSQL($sWhere, $this->siswa_id, $arKeywords, $type);
+		return $sWhere;
+	}
+
+	// Build basic search SQL
+	function BuildBasicSearchSQL(&$Where, &$Fld, $arKeywords, $type) {
+		global $EW_BASIC_SEARCH_IGNORE_PATTERN;
+		$sDefCond = ($type == "OR") ? "OR" : "AND";
+		$arSQL = array(); // Array for SQL parts
+		$arCond = array(); // Array for search conditions
+		$cnt = count($arKeywords);
+		$j = 0; // Number of SQL parts
+		for ($i = 0; $i < $cnt; $i++) {
+			$Keyword = $arKeywords[$i];
+			$Keyword = trim($Keyword);
+			if ($EW_BASIC_SEARCH_IGNORE_PATTERN <> "") {
+				$Keyword = preg_replace($EW_BASIC_SEARCH_IGNORE_PATTERN, "\\", $Keyword);
+				$ar = explode("\\", $Keyword);
+			} else {
+				$ar = array($Keyword);
+			}
+			foreach ($ar as $Keyword) {
+				if ($Keyword <> "") {
+					$sWrk = "";
+					if ($Keyword == "OR" && $type == "") {
+						if ($j > 0)
+							$arCond[$j-1] = "OR";
+					} elseif ($Keyword == EW_NULL_VALUE) {
+						$sWrk = $Fld->FldExpression . " IS NULL";
+					} elseif ($Keyword == EW_NOT_NULL_VALUE) {
+						$sWrk = $Fld->FldExpression . " IS NOT NULL";
+					} elseif ($Fld->FldIsVirtual) {
+						$sWrk = $Fld->FldVirtualExpression . ew_Like(ew_QuotedValue("%" . $Keyword . "%", EW_DATATYPE_STRING, $this->DBID), $this->DBID);
+					} elseif ($Fld->FldDataType != EW_DATATYPE_NUMBER || is_numeric($Keyword)) {
+						$sWrk = $Fld->FldBasicSearchExpression . ew_Like(ew_QuotedValue("%" . $Keyword . "%", EW_DATATYPE_STRING, $this->DBID), $this->DBID);
+					}
+					if ($sWrk <> "") {
+						$arSQL[$j] = $sWrk;
+						$arCond[$j] = $sDefCond;
+						$j += 1;
+					}
+				}
+			}
+		}
+		$cnt = count($arSQL);
+		$bQuoted = FALSE;
+		$sSql = "";
+		if ($cnt > 0) {
+			for ($i = 0; $i < $cnt-1; $i++) {
+				if ($arCond[$i] == "OR") {
+					if (!$bQuoted) $sSql .= "(";
+					$bQuoted = TRUE;
+				}
+				$sSql .= $arSQL[$i];
+				if ($bQuoted && $arCond[$i] <> "OR") {
+					$sSql .= ")";
+					$bQuoted = FALSE;
+				}
+				$sSql .= " " . $arCond[$i] . " ";
+			}
+			$sSql .= $arSQL[$cnt-1];
+			if ($bQuoted)
+				$sSql .= ")";
+		}
+		if ($sSql <> "") {
+			if ($Where <> "") $Where .= " OR ";
+			$Where .=  "(" . $sSql . ")";
+		}
+	}
+
+	// Return basic search WHERE clause based on search keyword and type
+	function BasicSearchWhere($Default = FALSE) {
+		global $Security;
+		$sSearchStr = "";
+		if (!$Security->CanSearch()) return "";
+		$sSearchKeyword = ($Default) ? $this->BasicSearch->KeywordDefault : $this->BasicSearch->Keyword;
+		$sSearchType = ($Default) ? $this->BasicSearch->TypeDefault : $this->BasicSearch->Type;
+		if ($sSearchKeyword <> "") {
+			$sSearch = trim($sSearchKeyword);
+			if ($sSearchType <> "=") {
+				$ar = array();
+
+				// Match quoted keywords (i.e.: "...")
+				if (preg_match_all('/"([^"]*)"/i', $sSearch, $matches, PREG_SET_ORDER)) {
+					foreach ($matches as $match) {
+						$p = strpos($sSearch, $match[0]);
+						$str = substr($sSearch, 0, $p);
+						$sSearch = substr($sSearch, $p + strlen($match[0]));
+						if (strlen(trim($str)) > 0)
+							$ar = array_merge($ar, explode(" ", trim($str)));
+						$ar[] = $match[1]; // Save quoted keyword
+					}
+				}
+
+				// Match individual keywords
+				if (strlen(trim($sSearch)) > 0)
+					$ar = array_merge($ar, explode(" ", trim($sSearch)));
+
+				// Search keyword in any fields
+				if (($sSearchType == "OR" || $sSearchType == "AND") && $this->BasicSearch->BasicSearchAnyFields) {
+					foreach ($ar as $sKeyword) {
+						if ($sKeyword <> "") {
+							if ($sSearchStr <> "") $sSearchStr .= " " . $sSearchType . " ";
+							$sSearchStr .= "(" . $this->BasicSearchSQL(array($sKeyword), $sSearchType) . ")";
+						}
+					}
+				} else {
+					$sSearchStr = $this->BasicSearchSQL($ar, $sSearchType);
+				}
+			} else {
+				$sSearchStr = $this->BasicSearchSQL(array($sSearch), $sSearchType);
+			}
+			if (!$Default) $this->Command = "search";
+		}
+		if (!$Default && $this->Command == "search") {
+			$this->BasicSearch->setKeyword($sSearchKeyword);
+			$this->BasicSearch->setType($sSearchType);
+		}
+		return $sSearchStr;
+	}
+
 	// Check if search parm exists
 	function CheckSearchParms() {
+
+		// Check basic search
+		if ($this->BasicSearch->IssetSession())
+			return TRUE;
 		if ($this->id->AdvancedSearch->IssetSession())
 			return TRUE;
 		if ($this->siswa_id->AdvancedSearch->IssetSession())
@@ -1252,6 +1399,9 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 		$this->SearchWhere = "";
 		$this->setSearchWhere($this->SearchWhere);
 
+		// Clear basic search parameters
+		$this->ResetBasicSearchParms();
+
 		// Clear advanced search parameters
 		$this->ResetAdvancedSearchParms();
 	}
@@ -1259,6 +1409,11 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 	// Load advanced search default values
 	function LoadAdvancedSearchDefault() {
 		return FALSE;
+	}
+
+	// Clear all basic search parameters
+	function ResetBasicSearchParms() {
+		$this->BasicSearch->UnsetSession();
 	}
 
 	// Clear all advanced search parameters
@@ -1275,6 +1430,9 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 	// Restore all search parameters
 	function RestoreSearchParms() {
 		$this->RestoreSearch = TRUE;
+
+		// Restore basic search values
+		$this->BasicSearch->Load();
 
 		// Restore advanced search values
 		$this->id->AdvancedSearch->Load();
@@ -1719,6 +1877,14 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 		$item->Body = "<a class=\"btn btn-default ewShowAll\" title=\"" . $Language->Phrase("ResetSearch") . "\" data-caption=\"" . $Language->Phrase("ResetSearch") . "\" href=\"" . $this->PageUrl() . "cmd=reset\">" . $Language->Phrase("ResetSearchBtn") . "</a>";
 		$item->Visible = ($this->SearchWhere <> $this->DefaultSearchWhere && $this->SearchWhere <> "0=101");
 
+		// Advanced search button
+		$item = &$this->SearchOptions->Add("advancedsearch");
+		if (ew_IsMobile())
+			$item->Body = "<a class=\"btn btn-default ewAdvancedSearch\" title=\"" . $Language->Phrase("AdvancedSearch") . "\" data-caption=\"" . $Language->Phrase("AdvancedSearch") . "\" href=\"t06_siswarutinbayarsrch.php\">" . $Language->Phrase("AdvancedSearchBtn") . "</a>";
+		else
+			$item->Body = "<button type=\"button\" class=\"btn btn-default ewAdvancedSearch\" title=\"" . $Language->Phrase("AdvancedSearch") . "\" data-table=\"t06_siswarutinbayar\" data-caption=\"" . $Language->Phrase("AdvancedSearch") . "\" onclick=\"ew_ModalDialogShow({lnk:this,url:'t06_siswarutinbayarsrch.php',caption:'" . $Language->Phrase("Search") . "'});\">" . $Language->Phrase("AdvancedSearchBtn") . "</button>";
+		$item->Visible = TRUE;
+
 		// Button group for search
 		$this->SearchOptions->UseDropDownButton = FALSE;
 		$this->SearchOptions->UseImageAndText = TRUE;
@@ -1800,6 +1966,13 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 		$this->Bayar_Jumlah->OldValue = $this->Bayar_Jumlah->CurrentValue;
 	}
 
+	// Load basic search values
+	function LoadBasicSearchValues() {
+		$this->BasicSearch->Keyword = @$_GET[EW_TABLE_BASIC_SEARCH];
+		if ($this->BasicSearch->Keyword <> "") $this->Command = "search";
+		$this->BasicSearch->Type = @$_GET[EW_TABLE_BASIC_SEARCH_TYPE];
+	}
+
 	// Load search values for validation
 	function LoadSearchValues() {
 		global $objForm;
@@ -1815,6 +1988,10 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 		$this->siswa_id->AdvancedSearch->SearchValue = ew_StripSlashes(@$_GET["x_siswa_id"]);
 		if ($this->siswa_id->AdvancedSearch->SearchValue <> "") $this->Command = "search";
 		$this->siswa_id->AdvancedSearch->SearchOperator = @$_GET["z_siswa_id"];
+		$this->siswa_id->AdvancedSearch->SearchCondition = @$_GET["v_siswa_id"];
+		$this->siswa_id->AdvancedSearch->SearchValue2 = ew_StripSlashes(@$_GET["y_siswa_id"]);
+		if ($this->siswa_id->AdvancedSearch->SearchValue2 <> "") $this->Command = "search";
+		$this->siswa_id->AdvancedSearch->SearchOperator2 = @$_GET["w_siswa_id"];
 
 		// rutin_id
 		$this->rutin_id->AdvancedSearch->SearchValue = ew_StripSlashes(@$_GET["x_rutin_id"]);
@@ -2393,6 +2570,31 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 				$this->siswa_id->EditValue = NULL;
 			}
 			$this->siswa_id->PlaceHolder = ew_RemoveHtml($this->siswa_id->FldCaption());
+			$this->siswa_id->EditAttrs["class"] = "form-control";
+			$this->siswa_id->EditCustomAttributes = "";
+			$this->siswa_id->EditValue2 = ew_HtmlEncode($this->siswa_id->AdvancedSearch->SearchValue2);
+			if (strval($this->siswa_id->AdvancedSearch->SearchValue2) <> "") {
+				$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->AdvancedSearch->SearchValue2, EW_DATATYPE_NUMBER, "");
+			$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
+			$sWhereWrk = "";
+			$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
+			ew_AddFilter($sWhereWrk, $sFilterWrk);
+			$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+				$rswrk = Conn()->Execute($sSqlWrk);
+				if ($rswrk && !$rswrk->EOF) { // Lookup values found
+					$arwrk = array();
+					$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
+					$arwrk[2] = ew_HtmlEncode($rswrk->fields('Disp2Fld'));
+					$this->siswa_id->EditValue2 = $this->siswa_id->DisplayValue($arwrk);
+					$rswrk->Close();
+				} else {
+					$this->siswa_id->EditValue2 = ew_HtmlEncode($this->siswa_id->AdvancedSearch->SearchValue2);
+				}
+			} else {
+				$this->siswa_id->EditValue2 = NULL;
+			}
+			$this->siswa_id->PlaceHolder = ew_RemoveHtml($this->siswa_id->FldCaption());
 
 			// rutin_id
 			$this->rutin_id->EditAttrs["class"] = "form-control";
@@ -2445,6 +2647,9 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 		if (!EW_SERVER_VALIDATE)
 			return TRUE;
 		if (!ew_CheckInteger($this->siswa_id->AdvancedSearch->SearchValue)) {
+			ew_AddMessage($gsSearchError, $this->siswa_id->FldErrMsg());
+		}
+		if (!ew_CheckInteger($this->siswa_id->AdvancedSearch->SearchValue2)) {
 			ew_AddMessage($gsSearchError, $this->siswa_id->FldErrMsg());
 		}
 
@@ -3231,11 +3436,43 @@ ft06_siswarutinbayarlistsrch.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":
 <button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t06_siswarutinbayar->siswa_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'x_siswa_id',m:0,n:10,srch:false});" class="ewLookupBtn btn btn-default btn-sm"><span class="glyphicon glyphicon-search ewIcon"></span></button>
 <input type="hidden" name="s_x_siswa_id" id="s_x_siswa_id" value="<?php echo $t06_siswarutinbayar->siswa_id->LookupFilterQuery(false, "extbs") ?>">
 </span>
+		<span class="ewSearchCond btw0_siswa_id"><label class="radio-inline ewRadio" style="white-space: nowrap;"><input type="radio" name="v_siswa_id" value="AND"<?php if ($t06_siswarutinbayar->siswa_id->AdvancedSearch->SearchCondition <> "OR") echo " checked" ?>><?php echo $Language->Phrase("AND") ?></label><label class="radio-inline ewRadio" style="white-space: nowrap;"><input type="radio" name="v_siswa_id" value="OR"<?php if ($t06_siswarutinbayar->siswa_id->AdvancedSearch->SearchCondition == "OR") echo " checked" ?>><?php echo $Language->Phrase("OR") ?></label>&nbsp;</span>
+		<span class="ewSearchOperator btw0_siswa_id"><?php echo $Language->Phrase("=") ?><input type="hidden" name="w_siswa_id" id="w_siswa_id" value="="></span>
+		<span class="ewSearchField">
+<?php
+$wrkonchange = trim(" " . @$t06_siswarutinbayar->siswa_id->EditAttrs["onchange"]);
+if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
+$t06_siswarutinbayar->siswa_id->EditAttrs["onchange"] = "";
+?>
+<span id="as_y_siswa_id" style="white-space: nowrap; z-index: 8980">
+	<input type="text" name="sv_y_siswa_id" id="sv_y_siswa_id" value="<?php echo $t06_siswarutinbayar->siswa_id->EditValue2 ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar->siswa_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar->siswa_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar->siswa_id->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar" data-field="x_siswa_id" data-multiple="0" data-lookup="1" data-value-separator="<?php echo $t06_siswarutinbayar->siswa_id->DisplayValueSeparatorAttribute() ?>" name="y_siswa_id" id="y_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar->siswa_id->AdvancedSearch->SearchValue2) ?>"<?php echo $wrkonchange ?>>
+<input type="hidden" name="q_y_siswa_id" id="q_y_siswa_id" value="<?php echo $t06_siswarutinbayar->siswa_id->LookupFilterQuery(true, "extbs") ?>">
+<script type="text/javascript">
+ft06_siswarutinbayarlistsrch.CreateAutoSuggest({"id":"y_siswa_id","forceSelect":true});
+</script>
+<button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t06_siswarutinbayar->siswa_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'y_siswa_id',m:0,n:10,srch:false});" class="ewLookupBtn btn btn-default btn-sm"><span class="glyphicon glyphicon-search ewIcon"></span></button>
+<input type="hidden" name="s_y_siswa_id" id="s_y_siswa_id" value="<?php echo $t06_siswarutinbayar->siswa_id->LookupFilterQuery(false, "extbs") ?>">
+</span>
 	</div>
 <?php } ?>
 </div>
 <div id="xsr_2" class="ewRow">
+	<div class="ewQuickSearch input-group">
+	<input type="text" name="<?php echo EW_TABLE_BASIC_SEARCH ?>" id="<?php echo EW_TABLE_BASIC_SEARCH ?>" class="form-control" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_list->BasicSearch->getKeyword()) ?>" placeholder="<?php echo ew_HtmlEncode($Language->Phrase("Search")) ?>">
+	<input type="hidden" name="<?php echo EW_TABLE_BASIC_SEARCH_TYPE ?>" id="<?php echo EW_TABLE_BASIC_SEARCH_TYPE ?>" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_list->BasicSearch->getType()) ?>">
+	<div class="input-group-btn">
+		<button type="button" data-toggle="dropdown" class="btn btn-default"><span id="searchtype"><?php echo $t06_siswarutinbayar_list->BasicSearch->getTypeNameShort() ?></span><span class="caret"></span></button>
+		<ul class="dropdown-menu pull-right" role="menu">
+			<li<?php if ($t06_siswarutinbayar_list->BasicSearch->getType() == "") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this)"><?php echo $Language->Phrase("QuickSearchAuto") ?></a></li>
+			<li<?php if ($t06_siswarutinbayar_list->BasicSearch->getType() == "=") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'=')"><?php echo $Language->Phrase("QuickSearchExact") ?></a></li>
+			<li<?php if ($t06_siswarutinbayar_list->BasicSearch->getType() == "AND") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'AND')"><?php echo $Language->Phrase("QuickSearchAll") ?></a></li>
+			<li<?php if ($t06_siswarutinbayar_list->BasicSearch->getType() == "OR") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'OR')"><?php echo $Language->Phrase("QuickSearchAny") ?></a></li>
+		</ul>
 	<button class="btn btn-primary ewButton" name="btnsubmit" id="btnsubmit" type="submit"><?php echo $Language->Phrase("QuickSearchBtn") ?></button>
+	</div>
+	</div>
 </div>
 	</div>
 </div>
@@ -3335,7 +3572,7 @@ $t06_siswarutinbayar_list->ListOptions->Render("header", "left");
 		<th data-name="siswa_id"><div id="elh_t06_siswarutinbayar_siswa_id" class="t06_siswarutinbayar_siswa_id"><div class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar->siswa_id->FldCaption() ?></div></div></th>
 	<?php } else { ?>
 		<th data-name="siswa_id"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t06_siswarutinbayar->SortUrl($t06_siswarutinbayar->siswa_id) ?>',2);"><div id="elh_t06_siswarutinbayar_siswa_id" class="t06_siswarutinbayar_siswa_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar->siswa_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar->siswa_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar->siswa_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar->siswa_id->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar->siswa_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar->siswa_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		

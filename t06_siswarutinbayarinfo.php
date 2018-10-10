@@ -50,6 +50,7 @@ class ct06_siswarutinbayar extends cTable {
 		$this->AllowAddDeleteRow = ew_AllowAddDeleteRow(); // Allow add/delete row
 		$this->UserIDAllowSecurity = 0; // User ID Allow
 		$this->BasicSearch = new cBasicSearch($this->TableVar);
+		$this->BasicSearch->TypeDefault = "OR";
 
 		// id
 		$this->id = new cField('t06_siswarutinbayar', 't06_siswarutinbayar', 'x_id', 'id', '`id`', '`id`', 3, -1, FALSE, '`id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'NO');
