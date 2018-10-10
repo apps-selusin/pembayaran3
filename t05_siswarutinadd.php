@@ -608,6 +608,27 @@ class ct05_siswarutin_add extends ct05_siswarutin {
 
 		// siswa_id
 		$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+		if (strval($this->siswa_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
+		$sWhereWrk = "";
+		$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = $rswrk->fields('Disp2Fld');
+				$this->siswa_id->ViewValue = $this->siswa_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+			}
+		} else {
+			$this->siswa_id->ViewValue = NULL;
+		}
 		$this->siswa_id->ViewCustomAttributes = "";
 
 		// rutin_id
@@ -661,9 +682,51 @@ class ct05_siswarutin_add extends ct05_siswarutin {
 			if ($this->siswa_id->getSessionValue() <> "") {
 				$this->siswa_id->CurrentValue = $this->siswa_id->getSessionValue();
 			$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+			if (strval($this->siswa_id->CurrentValue) <> "") {
+				$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+			$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
+			$sWhereWrk = "";
+			$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
+			ew_AddFilter($sWhereWrk, $sFilterWrk);
+			$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+				$rswrk = Conn()->Execute($sSqlWrk);
+				if ($rswrk && !$rswrk->EOF) { // Lookup values found
+					$arwrk = array();
+					$arwrk[1] = $rswrk->fields('DispFld');
+					$arwrk[2] = $rswrk->fields('Disp2Fld');
+					$this->siswa_id->ViewValue = $this->siswa_id->DisplayValue($arwrk);
+					$rswrk->Close();
+				} else {
+					$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+				}
+			} else {
+				$this->siswa_id->ViewValue = NULL;
+			}
 			$this->siswa_id->ViewCustomAttributes = "";
 			} else {
 			$this->siswa_id->EditValue = ew_HtmlEncode($this->siswa_id->CurrentValue);
+			if (strval($this->siswa_id->CurrentValue) <> "") {
+				$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+			$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
+			$sWhereWrk = "";
+			$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
+			ew_AddFilter($sWhereWrk, $sFilterWrk);
+			$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+				$rswrk = Conn()->Execute($sSqlWrk);
+				if ($rswrk && !$rswrk->EOF) { // Lookup values found
+					$arwrk = array();
+					$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
+					$arwrk[2] = ew_HtmlEncode($rswrk->fields('Disp2Fld'));
+					$this->siswa_id->EditValue = $this->siswa_id->DisplayValue($arwrk);
+					$rswrk->Close();
+				} else {
+					$this->siswa_id->EditValue = ew_HtmlEncode($this->siswa_id->CurrentValue);
+				}
+			} else {
+				$this->siswa_id->EditValue = NULL;
+			}
 			$this->siswa_id->PlaceHolder = ew_RemoveHtml($this->siswa_id->FldCaption());
 			}
 
@@ -907,6 +970,18 @@ class ct05_siswarutin_add extends ct05_siswarutin {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
+		case "x_siswa_id":
+			$sSqlWrk = "";
+			$sSqlWrk = "SELECT `id` AS `LinkFld`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
+			$sWhereWrk = "{filter}";
+			$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
+			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "", "f0" => '`id` = {filter_value}', "t0" => "3", "fn0" => "");
+			$sSqlWrk = "";
+			$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			if ($sSqlWrk <> "")
+				$fld->LookupFilters["s"] .= $sSqlWrk;
+			break;
 		case "x_rutin_id":
 			$sSqlWrk = "";
 			$sSqlWrk = "SELECT `id` AS `LinkFld`, `Nama` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t04_rutin`";
@@ -927,6 +1002,19 @@ class ct05_siswarutin_add extends ct05_siswarutin {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
+		case "x_siswa_id":
+			$sSqlWrk = "";
+			$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld` FROM `t03_siswa`";
+			$sWhereWrk = "`Nomor_Induk` LIKE '{query_value}%' OR CONCAT(`Nomor_Induk`,'" . ew_ValueSeparator(1, $this->siswa_id) . "',`Nama`) LIKE '{query_value}%'";
+			$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
+			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "");
+			$sSqlWrk = "";
+			$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$sSqlWrk .= " LIMIT " . EW_AUTO_SUGGEST_MAX_ENTRIES;
+			if ($sSqlWrk <> "")
+				$fld->LookupFilters["s"] .= $sSqlWrk;
+			break;
 		}
 	}
 
@@ -1086,6 +1174,7 @@ ft05_siswarutinadd.ValidateRequired = false;
 <?php } ?>
 
 // Dynamic selection lists
+ft05_siswarutinadd.Lists["x_siswa_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nomor_Induk","x_Nama","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t03_siswa"};
 ft05_siswarutinadd.Lists["x_rutin_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nama","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t04_rutin"};
 
 // Form object for search
@@ -1121,7 +1210,7 @@ $t05_siswarutin_add->ShowMessage();
 <div>
 <?php if ($t05_siswarutin->siswa_id->Visible) { // siswa_id ?>
 	<div id="r_siswa_id" class="form-group">
-		<label id="elh_t05_siswarutin_siswa_id" for="x_siswa_id" class="col-sm-2 control-label ewLabel"><?php echo $t05_siswarutin->siswa_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t05_siswarutin_siswa_id" class="col-sm-2 control-label ewLabel"><?php echo $t05_siswarutin->siswa_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="col-sm-10"><div<?php echo $t05_siswarutin->siswa_id->CellAttributes() ?>>
 <?php if ($t05_siswarutin->siswa_id->getSessionValue() <> "") { ?>
 <span id="el_t05_siswarutin_siswa_id">
@@ -1131,7 +1220,21 @@ $t05_siswarutin_add->ShowMessage();
 <input type="hidden" id="x_siswa_id" name="x_siswa_id" value="<?php echo ew_HtmlEncode($t05_siswarutin->siswa_id->CurrentValue) ?>">
 <?php } else { ?>
 <span id="el_t05_siswarutin_siswa_id">
-<input type="text" data-table="t05_siswarutin" data-field="x_siswa_id" name="x_siswa_id" id="x_siswa_id" size="30" placeholder="<?php echo ew_HtmlEncode($t05_siswarutin->siswa_id->getPlaceHolder()) ?>" value="<?php echo $t05_siswarutin->siswa_id->EditValue ?>"<?php echo $t05_siswarutin->siswa_id->EditAttributes() ?>>
+<?php
+$wrkonchange = trim(" " . @$t05_siswarutin->siswa_id->EditAttrs["onchange"]);
+if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
+$t05_siswarutin->siswa_id->EditAttrs["onchange"] = "";
+?>
+<span id="as_x_siswa_id" style="white-space: nowrap; z-index: 8980">
+	<input type="text" name="sv_x_siswa_id" id="sv_x_siswa_id" value="<?php echo $t05_siswarutin->siswa_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t05_siswarutin->siswa_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t05_siswarutin->siswa_id->getPlaceHolder()) ?>"<?php echo $t05_siswarutin->siswa_id->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t05_siswarutin" data-field="x_siswa_id" data-multiple="0" data-lookup="1" data-value-separator="<?php echo $t05_siswarutin->siswa_id->DisplayValueSeparatorAttribute() ?>" name="x_siswa_id" id="x_siswa_id" value="<?php echo ew_HtmlEncode($t05_siswarutin->siswa_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
+<input type="hidden" name="q_x_siswa_id" id="q_x_siswa_id" value="<?php echo $t05_siswarutin->siswa_id->LookupFilterQuery(true) ?>">
+<script type="text/javascript">
+ft05_siswarutinadd.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":false});
+</script>
+<button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t05_siswarutin->siswa_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'x_siswa_id',m:0,n:10,srch:true});" class="ewLookupBtn btn btn-default btn-sm"><span class="glyphicon glyphicon-search ewIcon"></span></button>
+<input type="hidden" name="s_x_siswa_id" id="s_x_siswa_id" value="<?php echo $t05_siswarutin->siswa_id->LookupFilterQuery(false) ?>">
 </span>
 <?php } ?>
 <?php echo $t05_siswarutin->siswa_id->CustomMsg ?></div></div>

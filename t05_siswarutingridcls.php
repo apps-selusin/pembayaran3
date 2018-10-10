@@ -312,7 +312,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 
 		// Set up list options
 		$this->SetupListOptions();
-		$this->siswa_id->SetVisibility();
 		$this->rutin_id->SetVisibility();
 		$this->Nilai->SetVisibility();
 
@@ -778,8 +777,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 	// Check if empty row
 	function EmptyRow() {
 		global $objForm;
-		if ($objForm->HasValue("x_siswa_id") && $objForm->HasValue("o_siswa_id") && $this->siswa_id->CurrentValue <> $this->siswa_id->OldValue)
-			return FALSE;
 		if ($objForm->HasValue("x_rutin_id") && $objForm->HasValue("o_rutin_id") && $this->rutin_id->CurrentValue <> $this->rutin_id->OldValue)
 			return FALSE;
 		if ($objForm->HasValue("x_Nilai") && $objForm->HasValue("o_Nilai") && $this->Nilai->CurrentValue <> $this->Nilai->OldValue)
@@ -1110,8 +1107,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 
 	// Load default values
 	function LoadDefaultValues() {
-		$this->siswa_id->CurrentValue = NULL;
-		$this->siswa_id->OldValue = $this->siswa_id->CurrentValue;
 		$this->rutin_id->CurrentValue = NULL;
 		$this->rutin_id->OldValue = $this->rutin_id->CurrentValue;
 		$this->Nilai->CurrentValue = 0.00;
@@ -1124,10 +1119,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 		// Load from form
 		global $objForm;
 		$objForm->FormName = $this->FormName;
-		if (!$this->siswa_id->FldIsDetailKey) {
-			$this->siswa_id->setFormValue($objForm->GetValue("x_siswa_id"));
-		}
-		$this->siswa_id->setOldValue($objForm->GetValue("o_siswa_id"));
 		if (!$this->rutin_id->FldIsDetailKey) {
 			$this->rutin_id->setFormValue($objForm->GetValue("x_rutin_id"));
 		}
@@ -1145,7 +1136,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 		global $objForm;
 		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->id->CurrentValue = $this->id->FormValue;
-		$this->siswa_id->CurrentValue = $this->siswa_id->FormValue;
 		$this->rutin_id->CurrentValue = $this->rutin_id->FormValue;
 		$this->Nilai->CurrentValue = $this->Nilai->FormValue;
 	}
@@ -1281,6 +1271,27 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 
 		// siswa_id
 		$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+		if (strval($this->siswa_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
+		$sWhereWrk = "";
+		$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = $rswrk->fields('Disp2Fld');
+				$this->siswa_id->ViewValue = $this->siswa_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+			}
+		} else {
+			$this->siswa_id->ViewValue = NULL;
+		}
 		$this->siswa_id->ViewCustomAttributes = "";
 
 		// rutin_id
@@ -1312,11 +1323,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 		$this->Nilai->CellCssStyle .= "text-align: right;";
 		$this->Nilai->ViewCustomAttributes = "";
 
-			// siswa_id
-			$this->siswa_id->LinkCustomAttributes = "";
-			$this->siswa_id->HrefValue = "";
-			$this->siswa_id->TooltipValue = "";
-
 			// rutin_id
 			$this->rutin_id->LinkCustomAttributes = "";
 			$this->rutin_id->HrefValue = "";
@@ -1327,19 +1333,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 			$this->Nilai->HrefValue = "";
 			$this->Nilai->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
-
-			// siswa_id
-			$this->siswa_id->EditAttrs["class"] = "form-control";
-			$this->siswa_id->EditCustomAttributes = "";
-			if ($this->siswa_id->getSessionValue() <> "") {
-				$this->siswa_id->CurrentValue = $this->siswa_id->getSessionValue();
-				$this->siswa_id->OldValue = $this->siswa_id->CurrentValue;
-			$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
-			$this->siswa_id->ViewCustomAttributes = "";
-			} else {
-			$this->siswa_id->EditValue = ew_HtmlEncode($this->siswa_id->CurrentValue);
-			$this->siswa_id->PlaceHolder = ew_RemoveHtml($this->siswa_id->FldCaption());
-			}
 
 			// rutin_id
 			$this->rutin_id->EditCustomAttributes = "";
@@ -1377,12 +1370,8 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 			}
 
 			// Add refer script
-			// siswa_id
-
-			$this->siswa_id->LinkCustomAttributes = "";
-			$this->siswa_id->HrefValue = "";
-
 			// rutin_id
+
 			$this->rutin_id->LinkCustomAttributes = "";
 			$this->rutin_id->HrefValue = "";
 
@@ -1390,19 +1379,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 			$this->Nilai->LinkCustomAttributes = "";
 			$this->Nilai->HrefValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// siswa_id
-			$this->siswa_id->EditAttrs["class"] = "form-control";
-			$this->siswa_id->EditCustomAttributes = "";
-			if ($this->siswa_id->getSessionValue() <> "") {
-				$this->siswa_id->CurrentValue = $this->siswa_id->getSessionValue();
-				$this->siswa_id->OldValue = $this->siswa_id->CurrentValue;
-			$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
-			$this->siswa_id->ViewCustomAttributes = "";
-			} else {
-			$this->siswa_id->EditValue = ew_HtmlEncode($this->siswa_id->CurrentValue);
-			$this->siswa_id->PlaceHolder = ew_RemoveHtml($this->siswa_id->FldCaption());
-			}
 
 			// rutin_id
 			$this->rutin_id->EditCustomAttributes = "";
@@ -1440,12 +1416,8 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 			}
 
 			// Edit refer script
-			// siswa_id
-
-			$this->siswa_id->LinkCustomAttributes = "";
-			$this->siswa_id->HrefValue = "";
-
 			// rutin_id
+
 			$this->rutin_id->LinkCustomAttributes = "";
 			$this->rutin_id->HrefValue = "";
 
@@ -1471,12 +1443,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->siswa_id->FldIsDetailKey && !is_null($this->siswa_id->FormValue) && $this->siswa_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->siswa_id->FldCaption(), $this->siswa_id->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->siswa_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->siswa_id->FldErrMsg());
-		}
 		if (!$this->rutin_id->FldIsDetailKey && !is_null($this->rutin_id->FormValue) && $this->rutin_id->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->rutin_id->FldCaption(), $this->rutin_id->ReqErrMsg));
 		}
@@ -1604,9 +1570,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
 
-			// siswa_id
-			$this->siswa_id->SetDbValueDef($rsnew, $this->siswa_id->CurrentValue, 0, $this->siswa_id->ReadOnly);
-
 			// rutin_id
 			$this->rutin_id->SetDbValueDef($rsnew, $this->rutin_id->CurrentValue, 0, $this->rutin_id->ReadOnly);
 
@@ -1679,8 +1642,8 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 		// Check referential integrity for master table 't03_siswa'
 		$bValidMasterRecord = TRUE;
 		$sMasterFilter = $this->SqlMasterFilter_t03_siswa();
-		if (strval($this->siswa_id->CurrentValue) <> "") {
-			$sMasterFilter = str_replace("@id@", ew_AdjustSql($this->siswa_id->CurrentValue, "DB"), $sMasterFilter);
+		if ($this->siswa_id->getSessionValue() <> "") {
+			$sMasterFilter = str_replace("@id@", ew_AdjustSql($this->siswa_id->getSessionValue(), "DB"), $sMasterFilter);
 		} else {
 			$bValidMasterRecord = FALSE;
 		}
@@ -1703,14 +1666,16 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 		}
 		$rsnew = array();
 
-		// siswa_id
-		$this->siswa_id->SetDbValueDef($rsnew, $this->siswa_id->CurrentValue, 0, FALSE);
-
 		// rutin_id
 		$this->rutin_id->SetDbValueDef($rsnew, $this->rutin_id->CurrentValue, 0, FALSE);
 
 		// Nilai
 		$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, 0, strval($this->Nilai->CurrentValue) == "");
+
+		// siswa_id
+		if ($this->siswa_id->getSessionValue() <> "") {
+			$rsnew['siswa_id'] = $this->siswa_id->getSessionValue();
+		}
 
 		// Call Row Inserting event
 		$rs = ($rsold == NULL) ? NULL : $rsold->fields;

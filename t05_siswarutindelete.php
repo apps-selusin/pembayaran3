@@ -286,7 +286,6 @@ class ct05_siswarutin_delete extends ct05_siswarutin {
 			$Security->UserID_Loaded();
 		}
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->siswa_id->SetVisibility();
 		$this->rutin_id->SetVisibility();
 		$this->Nilai->SetVisibility();
 
@@ -509,6 +508,27 @@ class ct05_siswarutin_delete extends ct05_siswarutin {
 
 		// siswa_id
 		$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+		if (strval($this->siswa_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
+		$sWhereWrk = "";
+		$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = $rswrk->fields('Disp2Fld');
+				$this->siswa_id->ViewValue = $this->siswa_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+			}
+		} else {
+			$this->siswa_id->ViewValue = NULL;
+		}
 		$this->siswa_id->ViewCustomAttributes = "";
 
 		// rutin_id
@@ -539,11 +559,6 @@ class ct05_siswarutin_delete extends ct05_siswarutin {
 		$this->Nilai->ViewValue = ew_FormatNumber($this->Nilai->ViewValue, 2, -2, -2, -2);
 		$this->Nilai->CellCssStyle .= "text-align: right;";
 		$this->Nilai->ViewCustomAttributes = "";
-
-			// siswa_id
-			$this->siswa_id->LinkCustomAttributes = "";
-			$this->siswa_id->HrefValue = "";
-			$this->siswa_id->TooltipValue = "";
 
 			// rutin_id
 			$this->rutin_id->LinkCustomAttributes = "";
@@ -868,9 +883,6 @@ $t05_siswarutin_delete->ShowMessage();
 <?php echo $t05_siswarutin->TableCustomInnerHtml ?>
 	<thead>
 	<tr class="ewTableHeader">
-<?php if ($t05_siswarutin->siswa_id->Visible) { // siswa_id ?>
-		<th><span id="elh_t05_siswarutin_siswa_id" class="t05_siswarutin_siswa_id"><?php echo $t05_siswarutin->siswa_id->FldCaption() ?></span></th>
-<?php } ?>
 <?php if ($t05_siswarutin->rutin_id->Visible) { // rutin_id ?>
 		<th><span id="elh_t05_siswarutin_rutin_id" class="t05_siswarutin_rutin_id"><?php echo $t05_siswarutin->rutin_id->FldCaption() ?></span></th>
 <?php } ?>
@@ -898,14 +910,6 @@ while (!$t05_siswarutin_delete->Recordset->EOF) {
 	$t05_siswarutin_delete->RenderRow();
 ?>
 	<tr<?php echo $t05_siswarutin->RowAttributes() ?>>
-<?php if ($t05_siswarutin->siswa_id->Visible) { // siswa_id ?>
-		<td<?php echo $t05_siswarutin->siswa_id->CellAttributes() ?>>
-<span id="el<?php echo $t05_siswarutin_delete->RowCnt ?>_t05_siswarutin_siswa_id" class="t05_siswarutin_siswa_id">
-<span<?php echo $t05_siswarutin->siswa_id->ViewAttributes() ?>>
-<?php echo $t05_siswarutin->siswa_id->ListViewValue() ?></span>
-</span>
-</td>
-<?php } ?>
 <?php if ($t05_siswarutin->rutin_id->Visible) { // rutin_id ?>
 		<td<?php echo $t05_siswarutin->rutin_id->CellAttributes() ?>>
 <span id="el<?php echo $t05_siswarutin_delete->RowCnt ?>_t05_siswarutin_rutin_id" class="t05_siswarutin_rutin_id">
