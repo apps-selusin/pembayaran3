@@ -814,9 +814,7 @@ class ct06_siswarutinbayar extends cTable {
 		// siswa_id
 		$this->siswa_id->EditAttrs["class"] = "form-control";
 		$this->siswa_id->EditCustomAttributes = "";
-		if ($this->siswa_id->getSessionValue() <> "") {
-			$this->siswa_id->CurrentValue = $this->siswa_id->getSessionValue();
-		$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+		$this->siswa_id->EditValue = $this->siswa_id->CurrentValue;
 		if (strval($this->siswa_id->CurrentValue) <> "") {
 			$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
 		$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
@@ -830,19 +828,15 @@ class ct06_siswarutinbayar extends cTable {
 				$arwrk = array();
 				$arwrk[1] = $rswrk->fields('DispFld');
 				$arwrk[2] = $rswrk->fields('Disp2Fld');
-				$this->siswa_id->ViewValue = $this->siswa_id->DisplayValue($arwrk);
+				$this->siswa_id->EditValue = $this->siswa_id->DisplayValue($arwrk);
 				$rswrk->Close();
 			} else {
-				$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+				$this->siswa_id->EditValue = $this->siswa_id->CurrentValue;
 			}
 		} else {
-			$this->siswa_id->ViewValue = NULL;
+			$this->siswa_id->EditValue = NULL;
 		}
 		$this->siswa_id->ViewCustomAttributes = "";
-		} else {
-		$this->siswa_id->EditValue = $this->siswa_id->CurrentValue;
-		$this->siswa_id->PlaceHolder = ew_RemoveHtml($this->siswa_id->FldCaption());
-		}
 
 		// rutin_id
 		$this->rutin_id->EditAttrs["class"] = "form-control";

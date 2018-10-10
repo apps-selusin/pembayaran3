@@ -1538,10 +1538,7 @@ class ct06_siswarutinbayar_grid extends ct06_siswarutinbayar {
 			// siswa_id
 			$this->siswa_id->EditAttrs["class"] = "form-control";
 			$this->siswa_id->EditCustomAttributes = "";
-			if ($this->siswa_id->getSessionValue() <> "") {
-				$this->siswa_id->CurrentValue = $this->siswa_id->getSessionValue();
-				$this->siswa_id->OldValue = $this->siswa_id->CurrentValue;
-			$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+			$this->siswa_id->EditValue = $this->siswa_id->CurrentValue;
 			if (strval($this->siswa_id->CurrentValue) <> "") {
 				$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
 			$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
@@ -1555,40 +1552,15 @@ class ct06_siswarutinbayar_grid extends ct06_siswarutinbayar {
 					$arwrk = array();
 					$arwrk[1] = $rswrk->fields('DispFld');
 					$arwrk[2] = $rswrk->fields('Disp2Fld');
-					$this->siswa_id->ViewValue = $this->siswa_id->DisplayValue($arwrk);
-					$rswrk->Close();
-				} else {
-					$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
-				}
-			} else {
-				$this->siswa_id->ViewValue = NULL;
-			}
-			$this->siswa_id->ViewCustomAttributes = "";
-			} else {
-			$this->siswa_id->EditValue = ew_HtmlEncode($this->siswa_id->CurrentValue);
-			if (strval($this->siswa_id->CurrentValue) <> "") {
-				$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-			$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
-			$sWhereWrk = "";
-			$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
-			ew_AddFilter($sWhereWrk, $sFilterWrk);
-			$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
-			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-				$rswrk = Conn()->Execute($sSqlWrk);
-				if ($rswrk && !$rswrk->EOF) { // Lookup values found
-					$arwrk = array();
-					$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
-					$arwrk[2] = ew_HtmlEncode($rswrk->fields('Disp2Fld'));
 					$this->siswa_id->EditValue = $this->siswa_id->DisplayValue($arwrk);
 					$rswrk->Close();
 				} else {
-					$this->siswa_id->EditValue = ew_HtmlEncode($this->siswa_id->CurrentValue);
+					$this->siswa_id->EditValue = $this->siswa_id->CurrentValue;
 				}
 			} else {
 				$this->siswa_id->EditValue = NULL;
 			}
-			$this->siswa_id->PlaceHolder = ew_RemoveHtml($this->siswa_id->FldCaption());
-			}
+			$this->siswa_id->ViewCustomAttributes = "";
 
 			// rutin_id
 			$this->rutin_id->EditAttrs["class"] = "form-control";
@@ -1651,6 +1623,7 @@ class ct06_siswarutinbayar_grid extends ct06_siswarutinbayar {
 
 			$this->siswa_id->LinkCustomAttributes = "";
 			$this->siswa_id->HrefValue = "";
+			$this->siswa_id->TooltipValue = "";
 
 			// rutin_id
 			$this->rutin_id->LinkCustomAttributes = "";
@@ -1696,9 +1669,6 @@ class ct06_siswarutinbayar_grid extends ct06_siswarutinbayar {
 			return ($gsFormError == "");
 		if (!$this->siswa_id->FldIsDetailKey && !is_null($this->siswa_id->FormValue) && $this->siswa_id->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->siswa_id->FldCaption(), $this->siswa_id->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->siswa_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->siswa_id->FldErrMsg());
 		}
 		if (!$this->rutin_id->FldIsDetailKey && !is_null($this->rutin_id->FormValue) && $this->rutin_id->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->rutin_id->FldCaption(), $this->rutin_id->ReqErrMsg));
@@ -1829,9 +1799,6 @@ class ct06_siswarutinbayar_grid extends ct06_siswarutinbayar {
 			$rsold = &$rs->fields;
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
-
-			// siswa_id
-			$this->siswa_id->SetDbValueDef($rsnew, $this->siswa_id->CurrentValue, 0, $this->siswa_id->ReadOnly);
 
 			// Bayar_Tgl
 			$this->Bayar_Tgl->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->Bayar_Tgl->CurrentValue, 7), NULL, $this->Bayar_Tgl->ReadOnly);

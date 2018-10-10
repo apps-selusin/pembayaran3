@@ -2251,9 +2251,7 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 			// siswa_id
 			$this->siswa_id->EditAttrs["class"] = "form-control";
 			$this->siswa_id->EditCustomAttributes = "";
-			if ($this->siswa_id->getSessionValue() <> "") {
-				$this->siswa_id->CurrentValue = $this->siswa_id->getSessionValue();
-			$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+			$this->siswa_id->EditValue = $this->siswa_id->CurrentValue;
 			if (strval($this->siswa_id->CurrentValue) <> "") {
 				$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
 			$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
@@ -2267,40 +2265,15 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 					$arwrk = array();
 					$arwrk[1] = $rswrk->fields('DispFld');
 					$arwrk[2] = $rswrk->fields('Disp2Fld');
-					$this->siswa_id->ViewValue = $this->siswa_id->DisplayValue($arwrk);
-					$rswrk->Close();
-				} else {
-					$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
-				}
-			} else {
-				$this->siswa_id->ViewValue = NULL;
-			}
-			$this->siswa_id->ViewCustomAttributes = "";
-			} else {
-			$this->siswa_id->EditValue = ew_HtmlEncode($this->siswa_id->CurrentValue);
-			if (strval($this->siswa_id->CurrentValue) <> "") {
-				$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-			$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
-			$sWhereWrk = "";
-			$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
-			ew_AddFilter($sWhereWrk, $sFilterWrk);
-			$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
-			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-				$rswrk = Conn()->Execute($sSqlWrk);
-				if ($rswrk && !$rswrk->EOF) { // Lookup values found
-					$arwrk = array();
-					$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
-					$arwrk[2] = ew_HtmlEncode($rswrk->fields('Disp2Fld'));
 					$this->siswa_id->EditValue = $this->siswa_id->DisplayValue($arwrk);
 					$rswrk->Close();
 				} else {
-					$this->siswa_id->EditValue = ew_HtmlEncode($this->siswa_id->CurrentValue);
+					$this->siswa_id->EditValue = $this->siswa_id->CurrentValue;
 				}
 			} else {
 				$this->siswa_id->EditValue = NULL;
 			}
-			$this->siswa_id->PlaceHolder = ew_RemoveHtml($this->siswa_id->FldCaption());
-			}
+			$this->siswa_id->ViewCustomAttributes = "";
 
 			// rutin_id
 			$this->rutin_id->EditAttrs["class"] = "form-control";
@@ -2363,6 +2336,7 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 
 			$this->siswa_id->LinkCustomAttributes = "";
 			$this->siswa_id->HrefValue = "";
+			$this->siswa_id->TooltipValue = "";
 
 			// rutin_id
 			$this->rutin_id->LinkCustomAttributes = "";
@@ -2495,9 +2469,6 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 		if (!$this->siswa_id->FldIsDetailKey && !is_null($this->siswa_id->FormValue) && $this->siswa_id->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->siswa_id->FldCaption(), $this->siswa_id->ReqErrMsg));
 		}
-		if (!ew_CheckInteger($this->siswa_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->siswa_id->FldErrMsg());
-		}
 		if (!$this->rutin_id->FldIsDetailKey && !is_null($this->rutin_id->FormValue) && $this->rutin_id->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->rutin_id->FldCaption(), $this->rutin_id->ReqErrMsg));
 		}
@@ -2627,9 +2598,6 @@ class ct06_siswarutinbayar_list extends ct06_siswarutinbayar {
 			$rsold = &$rs->fields;
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
-
-			// siswa_id
-			$this->siswa_id->SetDbValueDef($rsnew, $this->siswa_id->CurrentValue, 0, $this->siswa_id->ReadOnly);
 
 			// Bayar_Tgl
 			$this->Bayar_Tgl->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->Bayar_Tgl->CurrentValue, 7), NULL, $this->Bayar_Tgl->ReadOnly);
@@ -3076,9 +3044,6 @@ ft06_siswarutinbayarlist.Validate = function() {
 			elm = this.GetElements("x" + infix + "_siswa_id");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t06_siswarutinbayar->siswa_id->FldCaption(), $t06_siswarutinbayar->siswa_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_siswa_id");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t06_siswarutinbayar->siswa_id->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_rutin_id");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t06_siswarutinbayar->rutin_id->FldCaption(), $t06_siswarutinbayar->rutin_id->ReqErrMsg)) ?>");
@@ -3561,31 +3526,11 @@ ft06_siswarutinbayarlist.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbay
 <input type="hidden" data-table="t06_siswarutinbayar" data-field="x_siswa_id" name="o<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" id="o<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar->siswa_id->OldValue) ?>">
 <?php } ?>
 <?php if ($t06_siswarutinbayar->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<?php if ($t06_siswarutinbayar->siswa_id->getSessionValue() <> "") { ?>
 <span id="el<?php echo $t06_siswarutinbayar_list->RowCnt ?>_t06_siswarutinbayar_siswa_id" class="form-group t06_siswarutinbayar_siswa_id">
 <span<?php echo $t06_siswarutinbayar->siswa_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_siswarutinbayar->siswa_id->ViewValue ?></p></span>
+<p class="form-control-static"><?php echo $t06_siswarutinbayar->siswa_id->EditValue ?></p></span>
 </span>
-<input type="hidden" id="x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" name="x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar->siswa_id->CurrentValue) ?>">
-<?php } else { ?>
-<span id="el<?php echo $t06_siswarutinbayar_list->RowCnt ?>_t06_siswarutinbayar_siswa_id" class="form-group t06_siswarutinbayar_siswa_id">
-<?php
-$wrkonchange = trim(" " . @$t06_siswarutinbayar->siswa_id->EditAttrs["onchange"]);
-if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
-$t06_siswarutinbayar->siswa_id->EditAttrs["onchange"] = "";
-?>
-<span id="as_x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t06_siswarutinbayar_list->RowCnt * 10) ?>">
-	<input type="text" name="sv_x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" id="sv_x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar->siswa_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar->siswa_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar->siswa_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar->siswa_id->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t06_siswarutinbayar" data-field="x_siswa_id" data-multiple="0" data-lookup="1" data-value-separator="<?php echo $t06_siswarutinbayar->siswa_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar->siswa_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
-<input type="hidden" name="q_x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" id="q_x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar->siswa_id->LookupFilterQuery(true) ?>">
-<script type="text/javascript">
-ft06_siswarutinbayarlist.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id","forceSelect":true});
-</script>
-<button type="button" title="<?php echo ew_HtmlEncode(str_replace("%s", ew_RemoveHtml($t06_siswarutinbayar->siswa_id->FldCaption()), $Language->Phrase("LookupLink", TRUE))) ?>" onclick="ew_ModalLookupShow({lnk:this,el:'x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id',m:0,n:10,srch:false});" class="ewLookupBtn btn btn-default btn-sm"><span class="glyphicon glyphicon-search ewIcon"></span></button>
-<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" id="s_x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar->siswa_id->LookupFilterQuery(false) ?>">
-</span>
-<?php } ?>
+<input type="hidden" data-table="t06_siswarutinbayar" data-field="x_siswa_id" name="x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_list->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar->siswa_id->CurrentValue) ?>">
 <?php } ?>
 <?php if ($t06_siswarutinbayar->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t06_siswarutinbayar_list->RowCnt ?>_t06_siswarutinbayar_siswa_id" class="t06_siswarutinbayar_siswa_id">
