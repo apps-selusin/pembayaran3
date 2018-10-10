@@ -343,6 +343,7 @@ class ct06_siswarutinbayar_view extends ct06_siswarutinbayar {
 			$Security->UserID_Loaded();
 		}
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
+		$this->rutin_id->SetVisibility();
 		$this->Bulan->SetVisibility();
 		$this->Tahun->SetVisibility();
 		$this->Bayar_Tgl->SetVisibility();
@@ -691,10 +692,51 @@ class ct06_siswarutinbayar_view extends ct06_siswarutinbayar {
 
 		// siswa_id
 		$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+		if (strval($this->siswa_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswa_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `Nomor_Induk` AS `DispFld`, `Nama` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t03_siswa`";
+		$sWhereWrk = "";
+		$this->siswa_id->LookupFilters = array("dx1" => '`Nomor_Induk`', "dx2" => '`Nama`');
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->siswa_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = $rswrk->fields('Disp2Fld');
+				$this->siswa_id->ViewValue = $this->siswa_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
+			}
+		} else {
+			$this->siswa_id->ViewValue = NULL;
+		}
 		$this->siswa_id->ViewCustomAttributes = "";
 
 		// rutin_id
 		$this->rutin_id->ViewValue = $this->rutin_id->CurrentValue;
+		if (strval($this->rutin_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->rutin_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `Nama` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t04_rutin`";
+		$sWhereWrk = "";
+		$this->rutin_id->LookupFilters = array();
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->rutin_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$this->rutin_id->ViewValue = $this->rutin_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->rutin_id->ViewValue = $this->rutin_id->CurrentValue;
+			}
+		} else {
+			$this->rutin_id->ViewValue = NULL;
+		}
 		$this->rutin_id->ViewCustomAttributes = "";
 
 		// Bulan
@@ -719,6 +761,11 @@ class ct06_siswarutinbayar_view extends ct06_siswarutinbayar {
 		$this->Bayar_Jumlah->ViewValue = ew_FormatNumber($this->Bayar_Jumlah->ViewValue, 2, -2, -2, -2);
 		$this->Bayar_Jumlah->CellCssStyle .= "text-align: right;";
 		$this->Bayar_Jumlah->ViewCustomAttributes = "";
+
+			// rutin_id
+			$this->rutin_id->LinkCustomAttributes = "";
+			$this->rutin_id->HrefValue = "";
+			$this->rutin_id->TooltipValue = "";
 
 			// Bulan
 			$this->Bulan->LinkCustomAttributes = "";
@@ -961,6 +1008,7 @@ ft06_siswarutinbayarview.ValidateRequired = false;
 <?php } ?>
 
 // Dynamic selection lists
+ft06_siswarutinbayarview.Lists["x_rutin_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nama","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t04_rutin"};
 ft06_siswarutinbayarview.Lists["x_Bulan"] = {"LinkField":"","Ajax":null,"AutoFill":false,"DisplayFields":["","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":""};
 ft06_siswarutinbayarview.Lists["x_Bulan"].Options = <?php echo json_encode($t06_siswarutinbayar->Bulan->Options()) ?>;
 
@@ -1042,6 +1090,17 @@ $t06_siswarutinbayar_view->ShowMessage();
 <input type="hidden" name="modal" value="1">
 <?php } ?>
 <table class="table table-bordered table-striped ewViewTable">
+<?php if ($t06_siswarutinbayar->rutin_id->Visible) { // rutin_id ?>
+	<tr id="r_rutin_id">
+		<td><span id="elh_t06_siswarutinbayar_rutin_id"><?php echo $t06_siswarutinbayar->rutin_id->FldCaption() ?></span></td>
+		<td data-name="rutin_id"<?php echo $t06_siswarutinbayar->rutin_id->CellAttributes() ?>>
+<span id="el_t06_siswarutinbayar_rutin_id">
+<span<?php echo $t06_siswarutinbayar->rutin_id->ViewAttributes() ?>>
+<?php echo $t06_siswarutinbayar->rutin_id->ViewValue ?></span>
+</span>
+</td>
+	</tr>
+<?php } ?>
 <?php if ($t06_siswarutinbayar->Bulan->Visible) { // Bulan ?>
 	<tr id="r_Bulan">
 		<td><span id="elh_t06_siswarutinbayar_Bulan"><?php echo $t06_siswarutinbayar->Bulan->FldCaption() ?></span></td>
