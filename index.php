@@ -272,6 +272,14 @@ class cdefault {
 			$this->Page_Terminate("t00_tahunajaranlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't01_sekolah'))
 			$this->Page_Terminate("t01_sekolahlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't02_kelas'))
+			$this->Page_Terminate("t02_kelaslist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't03_siswa'))
+			$this->Page_Terminate("t03_siswalist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't04_rutin'))
+			$this->Page_Terminate("t04_rutinlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't05_siswarutin'))
+			$this->Page_Terminate("t05_siswarutinlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't96_employees'))
 			$this->Page_Terminate("t96_employeeslist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't97_userlevels'))
