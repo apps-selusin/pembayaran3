@@ -480,15 +480,6 @@ ft05_siswarutingrid.UpdateOpts(<?php echo $t05_siswarutin_grid->RowIndex ?>);
 if ($t05_siswarutin_grid->Recordset)
 	$t05_siswarutin_grid->Recordset->Close();
 ?>
-<?php if ($t05_siswarutin_grid->ShowOtherOptions) { ?>
-<div class="panel-footer ewGridLowerPanel">
-<?php
-	foreach ($t05_siswarutin_grid->OtherOptions as &$option)
-		$option->Render("body", "bottom");
-?>
-</div>
-<div class="clearfix"></div>
-<?php } ?>
 </div>
 </div>
 <?php } ?>

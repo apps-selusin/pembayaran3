@@ -1395,47 +1395,6 @@ ft05_siswarutinedit.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":false});
 <button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $t05_siswarutin_edit->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
 	</div>
 </div>
-<?php if (!isset($t05_siswarutin_edit->Pager)) $t05_siswarutin_edit->Pager = new cPrevNextPager($t05_siswarutin_edit->StartRec, $t05_siswarutin_edit->DisplayRecs, $t05_siswarutin_edit->TotalRecs) ?>
-<?php if ($t05_siswarutin_edit->Pager->RecordCount > 0 && $t05_siswarutin_edit->Pager->Visible) { ?>
-<div class="ewPager">
-<span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
-<div class="ewPrevNext"><div class="input-group">
-<div class="input-group-btn">
-<!--first page button-->
-	<?php if ($t05_siswarutin_edit->Pager->FirstButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t05_siswarutin_edit->PageUrl() ?>start=<?php echo $t05_siswarutin_edit->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
-	<?php } ?>
-<!--previous page button-->
-	<?php if ($t05_siswarutin_edit->Pager->PrevButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t05_siswarutin_edit->PageUrl() ?>start=<?php echo $t05_siswarutin_edit->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
-	<?php } ?>
-</div>
-<!--current page number-->
-	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t05_siswarutin_edit->Pager->CurrentPage ?>">
-<div class="input-group-btn">
-<!--next page button-->
-	<?php if ($t05_siswarutin_edit->Pager->NextButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t05_siswarutin_edit->PageUrl() ?>start=<?php echo $t05_siswarutin_edit->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
-	<?php } ?>
-<!--last page button-->
-	<?php if ($t05_siswarutin_edit->Pager->LastButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t05_siswarutin_edit->PageUrl() ?>start=<?php echo $t05_siswarutin_edit->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
-	<?php } ?>
-</div>
-</div>
-</div>
-<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t05_siswarutin_edit->Pager->PageCount ?></span>
-</div>
-<?php } ?>
-<div class="clearfix"></div>
 <?php } ?>
 </form>
 <script type="text/javascript">

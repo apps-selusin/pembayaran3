@@ -1012,6 +1012,12 @@ class ct03_siswa_list extends ct03_siswa {
 		$item->OnLeft = TRUE;
 		$item->Visible = FALSE;
 
+		// "view"
+		$item = &$this->ListOptions->Add("view");
+		$item->CssStyle = "white-space: nowrap;";
+		$item->Visible = $Security->CanView();
+		$item->OnLeft = TRUE;
+
 		// "edit"
 		$item = &$this->ListOptions->Add("edit");
 		$item->CssStyle = "white-space: nowrap;";
@@ -1090,6 +1096,15 @@ class ct03_siswa_list extends ct03_siswa {
 		$oListOpt = &$this->ListOptions->Items["sequence"];
 		$oListOpt->Body = ew_FormatSeqNo($this->RecCnt);
 
+		// "view"
+		$oListOpt = &$this->ListOptions->Items["view"];
+		$viewcaption = ew_HtmlTitle($Language->Phrase("ViewLink"));
+		if ($Security->CanView()) {
+			$oListOpt->Body = "<a class=\"ewRowLink ewView\" title=\"" . $viewcaption . "\" data-caption=\"" . $viewcaption . "\" href=\"" . ew_HtmlEncode($this->ViewUrl) . "\">" . $Language->Phrase("ViewLink") . "</a>";
+		} else {
+			$oListOpt->Body = "";
+		}
+
 		// "edit"
 		$oListOpt = &$this->ListOptions->Items["edit"];
 		$editcaption = ew_HtmlTitle($Language->Phrase("EditLink"));
@@ -1137,6 +1152,11 @@ class ct03_siswa_list extends ct03_siswa {
 			$body = $Language->Phrase("DetailLink") . $Language->TablePhrase("t05_siswarutin", "TblCaption");
 			$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("t05_siswarutinlist.php?" . EW_TABLE_SHOW_MASTER . "=t03_siswa&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
 			$links = "";
+			if ($GLOBALS["t05_siswarutin_grid"]->DetailView && $Security->CanView() && $Security->AllowView(CurrentProjectID() . 't05_siswarutin')) {
+				$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailViewLink")) . "\" href=\"" . ew_HtmlEncode($this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=t05_siswarutin")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailViewLink")) . "</a></li>";
+				if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
+				$DetailViewTblVar .= "t05_siswarutin";
+			}
 			if ($GLOBALS["t05_siswarutin_grid"]->DetailEdit && $Security->CanEdit() && $Security->AllowEdit(CurrentProjectID() . 't05_siswarutin')) {
 				$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=t05_siswarutin")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailEditLink")) . "</a></li>";
 				if ($DetailEditTblVar <> "") $DetailEditTblVar .= ",";
@@ -2138,62 +2158,6 @@ $t03_siswa_list->ListOptions->Render("body", "right", $t03_siswa_list->RowCnt);
 if ($t03_siswa_list->Recordset)
 	$t03_siswa_list->Recordset->Close();
 ?>
-<div class="panel-footer ewGridLowerPanel">
-<?php if ($t03_siswa->CurrentAction <> "gridadd" && $t03_siswa->CurrentAction <> "gridedit") { ?>
-<form name="ewPagerForm" class="ewForm form-inline ewPagerForm" action="<?php echo ew_CurrentPage() ?>">
-<?php if (!isset($t03_siswa_list->Pager)) $t03_siswa_list->Pager = new cPrevNextPager($t03_siswa_list->StartRec, $t03_siswa_list->DisplayRecs, $t03_siswa_list->TotalRecs) ?>
-<?php if ($t03_siswa_list->Pager->RecordCount > 0 && $t03_siswa_list->Pager->Visible) { ?>
-<div class="ewPager">
-<span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
-<div class="ewPrevNext"><div class="input-group">
-<div class="input-group-btn">
-<!--first page button-->
-	<?php if ($t03_siswa_list->Pager->FirstButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $t03_siswa_list->PageUrl() ?>start=<?php echo $t03_siswa_list->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
-	<?php } ?>
-<!--previous page button-->
-	<?php if ($t03_siswa_list->Pager->PrevButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $t03_siswa_list->PageUrl() ?>start=<?php echo $t03_siswa_list->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
-	<?php } ?>
-</div>
-<!--current page number-->
-	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $t03_siswa_list->Pager->CurrentPage ?>">
-<div class="input-group-btn">
-<!--next page button-->
-	<?php if ($t03_siswa_list->Pager->NextButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $t03_siswa_list->PageUrl() ?>start=<?php echo $t03_siswa_list->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
-	<?php } ?>
-<!--last page button-->
-	<?php if ($t03_siswa_list->Pager->LastButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $t03_siswa_list->PageUrl() ?>start=<?php echo $t03_siswa_list->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
-	<?php } else { ?>
-	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
-	<?php } ?>
-</div>
-</div>
-</div>
-<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $t03_siswa_list->Pager->PageCount ?></span>
-</div>
-<div class="ewPager ewRec">
-	<span><?php echo $Language->Phrase("Record") ?>&nbsp;<?php echo $t03_siswa_list->Pager->FromIndex ?>&nbsp;<?php echo $Language->Phrase("To") ?>&nbsp;<?php echo $t03_siswa_list->Pager->ToIndex ?>&nbsp;<?php echo $Language->Phrase("Of") ?>&nbsp;<?php echo $t03_siswa_list->Pager->RecordCount ?></span>
-</div>
-<?php } ?>
-</form>
-<?php } ?>
-<div class="ewListOtherOptions">
-<?php
-	foreach ($t03_siswa_list->OtherOptions as &$option)
-		$option->Render("body", "bottom");
-?>
-</div>
-<div class="clearfix"></div>
-</div>
 </div>
 <?php } ?>
 <?php if ($t03_siswa_list->TotalRecs == 0 && $t03_siswa->CurrentAction == "") { // Show other options ?>
