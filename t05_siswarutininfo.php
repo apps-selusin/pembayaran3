@@ -1100,7 +1100,7 @@ class ct05_siswarutin extends cTable {
 		//echo "Row Updated";
 		// hapus dulu data detail yang lama
 
-		$q = "delete from t05_siswarutinbayar where siswa_id = ".$rsold["siswa_id"]."";
+		$q = "delete from t06_siswarutinbayar where siswa_id = ".$rsold["siswa_id"]."";
 		ew_Execute($q);
 		f_isidetailpembayaranrutin($rsold, $rsnew);
 	}
