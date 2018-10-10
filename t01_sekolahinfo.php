@@ -14,6 +14,7 @@ class ct01_sekolah extends cTable {
 	var $AuditTrailOnViewData = FALSE;
 	var $AuditTrailOnSearch = FALSE;
 	var $id;
+	var $NIS;
 	var $Nama;
 	var $Alamat;
 	var $NoTelpHp;
@@ -58,6 +59,11 @@ class ct01_sekolah extends cTable {
 		$this->id->Sortable = TRUE; // Allow sort
 		$this->id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['id'] = &$this->id;
+
+		// NIS
+		$this->NIS = new cField('t01_sekolah', 't01_sekolah', 'x_NIS', 'NIS', '`NIS`', '`NIS`', 200, -1, FALSE, '`NIS`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->NIS->Sortable = TRUE; // Allow sort
+		$this->fields['NIS'] = &$this->NIS;
 
 		// Nama
 		$this->Nama = new cField('t01_sekolah', 't01_sekolah', 'x_Nama', 'Nama', '`Nama`', '`Nama`', 200, -1, FALSE, '`Nama`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
@@ -611,6 +617,7 @@ class ct01_sekolah extends cTable {
 	// Load row values from recordset
 	function LoadListRowValues(&$rs) {
 		$this->id->setDbValue($rs->fields('id'));
+		$this->NIS->setDbValue($rs->fields('NIS'));
 		$this->Nama->setDbValue($rs->fields('Nama'));
 		$this->Alamat->setDbValue($rs->fields('Alamat'));
 		$this->NoTelpHp->setDbValue($rs->fields('NoTelpHp'));
@@ -630,6 +637,7 @@ class ct01_sekolah extends cTable {
 
    // Common render codes
 		// id
+		// NIS
 		// Nama
 		// Alamat
 		// NoTelpHp
@@ -642,6 +650,10 @@ class ct01_sekolah extends cTable {
 
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
+
+		// NIS
+		$this->NIS->ViewValue = $this->NIS->CurrentValue;
+		$this->NIS->ViewCustomAttributes = "";
 
 		// Nama
 		$this->Nama->ViewValue = $this->Nama->CurrentValue;
@@ -679,6 +691,11 @@ class ct01_sekolah extends cTable {
 		$this->id->LinkCustomAttributes = "";
 		$this->id->HrefValue = "";
 		$this->id->TooltipValue = "";
+
+		// NIS
+		$this->NIS->LinkCustomAttributes = "";
+		$this->NIS->HrefValue = "";
+		$this->NIS->TooltipValue = "";
 
 		// Nama
 		$this->Nama->LinkCustomAttributes = "";
@@ -736,6 +753,12 @@ class ct01_sekolah extends cTable {
 		$this->id->EditCustomAttributes = "";
 		$this->id->EditValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
+
+		// NIS
+		$this->NIS->EditAttrs["class"] = "form-control";
+		$this->NIS->EditCustomAttributes = "";
+		$this->NIS->EditValue = $this->NIS->CurrentValue;
+		$this->NIS->PlaceHolder = ew_RemoveHtml($this->NIS->FldCaption());
 
 		// Nama
 		$this->Nama->EditAttrs["class"] = "form-control";
@@ -812,6 +835,7 @@ class ct01_sekolah extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
+					if ($this->NIS->Exportable) $Doc->ExportCaption($this->NIS);
 					if ($this->Nama->Exportable) $Doc->ExportCaption($this->Nama);
 					if ($this->Alamat->Exportable) $Doc->ExportCaption($this->Alamat);
 					if ($this->NoTelpHp->Exportable) $Doc->ExportCaption($this->NoTelpHp);
@@ -822,6 +846,7 @@ class ct01_sekolah extends cTable {
 					if ($this->Logo->Exportable) $Doc->ExportCaption($this->Logo);
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
+					if ($this->NIS->Exportable) $Doc->ExportCaption($this->NIS);
 					if ($this->Nama->Exportable) $Doc->ExportCaption($this->Nama);
 					if ($this->Alamat->Exportable) $Doc->ExportCaption($this->Alamat);
 					if ($this->NoTelpHp->Exportable) $Doc->ExportCaption($this->NoTelpHp);
@@ -861,6 +886,7 @@ class ct01_sekolah extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
+						if ($this->NIS->Exportable) $Doc->ExportField($this->NIS);
 						if ($this->Nama->Exportable) $Doc->ExportField($this->Nama);
 						if ($this->Alamat->Exportable) $Doc->ExportField($this->Alamat);
 						if ($this->NoTelpHp->Exportable) $Doc->ExportField($this->NoTelpHp);
@@ -871,6 +897,7 @@ class ct01_sekolah extends cTable {
 						if ($this->Logo->Exportable) $Doc->ExportField($this->Logo);
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
+						if ($this->NIS->Exportable) $Doc->ExportField($this->NIS);
 						if ($this->Nama->Exportable) $Doc->ExportField($this->Nama);
 						if ($this->Alamat->Exportable) $Doc->ExportField($this->Alamat);
 						if ($this->NoTelpHp->Exportable) $Doc->ExportField($this->NoTelpHp);

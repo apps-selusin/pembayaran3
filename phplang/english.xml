@@ -687,6 +687,9 @@
       <field id="id">
         <phrase id="fldcaption" value="id" />
       </field>
+      <field id="nis">
+        <phrase id="fldcaption" value="NIS" />
+      </field>
       <field id="nama">
         <phrase id="fldcaption" value="Nama" />
       </field>

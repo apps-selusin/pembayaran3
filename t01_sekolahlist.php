@@ -373,6 +373,7 @@ class ct01_sekolah_list extends ct01_sekolah {
 
 		// Set up list options
 		$this->SetupListOptions();
+		$this->NIS->SetVisibility();
 		$this->Nama->SetVisibility();
 		$this->Alamat->SetVisibility();
 		$this->NoTelpHp->SetVisibility();
@@ -743,6 +744,7 @@ class ct01_sekolah_list extends ct01_sekolah {
 		if (@$_GET["order"] <> "") {
 			$this->CurrentOrder = ew_StripSlashes(@$_GET["order"]);
 			$this->CurrentOrderType = @$_GET["ordertype"];
+			$this->UpdateSort($this->NIS, $bCtrl); // NIS
 			$this->UpdateSort($this->Nama, $bCtrl); // Nama
 			$this->UpdateSort($this->Alamat, $bCtrl); // Alamat
 			$this->UpdateSort($this->NoTelpHp, $bCtrl); // NoTelpHp
@@ -779,6 +781,7 @@ class ct01_sekolah_list extends ct01_sekolah {
 			if ($this->Command == "resetsort") {
 				$sOrderBy = "";
 				$this->setSessionOrderBy($sOrderBy);
+				$this->NIS->setSort("");
 				$this->Nama->setSort("");
 				$this->Alamat->setSort("");
 				$this->NoTelpHp->setSort("");
@@ -1143,6 +1146,8 @@ class ct01_sekolah_list extends ct01_sekolah {
 
 	// Load default values
 	function LoadDefaultValues() {
+		$this->NIS->CurrentValue = NULL;
+		$this->NIS->OldValue = $this->NIS->CurrentValue;
 		$this->Nama->CurrentValue = NULL;
 		$this->Nama->OldValue = $this->Nama->CurrentValue;
 		$this->Alamat->CurrentValue = NULL;
@@ -1166,6 +1171,9 @@ class ct01_sekolah_list extends ct01_sekolah {
 
 		// Load from form
 		global $objForm;
+		if (!$this->NIS->FldIsDetailKey) {
+			$this->NIS->setFormValue($objForm->GetValue("x_NIS"));
+		}
 		if (!$this->Nama->FldIsDetailKey) {
 			$this->Nama->setFormValue($objForm->GetValue("x_Nama"));
 		}
@@ -1199,6 +1207,7 @@ class ct01_sekolah_list extends ct01_sekolah {
 		global $objForm;
 		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->id->CurrentValue = $this->id->FormValue;
+		$this->NIS->CurrentValue = $this->NIS->FormValue;
 		$this->Nama->CurrentValue = $this->Nama->FormValue;
 		$this->Alamat->CurrentValue = $this->Alamat->FormValue;
 		$this->NoTelpHp->CurrentValue = $this->NoTelpHp->FormValue;
@@ -1265,6 +1274,7 @@ class ct01_sekolah_list extends ct01_sekolah {
 		$row = &$rs->fields;
 		$this->Row_Selected($row);
 		$this->id->setDbValue($rs->fields('id'));
+		$this->NIS->setDbValue($rs->fields('NIS'));
 		$this->Nama->setDbValue($rs->fields('Nama'));
 		$this->Alamat->setDbValue($rs->fields('Alamat'));
 		$this->NoTelpHp->setDbValue($rs->fields('NoTelpHp'));
@@ -1280,6 +1290,7 @@ class ct01_sekolah_list extends ct01_sekolah {
 		if (!$rs || !is_array($rs) && $rs->EOF) return;
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
+		$this->NIS->DbValue = $row['NIS'];
 		$this->Nama->DbValue = $row['Nama'];
 		$this->Alamat->DbValue = $row['Alamat'];
 		$this->NoTelpHp->DbValue = $row['NoTelpHp'];
@@ -1330,6 +1341,7 @@ class ct01_sekolah_list extends ct01_sekolah {
 
 		// Common render codes for all row types
 		// id
+		// NIS
 		// Nama
 		// Alamat
 		// NoTelpHp
@@ -1344,6 +1356,10 @@ class ct01_sekolah_list extends ct01_sekolah {
 		// id
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
+
+		// NIS
+		$this->NIS->ViewValue = $this->NIS->CurrentValue;
+		$this->NIS->ViewCustomAttributes = "";
 
 		// Nama
 		$this->Nama->ViewValue = $this->Nama->CurrentValue;
@@ -1376,6 +1392,11 @@ class ct01_sekolah_list extends ct01_sekolah {
 		// Logo
 		$this->Logo->ViewValue = $this->Logo->CurrentValue;
 		$this->Logo->ViewCustomAttributes = "";
+
+			// NIS
+			$this->NIS->LinkCustomAttributes = "";
+			$this->NIS->HrefValue = "";
+			$this->NIS->TooltipValue = "";
 
 			// Nama
 			$this->Nama->LinkCustomAttributes = "";
@@ -1417,6 +1438,12 @@ class ct01_sekolah_list extends ct01_sekolah {
 			$this->Logo->HrefValue = "";
 			$this->Logo->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
+
+			// NIS
+			$this->NIS->EditAttrs["class"] = "form-control";
+			$this->NIS->EditCustomAttributes = "";
+			$this->NIS->EditValue = ew_HtmlEncode($this->NIS->CurrentValue);
+			$this->NIS->PlaceHolder = ew_RemoveHtml($this->NIS->FldCaption());
 
 			// Nama
 			$this->Nama->EditAttrs["class"] = "form-control";
@@ -1467,8 +1494,12 @@ class ct01_sekolah_list extends ct01_sekolah {
 			$this->Logo->PlaceHolder = ew_RemoveHtml($this->Logo->FldCaption());
 
 			// Add refer script
-			// Nama
+			// NIS
 
+			$this->NIS->LinkCustomAttributes = "";
+			$this->NIS->HrefValue = "";
+
+			// Nama
 			$this->Nama->LinkCustomAttributes = "";
 			$this->Nama->HrefValue = "";
 
@@ -1500,6 +1531,12 @@ class ct01_sekolah_list extends ct01_sekolah {
 			$this->Logo->LinkCustomAttributes = "";
 			$this->Logo->HrefValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
+
+			// NIS
+			$this->NIS->EditAttrs["class"] = "form-control";
+			$this->NIS->EditCustomAttributes = "";
+			$this->NIS->EditValue = ew_HtmlEncode($this->NIS->CurrentValue);
+			$this->NIS->PlaceHolder = ew_RemoveHtml($this->NIS->FldCaption());
 
 			// Nama
 			$this->Nama->EditAttrs["class"] = "form-control";
@@ -1550,8 +1587,12 @@ class ct01_sekolah_list extends ct01_sekolah {
 			$this->Logo->PlaceHolder = ew_RemoveHtml($this->Logo->FldCaption());
 
 			// Edit refer script
-			// Nama
+			// NIS
 
+			$this->NIS->LinkCustomAttributes = "";
+			$this->NIS->HrefValue = "";
+
+			// Nama
 			$this->Nama->LinkCustomAttributes = "";
 			$this->Nama->HrefValue = "";
 
@@ -1604,6 +1645,9 @@ class ct01_sekolah_list extends ct01_sekolah {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
+		if (!$this->NIS->FldIsDetailKey && !is_null($this->NIS->FormValue) && $this->NIS->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->NIS->FldCaption(), $this->NIS->ReqErrMsg));
+		}
 		if (!$this->Nama->FldIsDetailKey && !is_null($this->Nama->FormValue) && $this->Nama->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->Nama->FldCaption(), $this->Nama->ReqErrMsg));
 		}
@@ -1642,6 +1686,9 @@ class ct01_sekolah_list extends ct01_sekolah {
 			$rsold = &$rs->fields;
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
+
+			// NIS
+			$this->NIS->SetDbValueDef($rsnew, $this->NIS->CurrentValue, "", $this->NIS->ReadOnly);
 
 			// Nama
 			$this->Nama->SetDbValueDef($rsnew, $this->Nama->CurrentValue, "", $this->Nama->ReadOnly);
@@ -1709,6 +1756,9 @@ class ct01_sekolah_list extends ct01_sekolah {
 			$this->LoadDbValues($rsold);
 		}
 		$rsnew = array();
+
+		// NIS
+		$this->NIS->SetDbValueDef($rsnew, $this->NIS->CurrentValue, "", FALSE);
 
 		// Nama
 		$this->Nama->SetDbValueDef($rsnew, $this->Nama->CurrentValue, "", FALSE);
@@ -1950,6 +2000,9 @@ ft01_sekolahlist.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
+			elm = this.GetElements("x" + infix + "_NIS");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t01_sekolah->NIS->FldCaption(), $t01_sekolah->NIS->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_Nama");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t01_sekolah->Nama->FldCaption(), $t01_sekolah->Nama->ReqErrMsg)) ?>");
@@ -2104,6 +2157,15 @@ $t01_sekolah_list->RenderListOptions();
 // Render list options (header, left)
 $t01_sekolah_list->ListOptions->Render("header", "left");
 ?>
+<?php if ($t01_sekolah->NIS->Visible) { // NIS ?>
+	<?php if ($t01_sekolah->SortUrl($t01_sekolah->NIS) == "") { ?>
+		<th data-name="NIS"><div id="elh_t01_sekolah_NIS" class="t01_sekolah_NIS"><div class="ewTableHeaderCaption"><?php echo $t01_sekolah->NIS->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="NIS"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t01_sekolah->SortUrl($t01_sekolah->NIS) ?>',2);"><div id="elh_t01_sekolah_NIS" class="t01_sekolah_NIS">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t01_sekolah->NIS->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t01_sekolah->NIS->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t01_sekolah->NIS->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
 <?php if ($t01_sekolah->Nama->Visible) { // Nama ?>
 	<?php if ($t01_sekolah->SortUrl($t01_sekolah->Nama) == "") { ?>
 		<th data-name="Nama"><div id="elh_t01_sekolah_Nama" class="t01_sekolah_Nama"><div class="ewTableHeaderCaption"><?php echo $t01_sekolah->Nama->FldCaption() ?></div></div></th>
@@ -2265,6 +2327,24 @@ while ($t01_sekolah_list->RecCnt < $t01_sekolah_list->StopRec) {
 // Render list options (body, left)
 $t01_sekolah_list->ListOptions->Render("body", "left", $t01_sekolah_list->RowCnt);
 ?>
+	<?php if ($t01_sekolah->NIS->Visible) { // NIS ?>
+		<td data-name="NIS"<?php echo $t01_sekolah->NIS->CellAttributes() ?>>
+<?php if ($t01_sekolah->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $t01_sekolah_list->RowCnt ?>_t01_sekolah_NIS" class="form-group t01_sekolah_NIS">
+<input type="text" data-table="t01_sekolah" data-field="x_NIS" name="x<?php echo $t01_sekolah_list->RowIndex ?>_NIS" id="x<?php echo $t01_sekolah_list->RowIndex ?>_NIS" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t01_sekolah->NIS->getPlaceHolder()) ?>" value="<?php echo $t01_sekolah->NIS->EditValue ?>"<?php echo $t01_sekolah->NIS->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php if ($t01_sekolah->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $t01_sekolah_list->RowCnt ?>_t01_sekolah_NIS" class="t01_sekolah_NIS">
+<span<?php echo $t01_sekolah->NIS->ViewAttributes() ?>>
+<?php echo $t01_sekolah->NIS->ListViewValue() ?></span>
+</span>
+<?php } ?>
+<a id="<?php echo $t01_sekolah_list->PageObjName . "_row_" . $t01_sekolah_list->RowCnt ?>"></a></td>
+	<?php } ?>
+<?php if ($t01_sekolah->RowType == EW_ROWTYPE_EDIT || $t01_sekolah->CurrentMode == "edit") { ?>
+<input type="hidden" data-table="t01_sekolah" data-field="x_id" name="x<?php echo $t01_sekolah_list->RowIndex ?>_id" id="x<?php echo $t01_sekolah_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t01_sekolah->id->CurrentValue) ?>">
+<?php } ?>
 	<?php if ($t01_sekolah->Nama->Visible) { // Nama ?>
 		<td data-name="Nama"<?php echo $t01_sekolah->Nama->CellAttributes() ?>>
 <?php if ($t01_sekolah->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
@@ -2278,11 +2358,8 @@ $t01_sekolah_list->ListOptions->Render("body", "left", $t01_sekolah_list->RowCnt
 <?php echo $t01_sekolah->Nama->ListViewValue() ?></span>
 </span>
 <?php } ?>
-<a id="<?php echo $t01_sekolah_list->PageObjName . "_row_" . $t01_sekolah_list->RowCnt ?>"></a></td>
+</td>
 	<?php } ?>
-<?php if ($t01_sekolah->RowType == EW_ROWTYPE_EDIT || $t01_sekolah->CurrentMode == "edit") { ?>
-<input type="hidden" data-table="t01_sekolah" data-field="x_id" name="x<?php echo $t01_sekolah_list->RowIndex ?>_id" id="x<?php echo $t01_sekolah_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t01_sekolah->id->CurrentValue) ?>">
-<?php } ?>
 	<?php if ($t01_sekolah->Alamat->Visible) { // Alamat ?>
 		<td data-name="Alamat"<?php echo $t01_sekolah->Alamat->CellAttributes() ?>>
 <?php if ($t01_sekolah->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
