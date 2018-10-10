@@ -1087,10 +1087,10 @@ class ct05_siswarutin extends cTable {
 
 		$q = "select * from t00_tahunajaran";
 		$r = Conn()->Execute($q);
-		$awal  = $r->fields["awal_bulan"].$r->fields["awal_tahun"]; // 72018
-		$akhir = $r->fields["akhir_bulan"].$r->fields["akhir_tahun"]; // 62019
-		$bulan = $r->fields["awal_bulan"] - 1;
-		$tahun = $r->fields["awal_tahun"];
+		$awal  = $r->fields["Awal_Bulan"].$r->fields["Awal_Tahun"]; // 72018
+		$akhir = $r->fields["Akhir_Bulan"].$r->fields["Akhir_Tahun"]; // 62019
+		$bulan = $r->fields["Awal_Bulan"] - 1;
+		$tahun = $r->fields["Awal_Tahun"];
 		while ($awal != $akhir) {
 			$bulan++;
 			if ($bulan == 13) {
