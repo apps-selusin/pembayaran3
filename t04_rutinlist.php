@@ -541,52 +541,24 @@ class ct04_rutin_list extends ct04_rutin {
 				if ($this->CurrentAction == "cancel")
 					$this->ClearInlineMode();
 
-				// Switch to grid edit mode
-				if ($this->CurrentAction == "gridedit")
-					$this->GridEditMode();
+				// Switch to inline edit mode
+				if ($this->CurrentAction == "edit")
+					$this->InlineEditMode();
 
 				// Switch to inline add mode
 				if ($this->CurrentAction == "add" || $this->CurrentAction == "copy")
 					$this->InlineAddMode();
-
-				// Switch to grid add mode
-				if ($this->CurrentAction == "gridadd")
-					$this->GridAddMode();
 			} else {
 				if (@$_POST["a_list"] <> "") {
 					$this->CurrentAction = $_POST["a_list"]; // Get action
 
-					// Grid Update
-					if (($this->CurrentAction == "gridupdate" || $this->CurrentAction == "gridoverwrite") && @$_SESSION[EW_SESSION_INLINE_MODE] == "gridedit") {
-						if ($this->ValidateGridForm()) {
-							$bGridUpdate = $this->GridUpdate();
-						} else {
-							$bGridUpdate = FALSE;
-							$this->setFailureMessage($gsFormError);
-						}
-						if (!$bGridUpdate) {
-							$this->EventCancelled = TRUE;
-							$this->CurrentAction = "gridedit"; // Stay in Grid Edit mode
-						}
-					}
+					// Inline Update
+					if (($this->CurrentAction == "update" || $this->CurrentAction == "overwrite") && @$_SESSION[EW_SESSION_INLINE_MODE] == "edit")
+						$this->InlineUpdate();
 
 					// Insert Inline
 					if ($this->CurrentAction == "insert" && @$_SESSION[EW_SESSION_INLINE_MODE] == "add")
 						$this->InlineInsert();
-
-					// Grid Insert
-					if ($this->CurrentAction == "gridinsert" && @$_SESSION[EW_SESSION_INLINE_MODE] == "gridadd") {
-						if ($this->ValidateGridForm()) {
-							$bGridInsert = $this->GridInsert();
-						} else {
-							$bGridInsert = FALSE;
-							$this->setFailureMessage($gsFormError);
-						}
-						if (!$bGridInsert) {
-							$this->EventCancelled = TRUE;
-							$this->CurrentAction = "gridadd"; // Stay in Grid Add mode
-						}
-					}
 				}
 			}
 
@@ -611,14 +583,6 @@ class ct04_rutin_list extends ct04_rutin {
 			if ($this->Export <> "") {
 				foreach ($this->OtherOptions as &$option)
 					$option->HideAllOptions();
-			}
-
-			// Show grid delete link for grid add / grid edit
-			if ($this->AllowAddDeleteRow) {
-				if ($this->CurrentAction == "gridadd" || $this->CurrentAction == "gridedit") {
-					$item = $this->ListOptions->GetItem("griddelete");
-					if ($item) $item->Visible = TRUE;
-				}
 			}
 
 			// Set up sorting order
@@ -663,19 +627,73 @@ class ct04_rutin_list extends ct04_rutin {
 
 	//  Exit inline mode
 	function ClearInlineMode() {
+		$this->setKey("id", ""); // Clear inline edit key
 		$this->LastAction = $this->CurrentAction; // Save last action
 		$this->CurrentAction = ""; // Clear action
 		$_SESSION[EW_SESSION_INLINE_MODE] = ""; // Clear inline mode
 	}
 
-	// Switch to Grid Add mode
-	function GridAddMode() {
-		$_SESSION[EW_SESSION_INLINE_MODE] = "gridadd"; // Enabled grid add
+	// Switch to Inline Edit mode
+	function InlineEditMode() {
+		global $Security, $Language;
+		if (!$Security->CanEdit())
+			$this->Page_Terminate("login.php"); // Go to login page
+		$bInlineEdit = TRUE;
+		if (@$_GET["id"] <> "") {
+			$this->id->setQueryStringValue($_GET["id"]);
+		} else {
+			$bInlineEdit = FALSE;
+		}
+		if ($bInlineEdit) {
+			if ($this->LoadRow()) {
+				$this->setKey("id", $this->id->CurrentValue); // Set up inline edit key
+				$_SESSION[EW_SESSION_INLINE_MODE] = "edit"; // Enable inline edit
+			}
+		}
 	}
 
-	// Switch to Grid Edit mode
-	function GridEditMode() {
-		$_SESSION[EW_SESSION_INLINE_MODE] = "gridedit"; // Enable grid edit
+	// Perform update to Inline Edit record
+	function InlineUpdate() {
+		global $Language, $objForm, $gsFormError;
+		$objForm->Index = 1; 
+		$this->LoadFormValues(); // Get form values
+
+		// Validate form
+		$bInlineUpdate = TRUE;
+		if (!$this->ValidateForm()) {	
+			$bInlineUpdate = FALSE; // Form error, reset action
+			$this->setFailureMessage($gsFormError);
+		} else {
+			$bInlineUpdate = FALSE;
+			$rowkey = strval($objForm->GetValue($this->FormKeyName));
+			if ($this->SetupKeyValues($rowkey)) { // Set up key values
+				if ($this->CheckInlineEditKey()) { // Check key
+					$this->SendEmail = TRUE; // Send email on update success
+					$bInlineUpdate = $this->EditRow(); // Update record
+				} else {
+					$bInlineUpdate = FALSE;
+				}
+			}
+		}
+		if ($bInlineUpdate) { // Update success
+			if ($this->getSuccessMessage() == "")
+				$this->setSuccessMessage($Language->Phrase("UpdateSuccess")); // Set up success message
+			$this->ClearInlineMode(); // Clear inline edit mode
+		} else {
+			if ($this->getFailureMessage() == "")
+				$this->setFailureMessage($Language->Phrase("UpdateFailed")); // Set update failed message
+			$this->EventCancelled = TRUE; // Cancel event
+			$this->CurrentAction = "edit"; // Stay in edit mode
+		}
+	}
+
+	// Check Inline Edit key
+	function CheckInlineEditKey() {
+
+		//CheckInlineEditKey = True
+		if (strval($this->getKey("id")) <> strval($this->id->CurrentValue))
+			return FALSE;
+		return TRUE;
 	}
 
 	// Switch to Inline Add mode
@@ -720,111 +738,6 @@ class ct04_rutin_list extends ct04_rutin {
 		}
 	}
 
-	// Perform update to grid
-	function GridUpdate() {
-		global $Language, $objForm, $gsFormError;
-		$bGridUpdate = TRUE;
-
-		// Get old recordset
-		$this->CurrentFilter = $this->BuildKeyFilter();
-		if ($this->CurrentFilter == "")
-			$this->CurrentFilter = "0=1";
-		$sSql = $this->SQL();
-		$conn = &$this->Connection();
-		if ($rs = $conn->Execute($sSql)) {
-			$rsold = $rs->GetRows();
-			$rs->Close();
-		}
-
-		// Call Grid Updating event
-		if (!$this->Grid_Updating($rsold)) {
-			if ($this->getFailureMessage() == "")
-				$this->setFailureMessage($Language->Phrase("GridEditCancelled")); // Set grid edit cancelled message
-			return FALSE;
-		}
-
-		// Begin transaction
-		$conn->BeginTrans();
-		if ($this->AuditTrailOnEdit) $this->WriteAuditTrailDummy($Language->Phrase("BatchUpdateBegin")); // Batch update begin
-		$sKey = "";
-
-		// Update row index and get row key
-		$objForm->Index = -1;
-		$rowcnt = strval($objForm->GetValue($this->FormKeyCountName));
-		if ($rowcnt == "" || !is_numeric($rowcnt))
-			$rowcnt = 0;
-
-		// Update all rows based on key
-		for ($rowindex = 1; $rowindex <= $rowcnt; $rowindex++) {
-			$objForm->Index = $rowindex;
-			$rowkey = strval($objForm->GetValue($this->FormKeyName));
-			$rowaction = strval($objForm->GetValue($this->FormActionName));
-
-			// Load all values and keys
-			if ($rowaction <> "insertdelete") { // Skip insert then deleted rows
-				$this->LoadFormValues(); // Get form values
-				if ($rowaction == "" || $rowaction == "edit" || $rowaction == "delete") {
-					$bGridUpdate = $this->SetupKeyValues($rowkey); // Set up key values
-				} else {
-					$bGridUpdate = TRUE;
-				}
-
-				// Skip empty row
-				if ($rowaction == "insert" && $this->EmptyRow()) {
-
-					// No action required
-				// Validate form and insert/update/delete record
-
-				} elseif ($bGridUpdate) {
-					if ($rowaction == "delete") {
-						$this->CurrentFilter = $this->KeyFilter();
-						$bGridUpdate = $this->DeleteRows(); // Delete this row
-					} else if (!$this->ValidateForm()) {
-						$bGridUpdate = FALSE; // Form error, reset action
-						$this->setFailureMessage($gsFormError);
-					} else {
-						if ($rowaction == "insert") {
-							$bGridUpdate = $this->AddRow(); // Insert this row
-						} else {
-							if ($rowkey <> "") {
-								$this->SendEmail = FALSE; // Do not send email on update success
-								$bGridUpdate = $this->EditRow(); // Update this row
-							}
-						} // End update
-					}
-				}
-				if ($bGridUpdate) {
-					if ($sKey <> "") $sKey .= ", ";
-					$sKey .= $rowkey;
-				} else {
-					break;
-				}
-			}
-		}
-		if ($bGridUpdate) {
-			$conn->CommitTrans(); // Commit transaction
-
-			// Get new recordset
-			if ($rs = $conn->Execute($sSql)) {
-				$rsnew = $rs->GetRows();
-				$rs->Close();
-			}
-
-			// Call Grid_Updated event
-			$this->Grid_Updated($rsold, $rsnew);
-			if ($this->AuditTrailOnEdit) $this->WriteAuditTrailDummy($Language->Phrase("BatchUpdateSuccess")); // Batch update success
-			if ($this->getSuccessMessage() == "")
-				$this->setSuccessMessage($Language->Phrase("UpdateSuccess")); // Set up update success message
-			$this->ClearInlineMode(); // Clear inline edit mode
-		} else {
-			$conn->RollbackTrans(); // Rollback transaction
-			if ($this->AuditTrailOnEdit) $this->WriteAuditTrailDummy($Language->Phrase("BatchUpdateRollback")); // Batch update rollback
-			if ($this->getFailureMessage() == "")
-				$this->setFailureMessage($Language->Phrase("UpdateFailed")); // Set update failed message
-		}
-		return $bGridUpdate;
-	}
-
 	// Build filter for all keys
 	function BuildKeyFilter() {
 		global $objForm;
@@ -861,176 +774,6 @@ class ct04_rutin_list extends ct04_rutin {
 				return FALSE;
 		}
 		return TRUE;
-	}
-
-	// Perform Grid Add
-	function GridInsert() {
-		global $Language, $objForm, $gsFormError;
-		$rowindex = 1;
-		$bGridInsert = FALSE;
-		$conn = &$this->Connection();
-
-		// Call Grid Inserting event
-		if (!$this->Grid_Inserting()) {
-			if ($this->getFailureMessage() == "") {
-				$this->setFailureMessage($Language->Phrase("GridAddCancelled")); // Set grid add cancelled message
-			}
-			return FALSE;
-		}
-
-		// Begin transaction
-		$conn->BeginTrans();
-
-		// Init key filter
-		$sWrkFilter = "";
-		$addcnt = 0;
-		if ($this->AuditTrailOnAdd) $this->WriteAuditTrailDummy($Language->Phrase("BatchInsertBegin")); // Batch insert begin
-		$sKey = "";
-
-		// Get row count
-		$objForm->Index = -1;
-		$rowcnt = strval($objForm->GetValue($this->FormKeyCountName));
-		if ($rowcnt == "" || !is_numeric($rowcnt))
-			$rowcnt = 0;
-
-		// Insert all rows
-		for ($rowindex = 1; $rowindex <= $rowcnt; $rowindex++) {
-
-			// Load current row values
-			$objForm->Index = $rowindex;
-			$rowaction = strval($objForm->GetValue($this->FormActionName));
-			if ($rowaction <> "" && $rowaction <> "insert")
-				continue; // Skip
-			$this->LoadFormValues(); // Get form values
-			if (!$this->EmptyRow()) {
-				$addcnt++;
-				$this->SendEmail = FALSE; // Do not send email on insert success
-
-				// Validate form
-				if (!$this->ValidateForm()) {
-					$bGridInsert = FALSE; // Form error, reset action
-					$this->setFailureMessage($gsFormError);
-				} else {
-					$bGridInsert = $this->AddRow($this->OldRecordset); // Insert this row
-				}
-				if ($bGridInsert) {
-					if ($sKey <> "") $sKey .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
-					$sKey .= $this->id->CurrentValue;
-
-					// Add filter for this record
-					$sFilter = $this->KeyFilter();
-					if ($sWrkFilter <> "") $sWrkFilter .= " OR ";
-					$sWrkFilter .= $sFilter;
-				} else {
-					break;
-				}
-			}
-		}
-		if ($addcnt == 0) { // No record inserted
-			$this->setFailureMessage($Language->Phrase("NoAddRecord"));
-			$bGridInsert = FALSE;
-		}
-		if ($bGridInsert) {
-			$conn->CommitTrans(); // Commit transaction
-
-			// Get new recordset
-			$this->CurrentFilter = $sWrkFilter;
-			$sSql = $this->SQL();
-			if ($rs = $conn->Execute($sSql)) {
-				$rsnew = $rs->GetRows();
-				$rs->Close();
-			}
-
-			// Call Grid_Inserted event
-			$this->Grid_Inserted($rsnew);
-			if ($this->AuditTrailOnAdd) $this->WriteAuditTrailDummy($Language->Phrase("BatchInsertSuccess")); // Batch insert success
-			if ($this->getSuccessMessage() == "")
-				$this->setSuccessMessage($Language->Phrase("InsertSuccess")); // Set up insert success message
-			$this->ClearInlineMode(); // Clear grid add mode
-		} else {
-			$conn->RollbackTrans(); // Rollback transaction
-			if ($this->AuditTrailOnAdd) $this->WriteAuditTrailDummy($Language->Phrase("BatchInsertRollback")); // Batch insert rollback
-			if ($this->getFailureMessage() == "") {
-				$this->setFailureMessage($Language->Phrase("InsertFailed")); // Set insert failed message
-			}
-		}
-		return $bGridInsert;
-	}
-
-	// Check if empty row
-	function EmptyRow() {
-		global $objForm;
-		if ($objForm->HasValue("x_Nama") && $objForm->HasValue("o_Nama") && $this->Nama->CurrentValue <> $this->Nama->OldValue)
-			return FALSE;
-		return TRUE;
-	}
-
-	// Validate grid form
-	function ValidateGridForm() {
-		global $objForm;
-
-		// Get row count
-		$objForm->Index = -1;
-		$rowcnt = strval($objForm->GetValue($this->FormKeyCountName));
-		if ($rowcnt == "" || !is_numeric($rowcnt))
-			$rowcnt = 0;
-
-		// Validate all records
-		for ($rowindex = 1; $rowindex <= $rowcnt; $rowindex++) {
-
-			// Load current row values
-			$objForm->Index = $rowindex;
-			$rowaction = strval($objForm->GetValue($this->FormActionName));
-			if ($rowaction <> "delete" && $rowaction <> "insertdelete") {
-				$this->LoadFormValues(); // Get form values
-				if ($rowaction == "insert" && $this->EmptyRow()) {
-
-					// Ignore
-				} else if (!$this->ValidateForm()) {
-					return FALSE;
-				}
-			}
-		}
-		return TRUE;
-	}
-
-	// Get all form values of the grid
-	function GetGridFormValues() {
-		global $objForm;
-
-		// Get row count
-		$objForm->Index = -1;
-		$rowcnt = strval($objForm->GetValue($this->FormKeyCountName));
-		if ($rowcnt == "" || !is_numeric($rowcnt))
-			$rowcnt = 0;
-		$rows = array();
-
-		// Loop through all records
-		for ($rowindex = 1; $rowindex <= $rowcnt; $rowindex++) {
-
-			// Load current row values
-			$objForm->Index = $rowindex;
-			$rowaction = strval($objForm->GetValue($this->FormActionName));
-			if ($rowaction <> "delete" && $rowaction <> "insertdelete") {
-				$this->LoadFormValues(); // Get form values
-				if ($rowaction == "insert" && $this->EmptyRow()) {
-
-					// Ignore
-				} else {
-					$rows[] = $this->GetFieldValues("FormValue"); // Return row as array
-				}
-			}
-		}
-		return $rows; // Return as array of array
-	}
-
-	// Restore form values for current row
-	function RestoreCurrentRowFormValues($idx) {
-		global $objForm;
-
-		// Get row based on current index
-		$objForm->Index = $idx;
-		$this->LoadFormValues(); // Load form values
 	}
 
 	// Set up sort parameters
@@ -1085,19 +828,17 @@ class ct04_rutin_list extends ct04_rutin {
 	function SetupListOptions() {
 		global $Security, $Language;
 
-		// "griddelete"
-		if ($this->AllowAddDeleteRow) {
-			$item = &$this->ListOptions->Add("griddelete");
-			$item->CssStyle = "white-space: nowrap;";
-			$item->OnLeft = TRUE;
-			$item->Visible = FALSE; // Default hidden
-		}
-
 		// Add group option item
 		$item = &$this->ListOptions->Add($this->ListOptions->GroupOptionName);
 		$item->Body = "";
 		$item->OnLeft = TRUE;
 		$item->Visible = FALSE;
+
+		// "edit"
+		$item = &$this->ListOptions->Add("edit");
+		$item->CssStyle = "white-space: nowrap;";
+		$item->Visible = $Security->CanEdit();
+		$item->OnLeft = TRUE;
 
 		// "copy"
 		$item = &$this->ListOptions->Add("copy");
@@ -1168,21 +909,6 @@ class ct04_rutin_list extends ct04_rutin {
 				$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $BlankRowName . "\" id=\"" . $BlankRowName . "\" value=\"1\">";
 		}
 
-		// "delete"
-		if ($this->AllowAddDeleteRow) {
-			if ($this->CurrentAction == "gridadd" || $this->CurrentAction == "gridedit") {
-				$option = &$this->ListOptions;
-				$option->UseButtonGroup = TRUE; // Use button group for grid delete button
-				$option->UseImageAndText = TRUE; // Use image and text for grid delete button
-				$oListOpt = &$option->Items["griddelete"];
-				if (!$Security->CanDelete() && is_numeric($this->RowIndex) && ($this->RowAction == "" || $this->RowAction == "edit")) { // Do not allow delete existing record
-					$oListOpt->Body = "&nbsp;";
-				} else {
-					$oListOpt->Body = "<a class=\"ewGridLink ewGridDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" onclick=\"return ew_DeleteGridRow(this, " . $this->RowIndex . ");\">" . $Language->Phrase("DeleteLink") . "</a>";
-				}
-			}
-		}
-
 		// "sequence"
 		$oListOpt = &$this->ListOptions->Items["sequence"];
 		$oListOpt->Body = ew_FormatSeqNo($this->RecCnt);
@@ -1197,6 +923,28 @@ class ct04_rutin_list extends ct04_rutin {
 				"<a class=\"ewGridLink ewInlineCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" href=\"" . $cancelurl . "\">" . $Language->Phrase("CancelLink") . "</a>" .
 				"<input type=\"hidden\" name=\"a_list\" id=\"a_list\" value=\"insert\"></div>";
 			return;
+		}
+
+		// "edit"
+		$oListOpt = &$this->ListOptions->Items["edit"];
+		if ($this->CurrentAction == "edit" && $this->RowType == EW_ROWTYPE_EDIT) { // Inline-Edit
+			$this->ListOptions->CustomItem = "edit"; // Show edit column only
+			$cancelurl = $this->AddMasterUrl($this->PageUrl() . "a=cancel");
+				$oListOpt->Body = "<div" . (($oListOpt->OnLeft) ? " style=\"text-align: right\"" : "") . ">" .
+					"<a class=\"ewGridLink ewInlineUpdate\" title=\"" . ew_HtmlTitle($Language->Phrase("UpdateLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("UpdateLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit('" . ew_GetHashUrl($this->PageName(), $this->PageObjName . "_row_" . $this->RowCnt) . "');\">" . $Language->Phrase("UpdateLink") . "</a>&nbsp;" .
+					"<a class=\"ewGridLink ewInlineCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("CancelLink")) . "\" href=\"" . $cancelurl . "\">" . $Language->Phrase("CancelLink") . "</a>" .
+					"<input type=\"hidden\" name=\"a_list\" id=\"a_list\" value=\"update\"></div>";
+			$oListOpt->Body .= "<input type=\"hidden\" name=\"k" . $this->RowIndex . "_key\" id=\"k" . $this->RowIndex . "_key\" value=\"" . ew_HtmlEncode($this->id->CurrentValue) . "\">";
+			return;
+		}
+
+		// "edit"
+		$oListOpt = &$this->ListOptions->Items["edit"];
+		$editcaption = ew_HtmlTitle($Language->Phrase("EditLink"));
+		if ($Security->CanEdit()) {
+			$oListOpt->Body .= "<a class=\"ewRowLink ewInlineEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("InlineEditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InlineEditLink")) . "\" href=\"" . ew_HtmlEncode(ew_GetHashUrl($this->InlineEditUrl, $this->PageObjName . "_row_" . $this->RowCnt)) . "\">" . $Language->Phrase("InlineEditLink") . "</a>";
+		} else {
+			$oListOpt->Body = "";
 		}
 
 		// "copy"
@@ -1240,9 +988,6 @@ class ct04_rutin_list extends ct04_rutin {
 		// "checkbox"
 		$oListOpt = &$this->ListOptions->Items["checkbox"];
 		$oListOpt->Body = "<input type=\"checkbox\" name=\"key_m[]\" value=\"" . ew_HtmlEncode($this->id->CurrentValue) . "\" onclick='ew_ClickMultiCheckbox(event);'>";
-		if ($this->CurrentAction == "gridedit" && is_numeric($this->RowIndex)) {
-			$this->MultiSelectKey .= "<input type=\"hidden\" name=\"" . $KeyName . "\" id=\"" . $KeyName . "\" value=\"" . $this->id->CurrentValue . "\">";
-		}
 		$this->RenderListOptionsExt();
 
 		// Call ListOptions_Rendered event
@@ -1259,15 +1004,6 @@ class ct04_rutin_list extends ct04_rutin {
 		$item = &$option->Add("inlineadd");
 		$item->Body = "<a class=\"ewAddEdit ewInlineAdd\" title=\"" . ew_HtmlTitle($Language->Phrase("InlineAddLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("InlineAddLink")) . "\" href=\"" . ew_HtmlEncode($this->InlineAddUrl) . "\">" .$Language->Phrase("InlineAddLink") . "</a>";
 		$item->Visible = ($this->InlineAddUrl <> "" && $Security->CanAdd());
-		$item = &$option->Add("gridadd");
-		$item->Body = "<a class=\"ewAddEdit ewGridAdd\" title=\"" . ew_HtmlTitle($Language->Phrase("GridAddLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridAddLink")) . "\" href=\"" . ew_HtmlEncode($this->GridAddUrl) . "\">" . $Language->Phrase("GridAddLink") . "</a>";
-		$item->Visible = ($this->GridAddUrl <> "" && $Security->CanAdd());
-
-		// Add grid edit
-		$option = $options["addedit"];
-		$item = &$option->Add("gridedit");
-		$item->Body = "<a class=\"ewAddEdit ewGridEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("GridEditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GridEditUrl) . "\">" . $Language->Phrase("GridEditLink") . "</a>";
-		$item->Visible = ($this->GridEditUrl <> "" && $Security->CanEdit());
 		$option = $options["action"];
 
 		// Add multi delete
@@ -1310,7 +1046,6 @@ class ct04_rutin_list extends ct04_rutin {
 	function RenderOtherOptions() {
 		global $Language, $Security;
 		$options = &$this->OtherOptions;
-		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "gridedit") { // Not grid add/edit mode
 			$option = &$options["action"];
 
 			// Set up list action buttons
@@ -1332,56 +1067,6 @@ class ct04_rutin_list extends ct04_rutin {
 				$option = &$options["action"];
 				$option->HideAllOptions();
 			}
-		} else { // Grid add/edit mode
-
-			// Hide all options first
-			foreach ($options as &$option)
-				$option->HideAllOptions();
-			if ($this->CurrentAction == "gridadd") {
-				if ($this->AllowAddDeleteRow) {
-
-					// Add add blank row
-					$option = &$options["addedit"];
-					$option->UseDropDownButton = FALSE;
-					$option->UseImageAndText = TRUE;
-					$item = &$option->Add("addblankrow");
-					$item->Body = "<a class=\"ewAddEdit ewAddBlankRow\" title=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" href=\"javascript:void(0);\" onclick=\"ew_AddGridRow(this);\">" . $Language->Phrase("AddBlankRow") . "</a>";
-					$item->Visible = FALSE;
-				}
-				$option = &$options["action"];
-				$option->UseDropDownButton = FALSE;
-				$option->UseImageAndText = TRUE;
-
-				// Add grid insert
-				$item = &$option->Add("gridinsert");
-				$item->Body = "<a class=\"ewAction ewGridInsert\" title=\"" . ew_HtmlTitle($Language->Phrase("GridInsertLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridInsertLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit('" . $this->PageName() . "');\">" . $Language->Phrase("GridInsertLink") . "</a>";
-
-				// Add grid cancel
-				$item = &$option->Add("gridcancel");
-				$cancelurl = $this->AddMasterUrl($this->PageUrl() . "a=cancel");
-				$item->Body = "<a class=\"ewAction ewGridCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("GridCancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridCancelLink")) . "\" href=\"" . $cancelurl . "\">" . $Language->Phrase("GridCancelLink") . "</a>";
-			}
-			if ($this->CurrentAction == "gridedit") {
-				if ($this->AllowAddDeleteRow) {
-
-					// Add add blank row
-					$option = &$options["addedit"];
-					$option->UseDropDownButton = FALSE;
-					$option->UseImageAndText = TRUE;
-					$item = &$option->Add("addblankrow");
-					$item->Body = "<a class=\"ewAddEdit ewAddBlankRow\" title=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("AddBlankRow")) . "\" href=\"javascript:void(0);\" onclick=\"ew_AddGridRow(this);\">" . $Language->Phrase("AddBlankRow") . "</a>";
-					$item->Visible = FALSE;
-				}
-				$option = &$options["action"];
-				$option->UseDropDownButton = FALSE;
-				$option->UseImageAndText = TRUE;
-					$item = &$option->Add("gridsave");
-					$item->Body = "<a class=\"ewAction ewGridSave\" title=\"" . ew_HtmlTitle($Language->Phrase("GridSaveLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridSaveLink")) . "\" href=\"\" onclick=\"return ewForms(this).Submit('" . $this->PageName() . "');\">" . $Language->Phrase("GridSaveLink") . "</a>";
-					$item = &$option->Add("gridcancel");
-					$cancelurl = $this->AddMasterUrl($this->PageUrl() . "a=cancel");
-					$item->Body = "<a class=\"ewAction ewGridCancel\" title=\"" . ew_HtmlTitle($Language->Phrase("GridCancelLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridCancelLink")) . "\" href=\"" . $cancelurl . "\">" . $Language->Phrase("GridCancelLink") . "</a>";
-			}
-		}
 	}
 
 	// Process list action
@@ -1549,7 +1234,6 @@ class ct04_rutin_list extends ct04_rutin {
 		if (!$this->Nama->FldIsDetailKey) {
 			$this->Nama->setFormValue($objForm->GetValue("x_Nama"));
 		}
-		$this->Nama->setOldValue($objForm->GetValue("o_Nama"));
 		if (!$this->id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->id->setFormValue($objForm->GetValue("x_id"));
 	}
@@ -1747,88 +1431,6 @@ class ct04_rutin_list extends ct04_rutin {
 			ew_AddMessage($gsFormError, $sFormCustomError);
 		}
 		return $ValidateForm;
-	}
-
-	//
-	// Delete records based on current filter
-	//
-	function DeleteRows() {
-		global $Language, $Security;
-		if (!$Security->CanDelete()) {
-			$this->setFailureMessage($Language->Phrase("NoDeletePermission")); // No delete permission
-			return FALSE;
-		}
-		$DeleteRows = TRUE;
-		$sSql = $this->SQL();
-		$conn = &$this->Connection();
-		$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-		$rs = $conn->Execute($sSql);
-		$conn->raiseErrorFn = '';
-		if ($rs === FALSE) {
-			return FALSE;
-		} elseif ($rs->EOF) {
-			$this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
-			$rs->Close();
-			return FALSE;
-
-		//} else {
-		//	$this->LoadRowValues($rs); // Load row values
-
-		}
-		$rows = ($rs) ? $rs->GetRows() : array();
-		if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteBegin")); // Batch delete begin
-
-		// Clone old rows
-		$rsold = $rows;
-		if ($rs)
-			$rs->Close();
-
-		// Call row deleting event
-		if ($DeleteRows) {
-			foreach ($rsold as $row) {
-				$DeleteRows = $this->Row_Deleting($row);
-				if (!$DeleteRows) break;
-			}
-		}
-		if ($DeleteRows) {
-			$sKey = "";
-			foreach ($rsold as $row) {
-				$sThisKey = "";
-				if ($sThisKey <> "") $sThisKey .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
-				$sThisKey .= $row['id'];
-				$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-				$DeleteRows = $this->Delete($row); // Delete
-				$conn->raiseErrorFn = '';
-				if ($DeleteRows === FALSE)
-					break;
-				if ($sKey <> "") $sKey .= ", ";
-				$sKey .= $sThisKey;
-			}
-		} else {
-
-			// Set up error message
-			if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
-
-				// Use the message, do nothing
-			} elseif ($this->CancelMessage <> "") {
-				$this->setFailureMessage($this->CancelMessage);
-				$this->CancelMessage = "";
-			} else {
-				$this->setFailureMessage($Language->Phrase("DeleteCancelled"));
-			}
-		}
-		if ($DeleteRows) {
-			if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteSuccess")); // Batch delete success
-		} else {
-		}
-
-		// Call Row Deleted event
-		if ($DeleteRows) {
-			foreach ($rsold as $row) {
-				$this->Row_Deleted($row);
-			}
-		}
-		return $DeleteRows;
 	}
 
 	// Update record based on key values
@@ -2119,9 +1721,6 @@ ft04_rutinlist.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
-		var checkrow = (gridinsert) ? !this.EmptyRow(infix) : true;
-		if (checkrow) {
-			addcnt++;
 			elm = this.GetElements("x" + infix + "_Nama");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t04_rutin->Nama->FldCaption(), $t04_rutin->Nama->ReqErrMsg)) ?>");
@@ -2129,19 +1728,7 @@ ft04_rutinlist.Validate = function() {
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
 				return false;
-		} // End Grid Add checking
 	}
-	if (gridinsert && addcnt == 0) { // No row added
-		ew_Alert(ewLanguage.Phrase("NoAddRecord"));
-		return false;
-	}
-	return true;
-}
-
-// Check empty row
-ft04_rutinlist.EmptyRow = function(infix) {
-	var fobj = this.Form;
-	if (ew_ValueChanged(fobj, infix, "Nama", false)) return false;
 	return true;
 }
 
@@ -2177,13 +1764,6 @@ ft04_rutinlist.ValidateRequired = false;
 <div class="clearfix"></div>
 </div>
 <?php
-if ($t04_rutin->CurrentAction == "gridadd") {
-	$t04_rutin->CurrentFilter = "0=1";
-	$t04_rutin_list->StartRec = 1;
-	$t04_rutin_list->DisplayRecs = $t04_rutin->GridAddRowCount;
-	$t04_rutin_list->TotalRecs = $t04_rutin_list->DisplayRecs;
-	$t04_rutin_list->StopRec = $t04_rutin_list->DisplayRecs;
-} else {
 	$bSelectLimit = $t04_rutin_list->UseSelectLimit;
 	if ($bSelectLimit) {
 		if ($t04_rutin_list->TotalRecs <= 0)
@@ -2209,7 +1789,6 @@ if ($t04_rutin->CurrentAction == "gridadd") {
 		else
 			$t04_rutin_list->setWarningMessage($Language->Phrase("NoRecord"));
 	}
-}
 $t04_rutin_list->RenderOtherOptions();
 ?>
 <?php $t04_rutin_list->ShowPageHeader(); ?>
@@ -2396,24 +1975,13 @@ if ($t04_rutin_list->Recordset && !$t04_rutin_list->Recordset->EOF) {
 $t04_rutin->RowType = EW_ROWTYPE_AGGREGATEINIT;
 $t04_rutin->ResetAttrs();
 $t04_rutin_list->RenderRow();
-if ($t04_rutin->CurrentAction == "gridadd")
-	$t04_rutin_list->RowIndex = 0;
-if ($t04_rutin->CurrentAction == "gridedit")
-	$t04_rutin_list->RowIndex = 0;
+$t04_rutin_list->EditRowCnt = 0;
+if ($t04_rutin->CurrentAction == "edit")
+	$t04_rutin_list->RowIndex = 1;
 while ($t04_rutin_list->RecCnt < $t04_rutin_list->StopRec) {
 	$t04_rutin_list->RecCnt++;
 	if (intval($t04_rutin_list->RecCnt) >= intval($t04_rutin_list->StartRec)) {
 		$t04_rutin_list->RowCnt++;
-		if ($t04_rutin->CurrentAction == "gridadd" || $t04_rutin->CurrentAction == "gridedit" || $t04_rutin->CurrentAction == "F") {
-			$t04_rutin_list->RowIndex++;
-			$objForm->Index = $t04_rutin_list->RowIndex;
-			if ($objForm->HasValue($t04_rutin_list->FormActionName))
-				$t04_rutin_list->RowAction = strval($objForm->GetValue($t04_rutin_list->FormActionName));
-			elseif ($t04_rutin->CurrentAction == "gridadd")
-				$t04_rutin_list->RowAction = "insert";
-			else
-				$t04_rutin_list->RowAction = "";
-		}
 
 		// Set up key count
 		$t04_rutin_list->KeyCount = $t04_rutin_list->RowIndex;
@@ -2427,21 +1995,15 @@ while ($t04_rutin_list->RecCnt < $t04_rutin_list->StopRec) {
 			$t04_rutin_list->LoadRowValues($t04_rutin_list->Recordset); // Load row values
 		}
 		$t04_rutin->RowType = EW_ROWTYPE_VIEW; // Render view
-		if ($t04_rutin->CurrentAction == "gridadd") // Grid add
-			$t04_rutin->RowType = EW_ROWTYPE_ADD; // Render add
-		if ($t04_rutin->CurrentAction == "gridadd" && $t04_rutin->EventCancelled && !$objForm->HasValue("k_blankrow")) // Insert failed
-			$t04_rutin_list->RestoreCurrentRowFormValues($t04_rutin_list->RowIndex); // Restore form values
-		if ($t04_rutin->CurrentAction == "gridedit") { // Grid edit
-			if ($t04_rutin->EventCancelled) {
-				$t04_rutin_list->RestoreCurrentRowFormValues($t04_rutin_list->RowIndex); // Restore form values
-			}
-			if ($t04_rutin_list->RowAction == "insert")
-				$t04_rutin->RowType = EW_ROWTYPE_ADD; // Render add
-			else
+		if ($t04_rutin->CurrentAction == "edit") {
+			if ($t04_rutin_list->CheckInlineEditKey() && $t04_rutin_list->EditRowCnt == 0) { // Inline edit
 				$t04_rutin->RowType = EW_ROWTYPE_EDIT; // Render edit
+			}
 		}
-		if ($t04_rutin->CurrentAction == "gridedit" && ($t04_rutin->RowType == EW_ROWTYPE_EDIT || $t04_rutin->RowType == EW_ROWTYPE_ADD) && $t04_rutin->EventCancelled) // Update failed
-			$t04_rutin_list->RestoreCurrentRowFormValues($t04_rutin_list->RowIndex); // Restore form values
+		if ($t04_rutin->CurrentAction == "edit" && $t04_rutin->RowType == EW_ROWTYPE_EDIT && $t04_rutin->EventCancelled) { // Update failed
+			$objForm->Index = 1;
+			$t04_rutin_list->RestoreFormValues(); // Restore form values
+		}
 		if ($t04_rutin->RowType == EW_ROWTYPE_EDIT) // Edit row
 			$t04_rutin_list->EditRowCnt++;
 
@@ -2453,9 +2015,6 @@ while ($t04_rutin_list->RecCnt < $t04_rutin_list->StopRec) {
 
 		// Render list options
 		$t04_rutin_list->RenderListOptions();
-
-		// Skip delete row / empty row for confirm page
-		if ($t04_rutin_list->RowAction <> "delete" && $t04_rutin_list->RowAction <> "insertdelete" && !($t04_rutin_list->RowAction == "insert" && $t04_rutin->CurrentAction == "F" && $t04_rutin_list->EmptyRow())) {
 ?>
 	<tr<?php echo $t04_rutin->RowAttributes() ?>>
 <?php
@@ -2465,12 +2024,6 @@ $t04_rutin_list->ListOptions->Render("body", "left", $t04_rutin_list->RowCnt);
 ?>
 	<?php if ($t04_rutin->Nama->Visible) { // Nama ?>
 		<td data-name="Nama"<?php echo $t04_rutin->Nama->CellAttributes() ?>>
-<?php if ($t04_rutin->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t04_rutin_list->RowCnt ?>_t04_rutin_Nama" class="form-group t04_rutin_Nama">
-<input type="text" data-table="t04_rutin" data-field="x_Nama" name="x<?php echo $t04_rutin_list->RowIndex ?>_Nama" id="x<?php echo $t04_rutin_list->RowIndex ?>_Nama" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t04_rutin->Nama->getPlaceHolder()) ?>" value="<?php echo $t04_rutin->Nama->EditValue ?>"<?php echo $t04_rutin->Nama->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t04_rutin" data-field="x_Nama" name="o<?php echo $t04_rutin_list->RowIndex ?>_Nama" id="o<?php echo $t04_rutin_list->RowIndex ?>_Nama" value="<?php echo ew_HtmlEncode($t04_rutin->Nama->OldValue) ?>">
-<?php } ?>
 <?php if ($t04_rutin->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
 <span id="el<?php echo $t04_rutin_list->RowCnt ?>_t04_rutin_Nama" class="form-group t04_rutin_Nama">
 <input type="text" data-table="t04_rutin" data-field="x_Nama" name="x<?php echo $t04_rutin_list->RowIndex ?>_Nama" id="x<?php echo $t04_rutin_list->RowIndex ?>_Nama" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t04_rutin->Nama->getPlaceHolder()) ?>" value="<?php echo $t04_rutin->Nama->EditValue ?>"<?php echo $t04_rutin->Nama->EditAttributes() ?>>
@@ -2484,10 +2037,6 @@ $t04_rutin_list->ListOptions->Render("body", "left", $t04_rutin_list->RowCnt);
 <?php } ?>
 <a id="<?php echo $t04_rutin_list->PageObjName . "_row_" . $t04_rutin_list->RowCnt ?>"></a></td>
 	<?php } ?>
-<?php if ($t04_rutin->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<input type="hidden" data-table="t04_rutin" data-field="x_id" name="x<?php echo $t04_rutin_list->RowIndex ?>_id" id="x<?php echo $t04_rutin_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_rutin->id->CurrentValue) ?>">
-<input type="hidden" data-table="t04_rutin" data-field="x_id" name="o<?php echo $t04_rutin_list->RowIndex ?>_id" id="o<?php echo $t04_rutin_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_rutin->id->OldValue) ?>">
-<?php } ?>
 <?php if ($t04_rutin->RowType == EW_ROWTYPE_EDIT || $t04_rutin->CurrentMode == "edit") { ?>
 <input type="hidden" data-table="t04_rutin" data-field="x_id" name="x<?php echo $t04_rutin_list->RowIndex ?>_id" id="x<?php echo $t04_rutin_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t04_rutin->id->CurrentValue) ?>">
 <?php } ?>
@@ -2504,53 +2053,8 @@ ft04_rutinlist.UpdateOpts(<?php echo $t04_rutin_list->RowIndex ?>);
 <?php } ?>
 <?php
 	}
-	} // End delete row checking
 	if ($t04_rutin->CurrentAction <> "gridadd")
-		if (!$t04_rutin_list->Recordset->EOF) $t04_rutin_list->Recordset->MoveNext();
-}
-?>
-<?php
-	if ($t04_rutin->CurrentAction == "gridadd" || $t04_rutin->CurrentAction == "gridedit") {
-		$t04_rutin_list->RowIndex = '$rowindex$';
-		$t04_rutin_list->LoadDefaultValues();
-
-		// Set row properties
-		$t04_rutin->ResetAttrs();
-		$t04_rutin->RowAttrs = array_merge($t04_rutin->RowAttrs, array('data-rowindex'=>$t04_rutin_list->RowIndex, 'id'=>'r0_t04_rutin', 'data-rowtype'=>EW_ROWTYPE_ADD));
-		ew_AppendClass($t04_rutin->RowAttrs["class"], "ewTemplate");
-		$t04_rutin->RowType = EW_ROWTYPE_ADD;
-
-		// Render row
-		$t04_rutin_list->RenderRow();
-
-		// Render list options
-		$t04_rutin_list->RenderListOptions();
-		$t04_rutin_list->StartRowCnt = 0;
-?>
-	<tr<?php echo $t04_rutin->RowAttributes() ?>>
-<?php
-
-// Render list options (body, left)
-$t04_rutin_list->ListOptions->Render("body", "left", $t04_rutin_list->RowIndex);
-?>
-	<?php if ($t04_rutin->Nama->Visible) { // Nama ?>
-		<td data-name="Nama">
-<span id="el$rowindex$_t04_rutin_Nama" class="form-group t04_rutin_Nama">
-<input type="text" data-table="t04_rutin" data-field="x_Nama" name="x<?php echo $t04_rutin_list->RowIndex ?>_Nama" id="x<?php echo $t04_rutin_list->RowIndex ?>_Nama" size="30" maxlength="50" placeholder="<?php echo ew_HtmlEncode($t04_rutin->Nama->getPlaceHolder()) ?>" value="<?php echo $t04_rutin->Nama->EditValue ?>"<?php echo $t04_rutin->Nama->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t04_rutin" data-field="x_Nama" name="o<?php echo $t04_rutin_list->RowIndex ?>_Nama" id="o<?php echo $t04_rutin_list->RowIndex ?>_Nama" value="<?php echo ew_HtmlEncode($t04_rutin->Nama->OldValue) ?>">
-</td>
-	<?php } ?>
-<?php
-
-// Render list options (body, right)
-$t04_rutin_list->ListOptions->Render("body", "right", $t04_rutin_list->RowCnt);
-?>
-<script type="text/javascript">
-ft04_rutinlist.UpdateOpts(<?php echo $t04_rutin_list->RowIndex ?>);
-</script>
-	</tr>
-<?php
+		$t04_rutin_list->Recordset->MoveNext();
 }
 ?>
 </tbody>
@@ -2559,15 +2063,8 @@ ft04_rutinlist.UpdateOpts(<?php echo $t04_rutin_list->RowIndex ?>);
 <?php if ($t04_rutin->CurrentAction == "add" || $t04_rutin->CurrentAction == "copy") { ?>
 <input type="hidden" name="<?php echo $t04_rutin_list->FormKeyCountName ?>" id="<?php echo $t04_rutin_list->FormKeyCountName ?>" value="<?php echo $t04_rutin_list->KeyCount ?>">
 <?php } ?>
-<?php if ($t04_rutin->CurrentAction == "gridadd") { ?>
-<input type="hidden" name="a_list" id="a_list" value="gridinsert">
+<?php if ($t04_rutin->CurrentAction == "edit") { ?>
 <input type="hidden" name="<?php echo $t04_rutin_list->FormKeyCountName ?>" id="<?php echo $t04_rutin_list->FormKeyCountName ?>" value="<?php echo $t04_rutin_list->KeyCount ?>">
-<?php echo $t04_rutin_list->MultiSelectKey ?>
-<?php } ?>
-<?php if ($t04_rutin->CurrentAction == "gridedit") { ?>
-<input type="hidden" name="a_list" id="a_list" value="gridupdate">
-<input type="hidden" name="<?php echo $t04_rutin_list->FormKeyCountName ?>" id="<?php echo $t04_rutin_list->FormKeyCountName ?>" value="<?php echo $t04_rutin_list->KeyCount ?>">
-<?php echo $t04_rutin_list->MultiSelectKey ?>
 <?php } ?>
 <?php if ($t04_rutin->CurrentAction == "") { ?>
 <input type="hidden" name="a_list" id="a_list" value="">
