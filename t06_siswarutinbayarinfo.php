@@ -15,6 +15,8 @@ class ct06_siswarutinbayar extends cTable {
 	var $AuditTrailOnSearch = FALSE;
 	var $id;
 	var $siswa_id;
+	var $Siswa_Nomor_Induk;
+	var $Siswa_Nama;
 	var $rutin_id;
 	var $Bulan;
 	var $Tahun;
@@ -63,6 +65,18 @@ class ct06_siswarutinbayar extends cTable {
 		$this->siswa_id->Sortable = TRUE; // Allow sort
 		$this->siswa_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['siswa_id'] = &$this->siswa_id;
+
+		// Siswa_Nomor_Induk
+		$this->Siswa_Nomor_Induk = new cField('t06_siswarutinbayar', 't06_siswarutinbayar', 'x_Siswa_Nomor_Induk', 'Siswa_Nomor_Induk', '(select Nomor_Induk from t03_siswa where id = siswa_id)', '(select Nomor_Induk from t03_siswa where id = siswa_id)', 200, -1, FALSE, '(select Nomor_Induk from t03_siswa where id = siswa_id)', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->Siswa_Nomor_Induk->FldIsCustom = TRUE; // Custom field
+		$this->Siswa_Nomor_Induk->Sortable = TRUE; // Allow sort
+		$this->fields['Siswa_Nomor_Induk'] = &$this->Siswa_Nomor_Induk;
+
+		// Siswa_Nama
+		$this->Siswa_Nama = new cField('t06_siswarutinbayar', 't06_siswarutinbayar', 'x_Siswa_Nama', 'Siswa_Nama', '(select Nama from t03_siswa where id = siswa_id)', '(select Nama from t03_siswa where id = siswa_id)', 200, -1, FALSE, '(select Nama from t03_siswa where id = siswa_id)', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->Siswa_Nama->FldIsCustom = TRUE; // Custom field
+		$this->Siswa_Nama->Sortable = TRUE; // Allow sort
+		$this->fields['Siswa_Nama'] = &$this->Siswa_Nama;
 
 		// rutin_id
 		$this->rutin_id = new cField('t06_siswarutinbayar', 't06_siswarutinbayar', 'x_rutin_id', 'rutin_id', '`rutin_id`', '`rutin_id`', 3, -1, FALSE, '`rutin_id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
@@ -196,7 +210,7 @@ class ct06_siswarutinbayar extends cTable {
 	var $_SqlSelect = "";
 
 	function getSqlSelect() { // Select
-		return ($this->_SqlSelect <> "") ? $this->_SqlSelect : "SELECT * FROM " . $this->getSqlFrom();
+		return ($this->_SqlSelect <> "") ? $this->_SqlSelect : "SELECT *, (select Nomor_Induk from t03_siswa where id = siswa_id) AS `Siswa_Nomor_Induk`, (select Nama from t03_siswa where id = siswa_id) AS `Siswa_Nama` FROM " . $this->getSqlFrom();
 	}
 
 	function SqlSelect() { // For backward compatibility
@@ -661,6 +675,8 @@ class ct06_siswarutinbayar extends cTable {
 	function LoadListRowValues(&$rs) {
 		$this->id->setDbValue($rs->fields('id'));
 		$this->siswa_id->setDbValue($rs->fields('siswa_id'));
+		$this->Siswa_Nomor_Induk->setDbValue($rs->fields('Siswa_Nomor_Induk'));
+		$this->Siswa_Nama->setDbValue($rs->fields('Siswa_Nama'));
 		$this->rutin_id->setDbValue($rs->fields('rutin_id'));
 		$this->Bulan->setDbValue($rs->fields('Bulan'));
 		$this->Tahun->setDbValue($rs->fields('Tahun'));
@@ -678,6 +694,8 @@ class ct06_siswarutinbayar extends cTable {
    // Common render codes
 		// id
 		// siswa_id
+		// Siswa_Nomor_Induk
+		// Siswa_Nama
 		// rutin_id
 		// Bulan
 		// Tahun
@@ -712,6 +730,14 @@ class ct06_siswarutinbayar extends cTable {
 			$this->siswa_id->ViewValue = NULL;
 		}
 		$this->siswa_id->ViewCustomAttributes = "";
+
+		// Siswa_Nomor_Induk
+		$this->Siswa_Nomor_Induk->ViewValue = $this->Siswa_Nomor_Induk->CurrentValue;
+		$this->Siswa_Nomor_Induk->ViewCustomAttributes = "";
+
+		// Siswa_Nama
+		$this->Siswa_Nama->ViewValue = $this->Siswa_Nama->CurrentValue;
+		$this->Siswa_Nama->ViewCustomAttributes = "";
 
 		// rutin_id
 		$this->rutin_id->ViewValue = $this->rutin_id->CurrentValue;
@@ -769,6 +795,16 @@ class ct06_siswarutinbayar extends cTable {
 		$this->siswa_id->LinkCustomAttributes = "";
 		$this->siswa_id->HrefValue = "";
 		$this->siswa_id->TooltipValue = "";
+
+		// Siswa_Nomor_Induk
+		$this->Siswa_Nomor_Induk->LinkCustomAttributes = "";
+		$this->Siswa_Nomor_Induk->HrefValue = "";
+		$this->Siswa_Nomor_Induk->TooltipValue = "";
+
+		// Siswa_Nama
+		$this->Siswa_Nama->LinkCustomAttributes = "";
+		$this->Siswa_Nama->HrefValue = "";
+		$this->Siswa_Nama->TooltipValue = "";
 
 		// rutin_id
 		$this->rutin_id->LinkCustomAttributes = "";
@@ -838,6 +874,18 @@ class ct06_siswarutinbayar extends cTable {
 			$this->siswa_id->EditValue = NULL;
 		}
 		$this->siswa_id->ViewCustomAttributes = "";
+
+		// Siswa_Nomor_Induk
+		$this->Siswa_Nomor_Induk->EditAttrs["class"] = "form-control";
+		$this->Siswa_Nomor_Induk->EditCustomAttributes = "";
+		$this->Siswa_Nomor_Induk->EditValue = $this->Siswa_Nomor_Induk->CurrentValue;
+		$this->Siswa_Nomor_Induk->ViewCustomAttributes = "";
+
+		// Siswa_Nama
+		$this->Siswa_Nama->EditAttrs["class"] = "form-control";
+		$this->Siswa_Nama->EditCustomAttributes = "";
+		$this->Siswa_Nama->EditValue = $this->Siswa_Nama->CurrentValue;
+		$this->Siswa_Nama->ViewCustomAttributes = "";
 
 		// rutin_id
 		$this->rutin_id->EditAttrs["class"] = "form-control";
@@ -922,6 +970,8 @@ class ct06_siswarutinbayar extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
+					if ($this->Siswa_Nomor_Induk->Exportable) $Doc->ExportCaption($this->Siswa_Nomor_Induk);
+					if ($this->Siswa_Nama->Exportable) $Doc->ExportCaption($this->Siswa_Nama);
 					if ($this->rutin_id->Exportable) $Doc->ExportCaption($this->rutin_id);
 					if ($this->Bulan->Exportable) $Doc->ExportCaption($this->Bulan);
 					if ($this->Tahun->Exportable) $Doc->ExportCaption($this->Tahun);
@@ -930,6 +980,8 @@ class ct06_siswarutinbayar extends cTable {
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
 					if ($this->siswa_id->Exportable) $Doc->ExportCaption($this->siswa_id);
+					if ($this->Siswa_Nomor_Induk->Exportable) $Doc->ExportCaption($this->Siswa_Nomor_Induk);
+					if ($this->Siswa_Nama->Exportable) $Doc->ExportCaption($this->Siswa_Nama);
 					if ($this->rutin_id->Exportable) $Doc->ExportCaption($this->rutin_id);
 					if ($this->Bulan->Exportable) $Doc->ExportCaption($this->Bulan);
 					if ($this->Tahun->Exportable) $Doc->ExportCaption($this->Tahun);
@@ -966,6 +1018,8 @@ class ct06_siswarutinbayar extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
+						if ($this->Siswa_Nomor_Induk->Exportable) $Doc->ExportField($this->Siswa_Nomor_Induk);
+						if ($this->Siswa_Nama->Exportable) $Doc->ExportField($this->Siswa_Nama);
 						if ($this->rutin_id->Exportable) $Doc->ExportField($this->rutin_id);
 						if ($this->Bulan->Exportable) $Doc->ExportField($this->Bulan);
 						if ($this->Tahun->Exportable) $Doc->ExportField($this->Tahun);
@@ -974,6 +1028,8 @@ class ct06_siswarutinbayar extends cTable {
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
 						if ($this->siswa_id->Exportable) $Doc->ExportField($this->siswa_id);
+						if ($this->Siswa_Nomor_Induk->Exportable) $Doc->ExportField($this->Siswa_Nomor_Induk);
+						if ($this->Siswa_Nama->Exportable) $Doc->ExportField($this->Siswa_Nama);
 						if ($this->rutin_id->Exportable) $Doc->ExportField($this->rutin_id);
 						if ($this->Bulan->Exportable) $Doc->ExportField($this->Bulan);
 						if ($this->Tahun->Exportable) $Doc->ExportField($this->Tahun);
