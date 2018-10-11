@@ -841,10 +841,10 @@
         <phrase id="fldcaption" value="Tahun" />
       </field>
       <field id="bayar_tgl">
-        <phrase id="fldcaption" value="Bayar Tgl" />
+        <phrase id="fldcaption" value="Tgl. Bayar" />
       </field>
       <field id="bayar_jumlah">
-        <phrase id="fldcaption" value="Bayar Jumlah" />
+        <phrase id="fldcaption" value="Jumlah" />
       </field>
     </table>
     <table id="t07_nonrutin">
@@ -879,14 +879,20 @@
       <field id="siswa_id">
         <phrase id="fldcaption" value="siswa id" />
       </field>
+      <field id="siswa_nomor_induk">
+        <phrase id="fldcaption" value="Nomor Induk" />
+      </field>
+      <field id="siswa_nama">
+        <phrase id="fldcaption" value="Nama" />
+      </field>
       <field id="nonrutin_id">
-        <phrase id="fldcaption" value="nonrutin id" />
+        <phrase id="fldcaption" value="Jenis Pembayaran" />
       </field>
       <field id="bayar_tgl">
-        <phrase id="fldcaption" value="Bayar Tgl" />
+        <phrase id="fldcaption" value="Tgl. Bayar" />
       </field>
       <field id="bayar_jumlah">
-        <phrase id="fldcaption" value="Bayar Jumlah" />
+        <phrase id="fldcaption" value="Jumlah" />
       </field>
     </table>
     <table id="t96_employees">
