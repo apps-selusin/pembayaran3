@@ -592,6 +592,9 @@
     <menu id="20">
       <phrase id="menutext" value="Rutin" />
     </menu>
+    <menu id="31">
+      <phrase id="menutext" value="Non-Rutin" />
+    </menu>
     <menu id="6">
       <phrase id="menutext" value="Setup" />
     </menu>
@@ -610,11 +613,17 @@
     <menu id="12">
       <phrase id="menutext" value="Rutin" />
     </menu>
+    <menu id="29">
+      <phrase id="menutext" value="Non-Rutin" />
+    </menu>
     <menu id="11">
       <phrase id="menutext" value="Siswa" />
     </menu>
     <menu id="19">
       <phrase id="menutext" value="Pembayaran Rutin" />
+    </menu>
+    <menu id="30">
+      <phrase id="menutext" value="Pembayaran Non-Rutin" />
     </menu>
     <menu id="1">
       <phrase id="menutext" value="User" />
@@ -785,7 +794,7 @@
       </field>
     </table>
     <table id="t06_siswarutinbayar">
-      <phrase id="tblcaption" value="Pembayaran Rutin" />
+      <phrase id="tblcaption" value="Rincian Pembayaran Rutin" />
       <field id="id">
         <phrase id="fldcaption" value="id" />
       </field>
@@ -830,6 +839,48 @@
       </field>
       <field id="tahun">
         <phrase id="fldcaption" value="Tahun" />
+      </field>
+      <field id="bayar_tgl">
+        <phrase id="fldcaption" value="Bayar Tgl" />
+      </field>
+      <field id="bayar_jumlah">
+        <phrase id="fldcaption" value="Bayar Jumlah" />
+      </field>
+    </table>
+    <table id="t07_nonrutin">
+      <phrase id="tblcaption" value="Pembayaran Non-Rutin" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="nama">
+        <phrase id="fldcaption" value="Nama" />
+      </field>
+    </table>
+    <table id="t08_siswanonrutin">
+      <phrase id="tblcaption" value="Pembayaran Non-Rutin" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="siswa_id">
+        <phrase id="fldcaption" value="siswa id" />
+      </field>
+      <field id="nonrutin_id">
+        <phrase id="fldcaption" value="Jenis Pembayaran" />
+      </field>
+      <field id="nilai">
+        <phrase id="fldcaption" value="Nilai" />
+      </field>
+    </table>
+    <table id="t09_siswanonrutinbayar">
+      <phrase id="tblcaption" value="Rincian Pembayaran Non-Rutin" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="siswa_id">
+        <phrase id="fldcaption" value="siswa id" />
+      </field>
+      <field id="nonrutin_id">
+        <phrase id="fldcaption" value="nonrutin id" />
       </field>
       <field id="bayar_tgl">
         <phrase id="fldcaption" value="Bayar Tgl" />

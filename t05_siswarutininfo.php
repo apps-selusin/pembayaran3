@@ -1098,11 +1098,16 @@ class ct05_siswarutin extends cTable {
 	function Row_Updated($rsold, &$rsnew) {
 
 		//echo "Row Updated";
+		// jika ada perubahan data detail jenis pembayaran rutin -
 		// hapus dulu data detail yang lama
 
-		$q = "delete from t06_siswarutinbayar where siswa_id = ".$rsold["siswa_id"]."";
-		ew_Execute($q);
-		f_isidetailpembayaranrutin($rsold, $rsnew);
+		$q = "select count(id) from t06_siswarutinbayar where siswa_id = ".$rsold["siswa_id"]."";
+		$reccount = ew_ExecuteScalar($q);
+		if ($reccount > 0) {
+			$q = "delete from t06_siswarutinbayar where siswa_id = ".$rsold["siswa_id"]."";
+			ew_Execute($q);
+			f_isidetailpembayaranrutin($rsold, $rsnew);
+		}
 	}
 
 	// Row Update Conflict event

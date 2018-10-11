@@ -282,6 +282,12 @@ class cdefault {
 			$this->Page_Terminate("t05_siswarutinlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't06_siswarutinbayar'))
 			$this->Page_Terminate("t06_siswarutinbayarlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't07_nonrutin'))
+			$this->Page_Terminate("t07_nonrutinlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't08_siswanonrutin'))
+			$this->Page_Terminate("t08_siswanonrutinlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't09_siswanonrutinbayar'))
+			$this->Page_Terminate("t09_siswanonrutinbayarlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't96_employees'))
 			$this->Page_Terminate("t96_employeeslist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't97_userlevels'))

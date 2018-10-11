@@ -9,6 +9,8 @@ ob_start(); // Turn on output buffering
 <?php include_once "t96_employeesinfo.php" ?>
 <?php include_once "t05_siswarutingridcls.php" ?>
 <?php include_once "t06_siswarutinbayargridcls.php" ?>
+<?php include_once "t08_siswanonrutingridcls.php" ?>
+<?php include_once "t09_siswanonrutinbayargridcls.php" ?>
 <?php include_once "userfn13.php" ?>
 <?php
 
@@ -609,6 +611,62 @@ class ct03_siswa_view extends ct03_siswa {
 		}
 		if ($this->ShowMultipleDetails) $item->Visible = FALSE;
 
+		// "detail_t08_siswanonrutin"
+		$item = &$option->Add("detail_t08_siswanonrutin");
+		$body = $Language->Phrase("ViewPageDetailLink") . $Language->TablePhrase("t08_siswanonrutin", "TblCaption");
+		$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("t08_siswanonrutinlist.php?" . EW_TABLE_SHOW_MASTER . "=t03_siswa&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
+		$links = "";
+		if ($GLOBALS["t08_siswanonrutin_grid"] && $GLOBALS["t08_siswanonrutin_grid"]->DetailView && $Security->CanView() && $Security->AllowView(CurrentProjectID() . 't08_siswanonrutin')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailViewLink")) . "\" href=\"" . ew_HtmlEncode($this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=t08_siswanonrutin")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailViewLink")) . "</a></li>";
+			if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
+			$DetailViewTblVar .= "t08_siswanonrutin";
+		}
+		if ($GLOBALS["t08_siswanonrutin_grid"] && $GLOBALS["t08_siswanonrutin_grid"]->DetailEdit && $Security->CanEdit() && $Security->AllowEdit(CurrentProjectID() . 't08_siswanonrutin')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=t08_siswanonrutin")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailEditLink")) . "</a></li>";
+			if ($DetailEditTblVar <> "") $DetailEditTblVar .= ",";
+			$DetailEditTblVar .= "t08_siswanonrutin";
+		}
+		if ($links <> "") {
+			$body .= "<button class=\"dropdown-toggle btn btn-default btn-sm ewDetail\" data-toggle=\"dropdown\"><b class=\"caret\"></b></button>";
+			$body .= "<ul class=\"dropdown-menu\">". $links . "</ul>";
+		}
+		$body = "<div class=\"btn-group\">" . $body . "</div>";
+		$item->Body = $body;
+		$item->Visible = $Security->AllowList(CurrentProjectID() . 't08_siswanonrutin');
+		if ($item->Visible) {
+			if ($DetailTableLink <> "") $DetailTableLink .= ",";
+			$DetailTableLink .= "t08_siswanonrutin";
+		}
+		if ($this->ShowMultipleDetails) $item->Visible = FALSE;
+
+		// "detail_t09_siswanonrutinbayar"
+		$item = &$option->Add("detail_t09_siswanonrutinbayar");
+		$body = $Language->Phrase("ViewPageDetailLink") . $Language->TablePhrase("t09_siswanonrutinbayar", "TblCaption");
+		$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("t09_siswanonrutinbayarlist.php?" . EW_TABLE_SHOW_MASTER . "=t03_siswa&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
+		$links = "";
+		if ($GLOBALS["t09_siswanonrutinbayar_grid"] && $GLOBALS["t09_siswanonrutinbayar_grid"]->DetailView && $Security->CanView() && $Security->AllowView(CurrentProjectID() . 't09_siswanonrutinbayar')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailViewLink")) . "\" href=\"" . ew_HtmlEncode($this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=t09_siswanonrutinbayar")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailViewLink")) . "</a></li>";
+			if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
+			$DetailViewTblVar .= "t09_siswanonrutinbayar";
+		}
+		if ($GLOBALS["t09_siswanonrutinbayar_grid"] && $GLOBALS["t09_siswanonrutinbayar_grid"]->DetailEdit && $Security->CanEdit() && $Security->AllowEdit(CurrentProjectID() . 't09_siswanonrutinbayar')) {
+			$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=t09_siswanonrutinbayar")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailEditLink")) . "</a></li>";
+			if ($DetailEditTblVar <> "") $DetailEditTblVar .= ",";
+			$DetailEditTblVar .= "t09_siswanonrutinbayar";
+		}
+		if ($links <> "") {
+			$body .= "<button class=\"dropdown-toggle btn btn-default btn-sm ewDetail\" data-toggle=\"dropdown\"><b class=\"caret\"></b></button>";
+			$body .= "<ul class=\"dropdown-menu\">". $links . "</ul>";
+		}
+		$body = "<div class=\"btn-group\">" . $body . "</div>";
+		$item->Body = $body;
+		$item->Visible = $Security->AllowList(CurrentProjectID() . 't09_siswanonrutinbayar');
+		if ($item->Visible) {
+			if ($DetailTableLink <> "") $DetailTableLink .= ",";
+			$DetailTableLink .= "t09_siswanonrutinbayar";
+		}
+		if ($this->ShowMultipleDetails) $item->Visible = FALSE;
+
 		// Multiple details
 		if ($this->ShowMultipleDetails) {
 			$body = $Language->Phrase("MultipleMasterDetails");
@@ -884,6 +942,34 @@ class ct03_siswa_view extends ct03_siswa {
 					$GLOBALS["t06_siswarutinbayar_grid"]->siswa_id->setSessionValue($GLOBALS["t06_siswarutinbayar_grid"]->siswa_id->CurrentValue);
 				}
 			}
+			if (in_array("t08_siswanonrutin", $DetailTblVar)) {
+				if (!isset($GLOBALS["t08_siswanonrutin_grid"]))
+					$GLOBALS["t08_siswanonrutin_grid"] = new ct08_siswanonrutin_grid;
+				if ($GLOBALS["t08_siswanonrutin_grid"]->DetailView) {
+					$GLOBALS["t08_siswanonrutin_grid"]->CurrentMode = "view";
+
+					// Save current master table to detail table
+					$GLOBALS["t08_siswanonrutin_grid"]->setCurrentMasterTable($this->TableVar);
+					$GLOBALS["t08_siswanonrutin_grid"]->setStartRecordNumber(1);
+					$GLOBALS["t08_siswanonrutin_grid"]->siswa_id->FldIsDetailKey = TRUE;
+					$GLOBALS["t08_siswanonrutin_grid"]->siswa_id->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["t08_siswanonrutin_grid"]->siswa_id->setSessionValue($GLOBALS["t08_siswanonrutin_grid"]->siswa_id->CurrentValue);
+				}
+			}
+			if (in_array("t09_siswanonrutinbayar", $DetailTblVar)) {
+				if (!isset($GLOBALS["t09_siswanonrutinbayar_grid"]))
+					$GLOBALS["t09_siswanonrutinbayar_grid"] = new ct09_siswanonrutinbayar_grid;
+				if ($GLOBALS["t09_siswanonrutinbayar_grid"]->DetailView) {
+					$GLOBALS["t09_siswanonrutinbayar_grid"]->CurrentMode = "view";
+
+					// Save current master table to detail table
+					$GLOBALS["t09_siswanonrutinbayar_grid"]->setCurrentMasterTable($this->TableVar);
+					$GLOBALS["t09_siswanonrutinbayar_grid"]->setStartRecordNumber(1);
+					$GLOBALS["t09_siswanonrutinbayar_grid"]->siswa_id->FldIsDetailKey = TRUE;
+					$GLOBALS["t09_siswanonrutinbayar_grid"]->siswa_id->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["t09_siswanonrutinbayar_grid"]->siswa_id->setSessionValue($GLOBALS["t09_siswanonrutinbayar_grid"]->siswa_id->CurrentValue);
+				}
+			}
 		}
 	}
 
@@ -903,6 +989,8 @@ class ct03_siswa_view extends ct03_siswa {
 		$pages->Style = "tabs";
 		$pages->Add('t05_siswarutin');
 		$pages->Add('t06_siswarutinbayar');
+		$pages->Add('t08_siswanonrutin');
+		$pages->Add('t09_siswanonrutinbayar');
 		$this->DetailPages = $pages;
 	}
 
@@ -1192,6 +1280,26 @@ $t03_siswa_view->ShowMessage();
 <?php
 	}
 ?>
+<?php
+	if (in_array("t08_siswanonrutin", explode(",", $t03_siswa->getCurrentDetailTable())) && $t08_siswanonrutin->DetailView) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t08_siswanonrutin") {
+			$FirstActiveDetailTable = "t08_siswanonrutin";
+		}
+?>
+		<li<?php echo $t03_siswa_view->DetailPages->TabStyle("t08_siswanonrutin") ?>><a href="#tab_t08_siswanonrutin" data-toggle="tab"><?php echo $Language->TablePhrase("t08_siswanonrutin", "TblCaption") ?></a></li>
+<?php
+	}
+?>
+<?php
+	if (in_array("t09_siswanonrutinbayar", explode(",", $t03_siswa->getCurrentDetailTable())) && $t09_siswanonrutinbayar->DetailView) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t09_siswanonrutinbayar") {
+			$FirstActiveDetailTable = "t09_siswanonrutinbayar";
+		}
+?>
+		<li<?php echo $t03_siswa_view->DetailPages->TabStyle("t09_siswanonrutinbayar") ?>><a href="#tab_t09_siswanonrutinbayar" data-toggle="tab"><?php echo $Language->TablePhrase("t09_siswanonrutinbayar", "TblCaption") ?></a></li>
+<?php
+	}
+?>
 	</ul>
 	<div class="tab-content">
 <?php
@@ -1212,6 +1320,26 @@ $t03_siswa_view->ShowMessage();
 ?>
 		<div class="tab-pane<?php echo $t03_siswa_view->DetailPages->PageStyle("t06_siswarutinbayar") ?>" id="tab_t06_siswarutinbayar">
 <?php include_once "t06_siswarutinbayargrid.php" ?>
+		</div>
+<?php } ?>
+<?php
+	if (in_array("t08_siswanonrutin", explode(",", $t03_siswa->getCurrentDetailTable())) && $t08_siswanonrutin->DetailView) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t08_siswanonrutin") {
+			$FirstActiveDetailTable = "t08_siswanonrutin";
+		}
+?>
+		<div class="tab-pane<?php echo $t03_siswa_view->DetailPages->PageStyle("t08_siswanonrutin") ?>" id="tab_t08_siswanonrutin">
+<?php include_once "t08_siswanonrutingrid.php" ?>
+		</div>
+<?php } ?>
+<?php
+	if (in_array("t09_siswanonrutinbayar", explode(",", $t03_siswa->getCurrentDetailTable())) && $t09_siswanonrutinbayar->DetailView) {
+		if ($FirstActiveDetailTable == "" || $FirstActiveDetailTable == "t09_siswanonrutinbayar") {
+			$FirstActiveDetailTable = "t09_siswanonrutinbayar";
+		}
+?>
+		<div class="tab-pane<?php echo $t03_siswa_view->DetailPages->PageStyle("t09_siswanonrutinbayar") ?>" id="tab_t09_siswanonrutinbayar">
+<?php include_once "t09_siswanonrutinbayargrid.php" ?>
 		</div>
 <?php } ?>
 	</div>
