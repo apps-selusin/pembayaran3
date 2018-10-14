@@ -50,6 +50,18 @@ ft08_siswanonrutingrid.Validate = function() {
 			elm = this.GetElements("x" + infix + "_Nilai");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Nilai->FldErrMsg()) ?>");
+			elm = this.GetElements("x" + infix + "_Terbayar");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Terbayar->FldCaption(), $t08_siswanonrutin->Terbayar->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_Terbayar");
+			if (elm && !ew_CheckNumber(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Terbayar->FldErrMsg()) ?>");
+			elm = this.GetElements("x" + infix + "_Sisa");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Sisa->FldCaption(), $t08_siswanonrutin->Sisa->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_Sisa");
+			if (elm && !ew_CheckNumber(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Sisa->FldErrMsg()) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -64,6 +76,8 @@ ft08_siswanonrutingrid.EmptyRow = function(infix) {
 	var fobj = this.Form;
 	if (ew_ValueChanged(fobj, infix, "nonrutin_id", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "Nilai", false)) return false;
+	if (ew_ValueChanged(fobj, infix, "Terbayar", false)) return false;
+	if (ew_ValueChanged(fobj, infix, "Sisa", false)) return false;
 	return true;
 }
 
@@ -181,6 +195,24 @@ $t08_siswanonrutin_grid->ListOptions->Render("header", "left");
 	<?php } else { ?>
 		<th data-name="Nilai"><div><div id="elh_t08_siswanonrutin_Nilai" class="t08_siswanonrutin_Nilai">
 			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t08_siswanonrutin->Nilai->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t08_siswanonrutin->Nilai->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t08_siswanonrutin->Nilai->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php if ($t08_siswanonrutin->Terbayar->Visible) { // Terbayar ?>
+	<?php if ($t08_siswanonrutin->SortUrl($t08_siswanonrutin->Terbayar) == "") { ?>
+		<th data-name="Terbayar"><div id="elh_t08_siswanonrutin_Terbayar" class="t08_siswanonrutin_Terbayar"><div class="ewTableHeaderCaption"><?php echo $t08_siswanonrutin->Terbayar->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="Terbayar"><div><div id="elh_t08_siswanonrutin_Terbayar" class="t08_siswanonrutin_Terbayar">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t08_siswanonrutin->Terbayar->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t08_siswanonrutin->Terbayar->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t08_siswanonrutin->Terbayar->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php if ($t08_siswanonrutin->Sisa->Visible) { // Sisa ?>
+	<?php if ($t08_siswanonrutin->SortUrl($t08_siswanonrutin->Sisa) == "") { ?>
+		<th data-name="Sisa"><div id="elh_t08_siswanonrutin_Sisa" class="t08_siswanonrutin_Sisa"><div class="ewTableHeaderCaption"><?php echo $t08_siswanonrutin->Sisa->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="Sisa"><div><div id="elh_t08_siswanonrutin_Sisa" class="t08_siswanonrutin_Sisa">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t08_siswanonrutin->Sisa->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t08_siswanonrutin->Sisa->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t08_siswanonrutin->Sisa->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
@@ -366,6 +398,62 @@ $t08_siswanonrutin_grid->ListOptions->Render("body", "left", $t08_siswanonrutin_
 <?php } ?>
 </td>
 	<?php } ?>
+	<?php if ($t08_siswanonrutin->Terbayar->Visible) { // Terbayar ?>
+		<td data-name="Terbayar"<?php echo $t08_siswanonrutin->Terbayar->CellAttributes() ?>>
+<?php if ($t08_siswanonrutin->RowType == EW_ROWTYPE_ADD) { // Add record ?>
+<span id="el<?php echo $t08_siswanonrutin_grid->RowCnt ?>_t08_siswanonrutin_Terbayar" class="form-group t08_siswanonrutin_Terbayar">
+<input type="text" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Terbayar->EditValue ?>"<?php echo $t08_siswanonrutin->Terbayar->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->OldValue) ?>">
+<?php } ?>
+<?php if ($t08_siswanonrutin->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $t08_siswanonrutin_grid->RowCnt ?>_t08_siswanonrutin_Terbayar" class="form-group t08_siswanonrutin_Terbayar">
+<input type="text" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Terbayar->EditValue ?>"<?php echo $t08_siswanonrutin->Terbayar->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php if ($t08_siswanonrutin->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $t08_siswanonrutin_grid->RowCnt ?>_t08_siswanonrutin_Terbayar" class="t08_siswanonrutin_Terbayar">
+<span<?php echo $t08_siswanonrutin->Terbayar->ViewAttributes() ?>>
+<?php echo $t08_siswanonrutin->Terbayar->ListViewValue() ?></span>
+</span>
+<?php if ($t08_siswanonrutin->CurrentAction <> "F") { ?>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->FormValue) ?>">
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->OldValue) ?>">
+<?php } else { ?>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="ft08_siswanonrutingrid$x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="ft08_siswanonrutingrid$x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->FormValue) ?>">
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="ft08_siswanonrutingrid$o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="ft08_siswanonrutingrid$o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->OldValue) ?>">
+<?php } ?>
+<?php } ?>
+</td>
+	<?php } ?>
+	<?php if ($t08_siswanonrutin->Sisa->Visible) { // Sisa ?>
+		<td data-name="Sisa"<?php echo $t08_siswanonrutin->Sisa->CellAttributes() ?>>
+<?php if ($t08_siswanonrutin->RowType == EW_ROWTYPE_ADD) { // Add record ?>
+<span id="el<?php echo $t08_siswanonrutin_grid->RowCnt ?>_t08_siswanonrutin_Sisa" class="form-group t08_siswanonrutin_Sisa">
+<input type="text" data-table="t08_siswanonrutin" data-field="x_Sisa" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Sisa->EditValue ?>"<?php echo $t08_siswanonrutin->Sisa->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Sisa" name="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->OldValue) ?>">
+<?php } ?>
+<?php if ($t08_siswanonrutin->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $t08_siswanonrutin_grid->RowCnt ?>_t08_siswanonrutin_Sisa" class="form-group t08_siswanonrutin_Sisa">
+<input type="text" data-table="t08_siswanonrutin" data-field="x_Sisa" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Sisa->EditValue ?>"<?php echo $t08_siswanonrutin->Sisa->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php if ($t08_siswanonrutin->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $t08_siswanonrutin_grid->RowCnt ?>_t08_siswanonrutin_Sisa" class="t08_siswanonrutin_Sisa">
+<span<?php echo $t08_siswanonrutin->Sisa->ViewAttributes() ?>>
+<?php echo $t08_siswanonrutin->Sisa->ListViewValue() ?></span>
+</span>
+<?php if ($t08_siswanonrutin->CurrentAction <> "F") { ?>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Sisa" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->FormValue) ?>">
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Sisa" name="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->OldValue) ?>">
+<?php } else { ?>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Sisa" name="ft08_siswanonrutingrid$x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="ft08_siswanonrutingrid$x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->FormValue) ?>">
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Sisa" name="ft08_siswanonrutingrid$o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="ft08_siswanonrutingrid$o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->OldValue) ?>">
+<?php } ?>
+<?php } ?>
+</td>
+	<?php } ?>
 <?php
 
 // Render list options (body, right)
@@ -443,6 +531,38 @@ $t08_siswanonrutin_grid->ListOptions->Render("body", "left", $t08_siswanonrutin_
 <input type="hidden" data-table="t08_siswanonrutin" data-field="x_Nilai" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Nilai" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Nilai" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Nilai->FormValue) ?>">
 <?php } ?>
 <input type="hidden" data-table="t08_siswanonrutin" data-field="x_Nilai" name="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Nilai" id="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Nilai" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Nilai->OldValue) ?>">
+</td>
+	<?php } ?>
+	<?php if ($t08_siswanonrutin->Terbayar->Visible) { // Terbayar ?>
+		<td data-name="Terbayar">
+<?php if ($t08_siswanonrutin->CurrentAction <> "F") { ?>
+<span id="el$rowindex$_t08_siswanonrutin_Terbayar" class="form-group t08_siswanonrutin_Terbayar">
+<input type="text" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Terbayar->EditValue ?>"<?php echo $t08_siswanonrutin->Terbayar->EditAttributes() ?>>
+</span>
+<?php } else { ?>
+<span id="el$rowindex$_t08_siswanonrutin_Terbayar" class="form-group t08_siswanonrutin_Terbayar">
+<span<?php echo $t08_siswanonrutin->Terbayar->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t08_siswanonrutin->Terbayar->ViewValue ?></p></span>
+</span>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->FormValue) ?>">
+<?php } ?>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" id="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Terbayar" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->OldValue) ?>">
+</td>
+	<?php } ?>
+	<?php if ($t08_siswanonrutin->Sisa->Visible) { // Sisa ?>
+		<td data-name="Sisa">
+<?php if ($t08_siswanonrutin->CurrentAction <> "F") { ?>
+<span id="el$rowindex$_t08_siswanonrutin_Sisa" class="form-group t08_siswanonrutin_Sisa">
+<input type="text" data-table="t08_siswanonrutin" data-field="x_Sisa" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Sisa->EditValue ?>"<?php echo $t08_siswanonrutin->Sisa->EditAttributes() ?>>
+</span>
+<?php } else { ?>
+<span id="el$rowindex$_t08_siswanonrutin_Sisa" class="form-group t08_siswanonrutin_Sisa">
+<span<?php echo $t08_siswanonrutin->Sisa->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t08_siswanonrutin->Sisa->ViewValue ?></p></span>
+</span>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Sisa" name="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="x<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->FormValue) ?>">
+<?php } ?>
+<input type="hidden" data-table="t08_siswanonrutin" data-field="x_Sisa" name="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" id="o<?php echo $t08_siswanonrutin_grid->RowIndex ?>_Sisa" value="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->OldValue) ?>">
 </td>
 	<?php } ?>
 <?php

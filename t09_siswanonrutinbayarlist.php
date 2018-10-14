@@ -6,8 +6,8 @@ ob_start(); // Turn on output buffering
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql13.php") ?>
 <?php include_once "phpfn13.php" ?>
 <?php include_once "t09_siswanonrutinbayarinfo.php" ?>
-<?php include_once "t03_siswainfo.php" ?>
 <?php include_once "t96_employeesinfo.php" ?>
+<?php include_once "v01_siswanonrutininfo.php" ?>
 <?php include_once "userfn13.php" ?>
 <?php
 
@@ -288,11 +288,11 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		$this->MultiDeleteUrl = "t09_siswanonrutinbayardelete.php";
 		$this->MultiUpdateUrl = "t09_siswanonrutinbayarupdate.php";
 
-		// Table object (t03_siswa)
-		if (!isset($GLOBALS['t03_siswa'])) $GLOBALS['t03_siswa'] = new ct03_siswa();
-
 		// Table object (t96_employees)
 		if (!isset($GLOBALS['t96_employees'])) $GLOBALS['t96_employees'] = new ct96_employees();
+
+		// Table object (v01_siswanonrutin)
+		if (!isset($GLOBALS['v01_siswanonrutin'])) $GLOBALS['v01_siswanonrutin'] = new cv01_siswanonrutin();
 
 		// Page ID
 		if (!defined("EW_PAGE_ID"))
@@ -377,9 +377,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 
 		// Set up list options
 		$this->SetupListOptions();
-		$this->Siswa_Nomor_Induk->SetVisibility();
-		$this->Siswa_Nama->SetVisibility();
-		$this->nonrutin_id->SetVisibility();
 		$this->Bayar_Tgl->SetVisibility();
 		$this->Bayar_Jumlah->SetVisibility();
 
@@ -652,17 +649,17 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		}
 
 		// Load master record
-		if ($this->CurrentMode <> "add" && $this->GetMasterFilter() <> "" && $this->getCurrentMasterTable() == "t03_siswa") {
-			global $t03_siswa;
-			$rsmaster = $t03_siswa->LoadRs($this->DbMasterFilter);
+		if ($this->CurrentMode <> "add" && $this->GetMasterFilter() <> "" && $this->getCurrentMasterTable() == "v01_siswanonrutin") {
+			global $v01_siswanonrutin;
+			$rsmaster = $v01_siswanonrutin->LoadRs($this->DbMasterFilter);
 			$this->MasterRecordExists = ($rsmaster && !$rsmaster->EOF);
 			if (!$this->MasterRecordExists) {
 				$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record found
-				$this->Page_Terminate("t03_siswalist.php"); // Return to master page
+				$this->Page_Terminate("v01_siswanonrutinlist.php"); // Return to master page
 			} else {
-				$t03_siswa->LoadListRowValues($rsmaster);
-				$t03_siswa->RowType = EW_ROWTYPE_MASTER; // Master row
-				$t03_siswa->RenderListRow();
+				$v01_siswanonrutin->LoadListRowValues($rsmaster);
+				$v01_siswanonrutin->RowType = EW_ROWTYPE_MASTER; // Master row
+				$v01_siswanonrutin->RenderListRow();
 				$rsmaster->Close();
 			}
 		}
@@ -943,12 +940,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 	// Check if empty row
 	function EmptyRow() {
 		global $objForm;
-		if ($objForm->HasValue("x_Siswa_Nomor_Induk") && $objForm->HasValue("o_Siswa_Nomor_Induk") && $this->Siswa_Nomor_Induk->CurrentValue <> $this->Siswa_Nomor_Induk->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_Siswa_Nama") && $objForm->HasValue("o_Siswa_Nama") && $this->Siswa_Nama->CurrentValue <> $this->Siswa_Nama->OldValue)
-			return FALSE;
-		if ($objForm->HasValue("x_nonrutin_id") && $objForm->HasValue("o_nonrutin_id") && $this->nonrutin_id->CurrentValue <> $this->nonrutin_id->OldValue)
-			return FALSE;
 		if ($objForm->HasValue("x_Bayar_Tgl") && $objForm->HasValue("o_Bayar_Tgl") && $this->Bayar_Tgl->CurrentValue <> $this->Bayar_Tgl->OldValue)
 			return FALSE;
 		if ($objForm->HasValue("x_Bayar_Jumlah") && $objForm->HasValue("o_Bayar_Jumlah") && $this->Bayar_Jumlah->CurrentValue <> $this->Bayar_Jumlah->OldValue)
@@ -1034,9 +1025,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		if (@$_GET["order"] <> "") {
 			$this->CurrentOrder = ew_StripSlashes(@$_GET["order"]);
 			$this->CurrentOrderType = @$_GET["ordertype"];
-			$this->UpdateSort($this->Siswa_Nomor_Induk, $bCtrl); // Siswa_Nomor_Induk
-			$this->UpdateSort($this->Siswa_Nama, $bCtrl); // Siswa_Nama
-			$this->UpdateSort($this->nonrutin_id, $bCtrl); // nonrutin_id
 			$this->UpdateSort($this->Bayar_Tgl, $bCtrl); // Bayar_Tgl
 			$this->UpdateSort($this->Bayar_Jumlah, $bCtrl); // Bayar_Jumlah
 			$this->setStartRecordNumber(1); // Reset start position
@@ -1068,16 +1056,13 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 				$this->setCurrentMasterTable(""); // Clear master table
 				$this->DbMasterFilter = "";
 				$this->DbDetailFilter = "";
-				$this->siswa_id->setSessionValue("");
+				$this->siswanonrutin_id->setSessionValue("");
 			}
 
 			// Reset sorting order
 			if ($this->Command == "resetsort") {
 				$sOrderBy = "";
 				$this->setSessionOrderBy($sOrderBy);
-				$this->Siswa_Nomor_Induk->setSort("");
-				$this->Siswa_Nama->setSort("");
-				$this->nonrutin_id->setSort("");
 				$this->Bayar_Tgl->setSort("");
 				$this->Bayar_Jumlah->setSort("");
 			}
@@ -1128,7 +1113,7 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 
 		// "checkbox"
 		$item = &$this->ListOptions->Add("checkbox");
-		$item->Visible = FALSE;
+		$item->Visible = $Security->CanDelete();
 		$item->OnLeft = TRUE;
 		$item->Header = "<input type=\"checkbox\" name=\"key\" id=\"key\" onclick=\"ew_SelectAllKey(this);\">";
 		$item->MoveTo(0);
@@ -1188,7 +1173,7 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 				$option->UseButtonGroup = TRUE; // Use button group for grid delete button
 				$option->UseImageAndText = TRUE; // Use image and text for grid delete button
 				$oListOpt = &$option->Items["griddelete"];
-				if (is_numeric($this->RowIndex) && ($this->RowAction == "" || $this->RowAction == "edit")) { // Do not allow delete existing record
+				if (!$Security->CanDelete() && is_numeric($this->RowIndex) && ($this->RowAction == "" || $this->RowAction == "edit")) { // Do not allow delete existing record
 					$oListOpt->Body = "&nbsp;";
 				} else {
 					$oListOpt->Body = "<a class=\"ewGridLink ewGridDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" onclick=\"return ew_DeleteGridRow(this, " . $this->RowIndex . ");\">" . $Language->Phrase("DeleteLink") . "</a>";
@@ -1298,6 +1283,11 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		$item->Body = "<a class=\"ewAddEdit ewGridEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("GridEditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("GridEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GridEditUrl) . "\">" . $Language->Phrase("GridEditLink") . "</a>";
 		$item->Visible = ($this->GridEditUrl <> "" && $Security->CanEdit());
 		$option = $options["action"];
+
+		// Add multi delete
+		$item = &$option->Add("multidelete");
+		$item->Body = "<a class=\"ewAction ewMultiDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("DeleteSelectedLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("DeleteSelectedLink")) . "\" href=\"\" onclick=\"ew_SubmitAction(event,{f:document.ft09_siswanonrutinbayarlist,url:'" . $this->MultiDeleteUrl . "'});return false;\">" . $Language->Phrase("DeleteSelectedLink") . "</a>";
+		$item->Visible = ($Security->CanDelete());
 
 		// Set up options default
 		foreach ($options as &$option) {
@@ -1537,12 +1527,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 
 	// Load default values
 	function LoadDefaultValues() {
-		$this->Siswa_Nomor_Induk->CurrentValue = NULL;
-		$this->Siswa_Nomor_Induk->OldValue = $this->Siswa_Nomor_Induk->CurrentValue;
-		$this->Siswa_Nama->CurrentValue = NULL;
-		$this->Siswa_Nama->OldValue = $this->Siswa_Nama->CurrentValue;
-		$this->nonrutin_id->CurrentValue = NULL;
-		$this->nonrutin_id->OldValue = $this->nonrutin_id->CurrentValue;
 		$this->Bayar_Tgl->CurrentValue = NULL;
 		$this->Bayar_Tgl->OldValue = $this->Bayar_Tgl->CurrentValue;
 		$this->Bayar_Jumlah->CurrentValue = 0.00;
@@ -1554,15 +1538,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 
 		// Load from form
 		global $objForm;
-		if (!$this->Siswa_Nomor_Induk->FldIsDetailKey) {
-			$this->Siswa_Nomor_Induk->setFormValue($objForm->GetValue("x_Siswa_Nomor_Induk"));
-		}
-		if (!$this->Siswa_Nama->FldIsDetailKey) {
-			$this->Siswa_Nama->setFormValue($objForm->GetValue("x_Siswa_Nama"));
-		}
-		if (!$this->nonrutin_id->FldIsDetailKey) {
-			$this->nonrutin_id->setFormValue($objForm->GetValue("x_nonrutin_id"));
-		}
 		if (!$this->Bayar_Tgl->FldIsDetailKey) {
 			$this->Bayar_Tgl->setFormValue($objForm->GetValue("x_Bayar_Tgl"));
 			$this->Bayar_Tgl->CurrentValue = ew_UnFormatDateTime($this->Bayar_Tgl->CurrentValue, 5);
@@ -1579,9 +1554,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		global $objForm;
 		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->id->CurrentValue = $this->id->FormValue;
-		$this->Siswa_Nomor_Induk->CurrentValue = $this->Siswa_Nomor_Induk->FormValue;
-		$this->Siswa_Nama->CurrentValue = $this->Siswa_Nama->FormValue;
-		$this->nonrutin_id->CurrentValue = $this->nonrutin_id->FormValue;
 		$this->Bayar_Tgl->CurrentValue = $this->Bayar_Tgl->FormValue;
 		$this->Bayar_Tgl->CurrentValue = ew_UnFormatDateTime($this->Bayar_Tgl->CurrentValue, 5);
 		$this->Bayar_Jumlah->CurrentValue = $this->Bayar_Jumlah->FormValue;
@@ -1643,10 +1615,7 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		$row = &$rs->fields;
 		$this->Row_Selected($row);
 		$this->id->setDbValue($rs->fields('id'));
-		$this->siswa_id->setDbValue($rs->fields('siswa_id'));
-		$this->Siswa_Nomor_Induk->setDbValue($rs->fields('Siswa_Nomor_Induk'));
-		$this->Siswa_Nama->setDbValue($rs->fields('Siswa_Nama'));
-		$this->nonrutin_id->setDbValue($rs->fields('nonrutin_id'));
+		$this->siswanonrutin_id->setDbValue($rs->fields('siswanonrutin_id'));
 		$this->Bayar_Tgl->setDbValue($rs->fields('Bayar_Tgl'));
 		$this->Bayar_Jumlah->setDbValue($rs->fields('Bayar_Jumlah'));
 	}
@@ -1656,10 +1625,7 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		if (!$rs || !is_array($rs) && $rs->EOF) return;
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
-		$this->siswa_id->DbValue = $row['siswa_id'];
-		$this->Siswa_Nomor_Induk->DbValue = $row['Siswa_Nomor_Induk'];
-		$this->Siswa_Nama->DbValue = $row['Siswa_Nama'];
-		$this->nonrutin_id->DbValue = $row['nonrutin_id'];
+		$this->siswanonrutin_id->DbValue = $row['siswanonrutin_id'];
 		$this->Bayar_Tgl->DbValue = $row['Bayar_Tgl'];
 		$this->Bayar_Jumlah->DbValue = $row['Bayar_Jumlah'];
 	}
@@ -1708,10 +1674,7 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 
 		// Common render codes for all row types
 		// id
-		// siswa_id
-		// Siswa_Nomor_Induk
-		// Siswa_Nama
-		// nonrutin_id
+		// siswanonrutin_id
 		// Bayar_Tgl
 		// Bayar_Jumlah
 
@@ -1721,41 +1684,9 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// siswa_id
-		$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
-		$this->siswa_id->ViewCustomAttributes = "";
-
-		// Siswa_Nomor_Induk
-		$this->Siswa_Nomor_Induk->ViewValue = $this->Siswa_Nomor_Induk->CurrentValue;
-		$this->Siswa_Nomor_Induk->ViewCustomAttributes = "";
-
-		// Siswa_Nama
-		$this->Siswa_Nama->ViewValue = $this->Siswa_Nama->CurrentValue;
-		$this->Siswa_Nama->ViewCustomAttributes = "";
-
-		// nonrutin_id
-		$this->nonrutin_id->ViewValue = $this->nonrutin_id->CurrentValue;
-		if (strval($this->nonrutin_id->CurrentValue) <> "") {
-			$sFilterWrk = "`id`" . ew_SearchString("=", $this->nonrutin_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-		$sSqlWrk = "SELECT `id`, `Nama` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t07_nonrutin`";
-		$sWhereWrk = "";
-		$this->nonrutin_id->LookupFilters = array();
-		ew_AddFilter($sWhereWrk, $sFilterWrk);
-		$this->Lookup_Selecting($this->nonrutin_id, $sWhereWrk); // Call Lookup selecting
-		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			$rswrk = Conn()->Execute($sSqlWrk);
-			if ($rswrk && !$rswrk->EOF) { // Lookup values found
-				$arwrk = array();
-				$arwrk[1] = $rswrk->fields('DispFld');
-				$this->nonrutin_id->ViewValue = $this->nonrutin_id->DisplayValue($arwrk);
-				$rswrk->Close();
-			} else {
-				$this->nonrutin_id->ViewValue = $this->nonrutin_id->CurrentValue;
-			}
-		} else {
-			$this->nonrutin_id->ViewValue = NULL;
-		}
-		$this->nonrutin_id->ViewCustomAttributes = "";
+		// siswanonrutin_id
+		$this->siswanonrutin_id->ViewValue = $this->siswanonrutin_id->CurrentValue;
+		$this->siswanonrutin_id->ViewCustomAttributes = "";
 
 		// Bayar_Tgl
 		$this->Bayar_Tgl->ViewValue = $this->Bayar_Tgl->CurrentValue;
@@ -1768,21 +1699,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		$this->Bayar_Jumlah->CellCssStyle .= "text-align: right;";
 		$this->Bayar_Jumlah->ViewCustomAttributes = "";
 
-			// Siswa_Nomor_Induk
-			$this->Siswa_Nomor_Induk->LinkCustomAttributes = "";
-			$this->Siswa_Nomor_Induk->HrefValue = "";
-			$this->Siswa_Nomor_Induk->TooltipValue = "";
-
-			// Siswa_Nama
-			$this->Siswa_Nama->LinkCustomAttributes = "";
-			$this->Siswa_Nama->HrefValue = "";
-			$this->Siswa_Nama->TooltipValue = "";
-
-			// nonrutin_id
-			$this->nonrutin_id->LinkCustomAttributes = "";
-			$this->nonrutin_id->HrefValue = "";
-			$this->nonrutin_id->TooltipValue = "";
-
 			// Bayar_Tgl
 			$this->Bayar_Tgl->LinkCustomAttributes = "";
 			$this->Bayar_Tgl->HrefValue = "";
@@ -1793,44 +1709,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 			$this->Bayar_Jumlah->HrefValue = "";
 			$this->Bayar_Jumlah->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
-
-			// Siswa_Nomor_Induk
-			$this->Siswa_Nomor_Induk->EditAttrs["class"] = "form-control";
-			$this->Siswa_Nomor_Induk->EditCustomAttributes = "";
-			$this->Siswa_Nomor_Induk->EditValue = ew_HtmlEncode($this->Siswa_Nomor_Induk->CurrentValue);
-			$this->Siswa_Nomor_Induk->PlaceHolder = ew_RemoveHtml($this->Siswa_Nomor_Induk->FldCaption());
-
-			// Siswa_Nama
-			$this->Siswa_Nama->EditAttrs["class"] = "form-control";
-			$this->Siswa_Nama->EditCustomAttributes = "";
-			$this->Siswa_Nama->EditValue = ew_HtmlEncode($this->Siswa_Nama->CurrentValue);
-			$this->Siswa_Nama->PlaceHolder = ew_RemoveHtml($this->Siswa_Nama->FldCaption());
-
-			// nonrutin_id
-			$this->nonrutin_id->EditAttrs["class"] = "form-control";
-			$this->nonrutin_id->EditCustomAttributes = "";
-			$this->nonrutin_id->EditValue = ew_HtmlEncode($this->nonrutin_id->CurrentValue);
-			if (strval($this->nonrutin_id->CurrentValue) <> "") {
-				$sFilterWrk = "`id`" . ew_SearchString("=", $this->nonrutin_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-			$sSqlWrk = "SELECT `id`, `Nama` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t07_nonrutin`";
-			$sWhereWrk = "";
-			$this->nonrutin_id->LookupFilters = array();
-			ew_AddFilter($sWhereWrk, $sFilterWrk);
-			$this->Lookup_Selecting($this->nonrutin_id, $sWhereWrk); // Call Lookup selecting
-			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-				$rswrk = Conn()->Execute($sSqlWrk);
-				if ($rswrk && !$rswrk->EOF) { // Lookup values found
-					$arwrk = array();
-					$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
-					$this->nonrutin_id->EditValue = $this->nonrutin_id->DisplayValue($arwrk);
-					$rswrk->Close();
-				} else {
-					$this->nonrutin_id->EditValue = ew_HtmlEncode($this->nonrutin_id->CurrentValue);
-				}
-			} else {
-				$this->nonrutin_id->EditValue = NULL;
-			}
-			$this->nonrutin_id->PlaceHolder = ew_RemoveHtml($this->nonrutin_id->FldCaption());
 
 			// Bayar_Tgl
 			$this->Bayar_Tgl->EditAttrs["class"] = "form-control";
@@ -1846,20 +1724,8 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 			if (strval($this->Bayar_Jumlah->EditValue) <> "" && is_numeric($this->Bayar_Jumlah->EditValue)) $this->Bayar_Jumlah->EditValue = ew_FormatNumber($this->Bayar_Jumlah->EditValue, -2, -2, -2, -2);
 
 			// Add refer script
-			// Siswa_Nomor_Induk
-
-			$this->Siswa_Nomor_Induk->LinkCustomAttributes = "";
-			$this->Siswa_Nomor_Induk->HrefValue = "";
-
-			// Siswa_Nama
-			$this->Siswa_Nama->LinkCustomAttributes = "";
-			$this->Siswa_Nama->HrefValue = "";
-
-			// nonrutin_id
-			$this->nonrutin_id->LinkCustomAttributes = "";
-			$this->nonrutin_id->HrefValue = "";
-
 			// Bayar_Tgl
+
 			$this->Bayar_Tgl->LinkCustomAttributes = "";
 			$this->Bayar_Tgl->HrefValue = "";
 
@@ -1867,44 +1733,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 			$this->Bayar_Jumlah->LinkCustomAttributes = "";
 			$this->Bayar_Jumlah->HrefValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
-
-			// Siswa_Nomor_Induk
-			$this->Siswa_Nomor_Induk->EditAttrs["class"] = "form-control";
-			$this->Siswa_Nomor_Induk->EditCustomAttributes = "";
-			$this->Siswa_Nomor_Induk->EditValue = ew_HtmlEncode($this->Siswa_Nomor_Induk->CurrentValue);
-			$this->Siswa_Nomor_Induk->PlaceHolder = ew_RemoveHtml($this->Siswa_Nomor_Induk->FldCaption());
-
-			// Siswa_Nama
-			$this->Siswa_Nama->EditAttrs["class"] = "form-control";
-			$this->Siswa_Nama->EditCustomAttributes = "";
-			$this->Siswa_Nama->EditValue = ew_HtmlEncode($this->Siswa_Nama->CurrentValue);
-			$this->Siswa_Nama->PlaceHolder = ew_RemoveHtml($this->Siswa_Nama->FldCaption());
-
-			// nonrutin_id
-			$this->nonrutin_id->EditAttrs["class"] = "form-control";
-			$this->nonrutin_id->EditCustomAttributes = "";
-			$this->nonrutin_id->EditValue = ew_HtmlEncode($this->nonrutin_id->CurrentValue);
-			if (strval($this->nonrutin_id->CurrentValue) <> "") {
-				$sFilterWrk = "`id`" . ew_SearchString("=", $this->nonrutin_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-			$sSqlWrk = "SELECT `id`, `Nama` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t07_nonrutin`";
-			$sWhereWrk = "";
-			$this->nonrutin_id->LookupFilters = array();
-			ew_AddFilter($sWhereWrk, $sFilterWrk);
-			$this->Lookup_Selecting($this->nonrutin_id, $sWhereWrk); // Call Lookup selecting
-			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-				$rswrk = Conn()->Execute($sSqlWrk);
-				if ($rswrk && !$rswrk->EOF) { // Lookup values found
-					$arwrk = array();
-					$arwrk[1] = ew_HtmlEncode($rswrk->fields('DispFld'));
-					$this->nonrutin_id->EditValue = $this->nonrutin_id->DisplayValue($arwrk);
-					$rswrk->Close();
-				} else {
-					$this->nonrutin_id->EditValue = ew_HtmlEncode($this->nonrutin_id->CurrentValue);
-				}
-			} else {
-				$this->nonrutin_id->EditValue = NULL;
-			}
-			$this->nonrutin_id->PlaceHolder = ew_RemoveHtml($this->nonrutin_id->FldCaption());
 
 			// Bayar_Tgl
 			$this->Bayar_Tgl->EditAttrs["class"] = "form-control";
@@ -1920,20 +1748,8 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 			if (strval($this->Bayar_Jumlah->EditValue) <> "" && is_numeric($this->Bayar_Jumlah->EditValue)) $this->Bayar_Jumlah->EditValue = ew_FormatNumber($this->Bayar_Jumlah->EditValue, -2, -2, -2, -2);
 
 			// Edit refer script
-			// Siswa_Nomor_Induk
-
-			$this->Siswa_Nomor_Induk->LinkCustomAttributes = "";
-			$this->Siswa_Nomor_Induk->HrefValue = "";
-
-			// Siswa_Nama
-			$this->Siswa_Nama->LinkCustomAttributes = "";
-			$this->Siswa_Nama->HrefValue = "";
-
-			// nonrutin_id
-			$this->nonrutin_id->LinkCustomAttributes = "";
-			$this->nonrutin_id->HrefValue = "";
-
 			// Bayar_Tgl
+
 			$this->Bayar_Tgl->LinkCustomAttributes = "";
 			$this->Bayar_Tgl->HrefValue = "";
 
@@ -1962,12 +1778,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->nonrutin_id->FldIsDetailKey && !is_null($this->nonrutin_id->FormValue) && $this->nonrutin_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->nonrutin_id->FldCaption(), $this->nonrutin_id->ReqErrMsg));
-		}
-		if (!ew_CheckInteger($this->nonrutin_id->FormValue)) {
-			ew_AddMessage($gsFormError, $this->nonrutin_id->FldErrMsg());
-		}
 		if (!ew_CheckDate($this->Bayar_Tgl->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Bayar_Tgl->FldErrMsg());
 		}
@@ -2092,38 +1902,29 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 			$this->LoadDbValues($rsold);
 			$rsnew = array();
 
-			// Siswa_Nomor_Induk
-			$this->Siswa_Nomor_Induk->SetDbValueDef($rsnew, $this->Siswa_Nomor_Induk->CurrentValue, NULL, $this->Siswa_Nomor_Induk->ReadOnly);
-
-			// Siswa_Nama
-			$this->Siswa_Nama->SetDbValueDef($rsnew, $this->Siswa_Nama->CurrentValue, NULL, $this->Siswa_Nama->ReadOnly);
-
-			// nonrutin_id
-			$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, 0, $this->nonrutin_id->ReadOnly);
-
 			// Bayar_Tgl
 			$this->Bayar_Tgl->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->Bayar_Tgl->CurrentValue, 5), NULL, $this->Bayar_Tgl->ReadOnly);
 
 			// Bayar_Jumlah
 			$this->Bayar_Jumlah->SetDbValueDef($rsnew, $this->Bayar_Jumlah->CurrentValue, NULL, $this->Bayar_Jumlah->ReadOnly);
 
-			// Check referential integrity for master table 't03_siswa'
+			// Check referential integrity for master table 'v01_siswanonrutin'
 			$bValidMasterRecord = TRUE;
-			$sMasterFilter = $this->SqlMasterFilter_t03_siswa();
-			$KeyValue = isset($rsnew['siswa_id']) ? $rsnew['siswa_id'] : $rsold['siswa_id'];
+			$sMasterFilter = $this->SqlMasterFilter_v01_siswanonrutin();
+			$KeyValue = isset($rsnew['siswanonrutin_id']) ? $rsnew['siswanonrutin_id'] : $rsold['siswanonrutin_id'];
 			if (strval($KeyValue) <> "") {
 				$sMasterFilter = str_replace("@id@", ew_AdjustSql($KeyValue), $sMasterFilter);
 			} else {
 				$bValidMasterRecord = FALSE;
 			}
 			if ($bValidMasterRecord) {
-				if (!isset($GLOBALS["t03_siswa"])) $GLOBALS["t03_siswa"] = new ct03_siswa();
-				$rsmaster = $GLOBALS["t03_siswa"]->LoadRs($sMasterFilter);
+				if (!isset($GLOBALS["v01_siswanonrutin"])) $GLOBALS["v01_siswanonrutin"] = new cv01_siswanonrutin();
+				$rsmaster = $GLOBALS["v01_siswanonrutin"]->LoadRs($sMasterFilter);
 				$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
 				$rsmaster->Close();
 			}
 			if (!$bValidMasterRecord) {
-				$sRelatedRecordMsg = str_replace("%t", "t03_siswa", $Language->Phrase("RelatedRecordRequired"));
+				$sRelatedRecordMsg = str_replace("%t", "v01_siswanonrutin", $Language->Phrase("RelatedRecordRequired"));
 				$this->setFailureMessage($sRelatedRecordMsg);
 				$rs->Close();
 				return FALSE;
@@ -2165,22 +1966,22 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 	function AddRow($rsold = NULL) {
 		global $Language, $Security;
 
-		// Check referential integrity for master table 't03_siswa'
+		// Check referential integrity for master table 'v01_siswanonrutin'
 		$bValidMasterRecord = TRUE;
-		$sMasterFilter = $this->SqlMasterFilter_t03_siswa();
-		if ($this->siswa_id->getSessionValue() <> "") {
-			$sMasterFilter = str_replace("@id@", ew_AdjustSql($this->siswa_id->getSessionValue(), "DB"), $sMasterFilter);
+		$sMasterFilter = $this->SqlMasterFilter_v01_siswanonrutin();
+		if ($this->siswanonrutin_id->getSessionValue() <> "") {
+			$sMasterFilter = str_replace("@id@", ew_AdjustSql($this->siswanonrutin_id->getSessionValue(), "DB"), $sMasterFilter);
 		} else {
 			$bValidMasterRecord = FALSE;
 		}
 		if ($bValidMasterRecord) {
-			if (!isset($GLOBALS["t03_siswa"])) $GLOBALS["t03_siswa"] = new ct03_siswa();
-			$rsmaster = $GLOBALS["t03_siswa"]->LoadRs($sMasterFilter);
+			if (!isset($GLOBALS["v01_siswanonrutin"])) $GLOBALS["v01_siswanonrutin"] = new cv01_siswanonrutin();
+			$rsmaster = $GLOBALS["v01_siswanonrutin"]->LoadRs($sMasterFilter);
 			$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
 			$rsmaster->Close();
 		}
 		if (!$bValidMasterRecord) {
-			$sRelatedRecordMsg = str_replace("%t", "t03_siswa", $Language->Phrase("RelatedRecordRequired"));
+			$sRelatedRecordMsg = str_replace("%t", "v01_siswanonrutin", $Language->Phrase("RelatedRecordRequired"));
 			$this->setFailureMessage($sRelatedRecordMsg);
 			return FALSE;
 		}
@@ -2192,24 +1993,15 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		}
 		$rsnew = array();
 
-		// Siswa_Nomor_Induk
-		$this->Siswa_Nomor_Induk->SetDbValueDef($rsnew, $this->Siswa_Nomor_Induk->CurrentValue, NULL, FALSE);
-
-		// Siswa_Nama
-		$this->Siswa_Nama->SetDbValueDef($rsnew, $this->Siswa_Nama->CurrentValue, NULL, FALSE);
-
-		// nonrutin_id
-		$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, 0, FALSE);
-
 		// Bayar_Tgl
 		$this->Bayar_Tgl->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->Bayar_Tgl->CurrentValue, 5), NULL, FALSE);
 
 		// Bayar_Jumlah
 		$this->Bayar_Jumlah->SetDbValueDef($rsnew, $this->Bayar_Jumlah->CurrentValue, NULL, strval($this->Bayar_Jumlah->CurrentValue) == "");
 
-		// siswa_id
-		if ($this->siswa_id->getSessionValue() <> "") {
-			$rsnew['siswa_id'] = $this->siswa_id->getSessionValue();
+		// siswanonrutin_id
+		if ($this->siswanonrutin_id->getSessionValue() <> "") {
+			$rsnew['siswanonrutin_id'] = $this->siswanonrutin_id->getSessionValue();
 		}
 
 		// Call Row Inserting event
@@ -2254,13 +2046,13 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 				$this->DbMasterFilter = "";
 				$this->DbDetailFilter = "";
 			}
-			if ($sMasterTblVar == "t03_siswa") {
+			if ($sMasterTblVar == "v01_siswanonrutin") {
 				$bValidMaster = TRUE;
 				if (@$_GET["fk_id"] <> "") {
-					$GLOBALS["t03_siswa"]->id->setQueryStringValue($_GET["fk_id"]);
-					$this->siswa_id->setQueryStringValue($GLOBALS["t03_siswa"]->id->QueryStringValue);
-					$this->siswa_id->setSessionValue($this->siswa_id->QueryStringValue);
-					if (!is_numeric($GLOBALS["t03_siswa"]->id->QueryStringValue)) $bValidMaster = FALSE;
+					$GLOBALS["v01_siswanonrutin"]->id->setQueryStringValue($_GET["fk_id"]);
+					$this->siswanonrutin_id->setQueryStringValue($GLOBALS["v01_siswanonrutin"]->id->QueryStringValue);
+					$this->siswanonrutin_id->setSessionValue($this->siswanonrutin_id->QueryStringValue);
+					if (!is_numeric($GLOBALS["v01_siswanonrutin"]->id->QueryStringValue)) $bValidMaster = FALSE;
 				} else {
 					$bValidMaster = FALSE;
 				}
@@ -2272,13 +2064,13 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 				$this->DbMasterFilter = "";
 				$this->DbDetailFilter = "";
 			}
-			if ($sMasterTblVar == "t03_siswa") {
+			if ($sMasterTblVar == "v01_siswanonrutin") {
 				$bValidMaster = TRUE;
 				if (@$_POST["fk_id"] <> "") {
-					$GLOBALS["t03_siswa"]->id->setFormValue($_POST["fk_id"]);
-					$this->siswa_id->setFormValue($GLOBALS["t03_siswa"]->id->FormValue);
-					$this->siswa_id->setSessionValue($this->siswa_id->FormValue);
-					if (!is_numeric($GLOBALS["t03_siswa"]->id->FormValue)) $bValidMaster = FALSE;
+					$GLOBALS["v01_siswanonrutin"]->id->setFormValue($_POST["fk_id"]);
+					$this->siswanonrutin_id->setFormValue($GLOBALS["v01_siswanonrutin"]->id->FormValue);
+					$this->siswanonrutin_id->setSessionValue($this->siswanonrutin_id->FormValue);
+					if (!is_numeric($GLOBALS["v01_siswanonrutin"]->id->FormValue)) $bValidMaster = FALSE;
 				} else {
 					$bValidMaster = FALSE;
 				}
@@ -2300,8 +2092,8 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 			$this->setStartRecordNumber($this->StartRec);
 
 			// Clear previous master key from Session
-			if ($sMasterTblVar <> "t03_siswa") {
-				if ($this->siswa_id->CurrentValue == "") $this->siswa_id->setSessionValue("");
+			if ($sMasterTblVar <> "v01_siswanonrutin") {
+				if ($this->siswanonrutin_id->CurrentValue == "") $this->siswanonrutin_id->setSessionValue("");
 			}
 		}
 		$this->DbMasterFilter = $this->GetMasterFilter(); // Get master filter
@@ -2322,18 +2114,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
-		case "x_nonrutin_id":
-			$sSqlWrk = "";
-			$sSqlWrk = "SELECT `id` AS `LinkFld`, `Nama` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t07_nonrutin`";
-			$sWhereWrk = "{filter}";
-			$this->nonrutin_id->LookupFilters = array();
-			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "", "f0" => '`id` = {filter_value}', "t0" => "3", "fn0" => "");
-			$sSqlWrk = "";
-			$this->Lookup_Selecting($this->nonrutin_id, $sWhereWrk); // Call Lookup selecting
-			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			if ($sSqlWrk <> "")
-				$fld->LookupFilters["s"] .= $sSqlWrk;
-			break;
 		}
 	}
 
@@ -2342,19 +2122,6 @@ class ct09_siswanonrutinbayar_list extends ct09_siswanonrutinbayar {
 		global $gsLanguage;
 		$pageId = $pageId ?: $this->PageID;
 		switch ($fld->FldVar) {
-		case "x_nonrutin_id":
-			$sSqlWrk = "";
-			$sSqlWrk = "SELECT `id`, `Nama` AS `DispFld` FROM `t07_nonrutin`";
-			$sWhereWrk = "`Nama` LIKE '{query_value}%'";
-			$this->nonrutin_id->LookupFilters = array();
-			$fld->LookupFilters += array("s" => $sSqlWrk, "d" => "");
-			$sSqlWrk = "";
-			$this->Lookup_Selecting($this->nonrutin_id, $sWhereWrk); // Call Lookup selecting
-			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			$sSqlWrk .= " LIMIT " . EW_AUTO_SUGGEST_MAX_ENTRIES;
-			if ($sSqlWrk <> "")
-				$fld->LookupFilters["s"] .= $sSqlWrk;
-			break;
 		}
 	}
 
@@ -2519,12 +2286,6 @@ ft09_siswanonrutinbayarlist.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
-			elm = this.GetElements("x" + infix + "_nonrutin_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t09_siswanonrutinbayar->nonrutin_id->FldCaption(), $t09_siswanonrutinbayar->nonrutin_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_nonrutin_id");
-			if (elm && !ew_CheckInteger(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t09_siswanonrutinbayar->nonrutin_id->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_Bayar_Tgl");
 			if (elm && !ew_CheckDate(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t09_siswanonrutinbayar->Bayar_Tgl->FldErrMsg()) ?>");
@@ -2555,9 +2316,8 @@ ft09_siswanonrutinbayarlist.ValidateRequired = false;
 <?php } ?>
 
 // Dynamic selection lists
-ft09_siswanonrutinbayarlist.Lists["x_nonrutin_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nama","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t07_nonrutin"};
-
 // Form object for search
+
 </script>
 <script type="text/javascript">
 
@@ -2573,10 +2333,10 @@ ft09_siswanonrutinbayarlist.Lists["x_nonrutin_id"] = {"LinkField":"x_id","Ajax":
 </div>
 <?php if (($t09_siswanonrutinbayar->Export == "") || (EW_EXPORT_MASTER_RECORD && $t09_siswanonrutinbayar->Export == "print")) { ?>
 <?php
-if ($t09_siswanonrutinbayar_list->DbMasterFilter <> "" && $t09_siswanonrutinbayar->getCurrentMasterTable() == "t03_siswa") {
+if ($t09_siswanonrutinbayar_list->DbMasterFilter <> "" && $t09_siswanonrutinbayar->getCurrentMasterTable() == "v01_siswanonrutin") {
 	if ($t09_siswanonrutinbayar_list->MasterRecordExists) {
 ?>
-<?php include_once "t03_siswamaster.php" ?>
+<?php include_once "v01_siswanonrutinmaster.php" ?>
 <?php
 	}
 }
@@ -2677,9 +2437,9 @@ $t09_siswanonrutinbayar_list->ShowMessage();
 <input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t09_siswanonrutinbayar_list->Token ?>">
 <?php } ?>
 <input type="hidden" name="t" value="t09_siswanonrutinbayar">
-<?php if ($t09_siswanonrutinbayar->getCurrentMasterTable() == "t03_siswa" && $t09_siswanonrutinbayar->CurrentAction <> "") { ?>
-<input type="hidden" name="<?php echo EW_TABLE_SHOW_MASTER ?>" value="t03_siswa">
-<input type="hidden" name="fk_id" value="<?php echo $t09_siswanonrutinbayar->siswa_id->getSessionValue() ?>">
+<?php if ($t09_siswanonrutinbayar->getCurrentMasterTable() == "v01_siswanonrutin" && $t09_siswanonrutinbayar->CurrentAction <> "") { ?>
+<input type="hidden" name="<?php echo EW_TABLE_SHOW_MASTER ?>" value="v01_siswanonrutin">
+<input type="hidden" name="fk_id" value="<?php echo $t09_siswanonrutinbayar->siswanonrutin_id->getSessionValue() ?>">
 <?php } ?>
 <div id="gmp_t09_siswanonrutinbayar" class="<?php if (ew_IsResponsiveLayout()) { echo "table-responsive "; } ?>ewGridMiddlePanel">
 <?php if ($t09_siswanonrutinbayar_list->TotalRecs > 0 || $t09_siswanonrutinbayar->CurrentAction == "add" || $t09_siswanonrutinbayar->CurrentAction == "copy" || $t09_siswanonrutinbayar->CurrentAction == "gridedit") { ?>
@@ -2698,33 +2458,6 @@ $t09_siswanonrutinbayar_list->RenderListOptions();
 // Render list options (header, left)
 $t09_siswanonrutinbayar_list->ListOptions->Render("header", "left");
 ?>
-<?php if ($t09_siswanonrutinbayar->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
-	<?php if ($t09_siswanonrutinbayar->SortUrl($t09_siswanonrutinbayar->Siswa_Nomor_Induk) == "") { ?>
-		<th data-name="Siswa_Nomor_Induk"><div id="elh_t09_siswanonrutinbayar_Siswa_Nomor_Induk" class="t09_siswanonrutinbayar_Siswa_Nomor_Induk"><div class="ewTableHeaderCaption"><?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="Siswa_Nomor_Induk"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t09_siswanonrutinbayar->SortUrl($t09_siswanonrutinbayar->Siswa_Nomor_Induk) ?>',2);"><div id="elh_t09_siswanonrutinbayar_Siswa_Nomor_Induk" class="t09_siswanonrutinbayar_Siswa_Nomor_Induk">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t09_siswanonrutinbayar->Siswa_Nomor_Induk->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t09_siswanonrutinbayar->Siswa_Nomor_Induk->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-        </div></div></th>
-	<?php } ?>
-<?php } ?>		
-<?php if ($t09_siswanonrutinbayar->Siswa_Nama->Visible) { // Siswa_Nama ?>
-	<?php if ($t09_siswanonrutinbayar->SortUrl($t09_siswanonrutinbayar->Siswa_Nama) == "") { ?>
-		<th data-name="Siswa_Nama"><div id="elh_t09_siswanonrutinbayar_Siswa_Nama" class="t09_siswanonrutinbayar_Siswa_Nama"><div class="ewTableHeaderCaption"><?php echo $t09_siswanonrutinbayar->Siswa_Nama->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="Siswa_Nama"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t09_siswanonrutinbayar->SortUrl($t09_siswanonrutinbayar->Siswa_Nama) ?>',2);"><div id="elh_t09_siswanonrutinbayar_Siswa_Nama" class="t09_siswanonrutinbayar_Siswa_Nama">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t09_siswanonrutinbayar->Siswa_Nama->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t09_siswanonrutinbayar->Siswa_Nama->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t09_siswanonrutinbayar->Siswa_Nama->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-        </div></div></th>
-	<?php } ?>
-<?php } ?>		
-<?php if ($t09_siswanonrutinbayar->nonrutin_id->Visible) { // nonrutin_id ?>
-	<?php if ($t09_siswanonrutinbayar->SortUrl($t09_siswanonrutinbayar->nonrutin_id) == "") { ?>
-		<th data-name="nonrutin_id"><div id="elh_t09_siswanonrutinbayar_nonrutin_id" class="t09_siswanonrutinbayar_nonrutin_id"><div class="ewTableHeaderCaption"><?php echo $t09_siswanonrutinbayar->nonrutin_id->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="nonrutin_id"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $t09_siswanonrutinbayar->SortUrl($t09_siswanonrutinbayar->nonrutin_id) ?>',2);"><div id="elh_t09_siswanonrutinbayar_nonrutin_id" class="t09_siswanonrutinbayar_nonrutin_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t09_siswanonrutinbayar->nonrutin_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t09_siswanonrutinbayar->nonrutin_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t09_siswanonrutinbayar->nonrutin_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-        </div></div></th>
-	<?php } ?>
-<?php } ?>		
 <?php if ($t09_siswanonrutinbayar->Bayar_Tgl->Visible) { // Bayar_Tgl ?>
 	<?php if ($t09_siswanonrutinbayar->SortUrl($t09_siswanonrutinbayar->Bayar_Tgl) == "") { ?>
 		<th data-name="Bayar_Tgl"><div id="elh_t09_siswanonrutinbayar_Bayar_Tgl" class="t09_siswanonrutinbayar_Bayar_Tgl"><div class="ewTableHeaderCaption"><?php echo $t09_siswanonrutinbayar->Bayar_Tgl->FldCaption() ?></div></div></th>
@@ -2778,42 +2511,6 @@ $t09_siswanonrutinbayar_list->ListOptions->Render("header", "right");
 // Render list options (body, left)
 $t09_siswanonrutinbayar_list->ListOptions->Render("body", "left", $t09_siswanonrutinbayar_list->RowCnt);
 ?>
-	<?php if ($t09_siswanonrutinbayar->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
-		<td data-name="Siswa_Nomor_Induk">
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_Siswa_Nomor_Induk" class="form-group t09_siswanonrutinbayar_Siswa_Nomor_Induk">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nomor_Induk" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nomor_Induk->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nomor_Induk" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nomor_Induk->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t09_siswanonrutinbayar->Siswa_Nama->Visible) { // Siswa_Nama ?>
-		<td data-name="Siswa_Nama">
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_Siswa_Nama" class="form-group t09_siswanonrutinbayar_Siswa_Nama">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nama" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nama->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Siswa_Nama->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Siswa_Nama->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nama" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nama->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t09_siswanonrutinbayar->nonrutin_id->Visible) { // nonrutin_id ?>
-		<td data-name="nonrutin_id">
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_nonrutin_id" class="form-group t09_siswanonrutinbayar_nonrutin_id">
-<?php
-$wrkonchange = trim(" " . @$t09_siswanonrutinbayar->nonrutin_id->EditAttrs["onchange"]);
-if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
-$t09_siswanonrutinbayar->nonrutin_id->EditAttrs["onchange"] = "";
-?>
-<span id="as_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t09_siswanonrutinbayar_list->RowCnt * 10) ?>">
-	<input type="text" name="sv_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="sv_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo $t09_siswanonrutinbayar->nonrutin_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->getPlaceHolder()) ?>"<?php echo $t09_siswanonrutinbayar->nonrutin_id->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_nonrutin_id" data-value-separator="<?php echo $t09_siswanonrutinbayar->nonrutin_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
-<input type="hidden" name="q_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="q_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo $t09_siswanonrutinbayar->nonrutin_id->LookupFilterQuery(true) ?>">
-<script type="text/javascript">
-ft09_siswanonrutinbayarlist.CreateAutoSuggest({"id":"x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id","forceSelect":false});
-</script>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_nonrutin_id" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->OldValue) ?>">
-</td>
-	<?php } ?>
 	<?php if ($t09_siswanonrutinbayar->Bayar_Tgl->Visible) { // Bayar_Tgl ?>
 		<td data-name="Bayar_Tgl">
 <span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_Bayar_Tgl" class="form-group t09_siswanonrutinbayar_Bayar_Tgl">
@@ -2954,100 +2651,6 @@ while ($t09_siswanonrutinbayar_list->RecCnt < $t09_siswanonrutinbayar_list->Stop
 // Render list options (body, left)
 $t09_siswanonrutinbayar_list->ListOptions->Render("body", "left", $t09_siswanonrutinbayar_list->RowCnt);
 ?>
-	<?php if ($t09_siswanonrutinbayar->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
-		<td data-name="Siswa_Nomor_Induk"<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->CellAttributes() ?>>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_Siswa_Nomor_Induk" class="form-group t09_siswanonrutinbayar_Siswa_Nomor_Induk">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nomor_Induk" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nomor_Induk->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nomor_Induk" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nomor_Induk->OldValue) ?>">
-<?php } ?>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_Siswa_Nomor_Induk" class="form-group t09_siswanonrutinbayar_Siswa_Nomor_Induk">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nomor_Induk" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nomor_Induk->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_VIEW) { // View record ?>
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_Siswa_Nomor_Induk" class="t09_siswanonrutinbayar_Siswa_Nomor_Induk">
-<span<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->ViewAttributes() ?>>
-<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->ListViewValue() ?></span>
-</span>
-<?php } ?>
-<a id="<?php echo $t09_siswanonrutinbayar_list->PageObjName . "_row_" . $t09_siswanonrutinbayar_list->RowCnt ?>"></a></td>
-	<?php } ?>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_id" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->id->CurrentValue) ?>">
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_id" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->id->OldValue) ?>">
-<?php } ?>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_EDIT || $t09_siswanonrutinbayar->CurrentMode == "edit") { ?>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_id" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->id->CurrentValue) ?>">
-<?php } ?>
-	<?php if ($t09_siswanonrutinbayar->Siswa_Nama->Visible) { // Siswa_Nama ?>
-		<td data-name="Siswa_Nama"<?php echo $t09_siswanonrutinbayar->Siswa_Nama->CellAttributes() ?>>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_Siswa_Nama" class="form-group t09_siswanonrutinbayar_Siswa_Nama">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nama" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nama->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Siswa_Nama->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Siswa_Nama->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nama" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nama->OldValue) ?>">
-<?php } ?>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_Siswa_Nama" class="form-group t09_siswanonrutinbayar_Siswa_Nama">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nama" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nama->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Siswa_Nama->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Siswa_Nama->EditAttributes() ?>>
-</span>
-<?php } ?>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_VIEW) { // View record ?>
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_Siswa_Nama" class="t09_siswanonrutinbayar_Siswa_Nama">
-<span<?php echo $t09_siswanonrutinbayar->Siswa_Nama->ViewAttributes() ?>>
-<?php echo $t09_siswanonrutinbayar->Siswa_Nama->ListViewValue() ?></span>
-</span>
-<?php } ?>
-</td>
-	<?php } ?>
-	<?php if ($t09_siswanonrutinbayar->nonrutin_id->Visible) { // nonrutin_id ?>
-		<td data-name="nonrutin_id"<?php echo $t09_siswanonrutinbayar->nonrutin_id->CellAttributes() ?>>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_nonrutin_id" class="form-group t09_siswanonrutinbayar_nonrutin_id">
-<?php
-$wrkonchange = trim(" " . @$t09_siswanonrutinbayar->nonrutin_id->EditAttrs["onchange"]);
-if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
-$t09_siswanonrutinbayar->nonrutin_id->EditAttrs["onchange"] = "";
-?>
-<span id="as_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t09_siswanonrutinbayar_list->RowCnt * 10) ?>">
-	<input type="text" name="sv_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="sv_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo $t09_siswanonrutinbayar->nonrutin_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->getPlaceHolder()) ?>"<?php echo $t09_siswanonrutinbayar->nonrutin_id->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_nonrutin_id" data-value-separator="<?php echo $t09_siswanonrutinbayar->nonrutin_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
-<input type="hidden" name="q_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="q_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo $t09_siswanonrutinbayar->nonrutin_id->LookupFilterQuery(true) ?>">
-<script type="text/javascript">
-ft09_siswanonrutinbayarlist.CreateAutoSuggest({"id":"x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id","forceSelect":false});
-</script>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_nonrutin_id" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->OldValue) ?>">
-<?php } ?>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_nonrutin_id" class="form-group t09_siswanonrutinbayar_nonrutin_id">
-<?php
-$wrkonchange = trim(" " . @$t09_siswanonrutinbayar->nonrutin_id->EditAttrs["onchange"]);
-if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
-$t09_siswanonrutinbayar->nonrutin_id->EditAttrs["onchange"] = "";
-?>
-<span id="as_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t09_siswanonrutinbayar_list->RowCnt * 10) ?>">
-	<input type="text" name="sv_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="sv_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo $t09_siswanonrutinbayar->nonrutin_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->getPlaceHolder()) ?>"<?php echo $t09_siswanonrutinbayar->nonrutin_id->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_nonrutin_id" data-value-separator="<?php echo $t09_siswanonrutinbayar->nonrutin_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
-<input type="hidden" name="q_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="q_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo $t09_siswanonrutinbayar->nonrutin_id->LookupFilterQuery(true) ?>">
-<script type="text/javascript">
-ft09_siswanonrutinbayarlist.CreateAutoSuggest({"id":"x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id","forceSelect":false});
-</script>
-</span>
-<?php } ?>
-<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_VIEW) { // View record ?>
-<span id="el<?php echo $t09_siswanonrutinbayar_list->RowCnt ?>_t09_siswanonrutinbayar_nonrutin_id" class="t09_siswanonrutinbayar_nonrutin_id">
-<span<?php echo $t09_siswanonrutinbayar->nonrutin_id->ViewAttributes() ?>>
-<?php echo $t09_siswanonrutinbayar->nonrutin_id->ListViewValue() ?></span>
-</span>
-<?php } ?>
-</td>
-	<?php } ?>
 	<?php if ($t09_siswanonrutinbayar->Bayar_Tgl->Visible) { // Bayar_Tgl ?>
 		<td data-name="Bayar_Tgl"<?php echo $t09_siswanonrutinbayar->Bayar_Tgl->CellAttributes() ?>>
 <?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_ADD) { // Add record ?>
@@ -3077,8 +2680,15 @@ ew_CreateCalendar("ft09_siswanonrutinbayarlist", "x<?php echo $t09_siswanonrutin
 <?php echo $t09_siswanonrutinbayar->Bayar_Tgl->ListViewValue() ?></span>
 </span>
 <?php } ?>
-</td>
+<a id="<?php echo $t09_siswanonrutinbayar_list->PageObjName . "_row_" . $t09_siswanonrutinbayar_list->RowCnt ?>"></a></td>
 	<?php } ?>
+<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_ADD) { // Add record ?>
+<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_id" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->id->CurrentValue) ?>">
+<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_id" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->id->OldValue) ?>">
+<?php } ?>
+<?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_EDIT || $t09_siswanonrutinbayar->CurrentMode == "edit") { ?>
+<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_id" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->id->CurrentValue) ?>">
+<?php } ?>
 	<?php if ($t09_siswanonrutinbayar->Bayar_Jumlah->Visible) { // Bayar_Jumlah ?>
 		<td data-name="Bayar_Jumlah"<?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->CellAttributes() ?>>
 <?php if ($t09_siswanonrutinbayar->RowType == EW_ROWTYPE_ADD) { // Add record ?>
@@ -3142,42 +2752,6 @@ ft09_siswanonrutinbayarlist.UpdateOpts(<?php echo $t09_siswanonrutinbayar_list->
 // Render list options (body, left)
 $t09_siswanonrutinbayar_list->ListOptions->Render("body", "left", $t09_siswanonrutinbayar_list->RowIndex);
 ?>
-	<?php if ($t09_siswanonrutinbayar->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
-		<td data-name="Siswa_Nomor_Induk">
-<span id="el$rowindex$_t09_siswanonrutinbayar_Siswa_Nomor_Induk" class="form-group t09_siswanonrutinbayar_Siswa_Nomor_Induk">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nomor_Induk" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nomor_Induk->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Siswa_Nomor_Induk->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nomor_Induk" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nomor_Induk->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t09_siswanonrutinbayar->Siswa_Nama->Visible) { // Siswa_Nama ?>
-		<td data-name="Siswa_Nama">
-<span id="el$rowindex$_t09_siswanonrutinbayar_Siswa_Nama" class="form-group t09_siswanonrutinbayar_Siswa_Nama">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nama" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nama->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Siswa_Nama->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Siswa_Nama->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_Siswa_Nama" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Siswa_Nama->OldValue) ?>">
-</td>
-	<?php } ?>
-	<?php if ($t09_siswanonrutinbayar->nonrutin_id->Visible) { // nonrutin_id ?>
-		<td data-name="nonrutin_id">
-<span id="el$rowindex$_t09_siswanonrutinbayar_nonrutin_id" class="form-group t09_siswanonrutinbayar_nonrutin_id">
-<?php
-$wrkonchange = trim(" " . @$t09_siswanonrutinbayar->nonrutin_id->EditAttrs["onchange"]);
-if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
-$t09_siswanonrutinbayar->nonrutin_id->EditAttrs["onchange"] = "";
-?>
-<span id="as_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t09_siswanonrutinbayar_list->RowCnt * 10) ?>">
-	<input type="text" name="sv_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="sv_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo $t09_siswanonrutinbayar->nonrutin_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->getPlaceHolder()) ?>"<?php echo $t09_siswanonrutinbayar->nonrutin_id->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_nonrutin_id" data-value-separator="<?php echo $t09_siswanonrutinbayar->nonrutin_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
-<input type="hidden" name="q_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="q_x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo $t09_siswanonrutinbayar->nonrutin_id->LookupFilterQuery(true) ?>">
-<script type="text/javascript">
-ft09_siswanonrutinbayarlist.CreateAutoSuggest({"id":"x<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id","forceSelect":false});
-</script>
-</span>
-<input type="hidden" data-table="t09_siswanonrutinbayar" data-field="x_nonrutin_id" name="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" id="o<?php echo $t09_siswanonrutinbayar_list->RowIndex ?>_nonrutin_id" value="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->nonrutin_id->OldValue) ?>">
-</td>
-	<?php } ?>
 	<?php if ($t09_siswanonrutinbayar->Bayar_Tgl->Visible) { // Bayar_Tgl ?>
 		<td data-name="Bayar_Tgl">
 <span id="el$rowindex$_t09_siswanonrutinbayar_Bayar_Tgl" class="form-group t09_siswanonrutinbayar_Bayar_Tgl">

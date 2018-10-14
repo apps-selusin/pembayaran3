@@ -1,0 +1,1 @@
+CREATE VIEW `v01_siswanonrutin`  AS  select `t08_siswanonrutin`.`id` AS `id`,`t08_siswanonrutin`.`siswa_id` AS `siswa_id`,`t08_siswanonrutin`.`nonrutin_id` AS `nonrutin_id`,`t08_siswanonrutin`.`Nilai` AS `Nilai`,`t08_siswanonrutin`.`Terbayar` AS `Terbayar`,`t08_siswanonrutin`.`Sisa` AS `Sisa` from `t08_siswanonrutin` ;

@@ -292,6 +292,8 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		$this->siswa_id->SetVisibility();
 		$this->nonrutin_id->SetVisibility();
 		$this->Nilai->SetVisibility();
+		$this->Terbayar->SetVisibility();
+		$this->Sisa->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -486,6 +488,8 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		$this->nonrutin_id->CurrentValue = NULL;
 		$this->nonrutin_id->OldValue = $this->nonrutin_id->CurrentValue;
 		$this->Nilai->CurrentValue = 0.00;
+		$this->Terbayar->CurrentValue = 0.00;
+		$this->Sisa->CurrentValue = 0.00;
 	}
 
 	// Load form values
@@ -502,6 +506,12 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		if (!$this->Nilai->FldIsDetailKey) {
 			$this->Nilai->setFormValue($objForm->GetValue("x_Nilai"));
 		}
+		if (!$this->Terbayar->FldIsDetailKey) {
+			$this->Terbayar->setFormValue($objForm->GetValue("x_Terbayar"));
+		}
+		if (!$this->Sisa->FldIsDetailKey) {
+			$this->Sisa->setFormValue($objForm->GetValue("x_Sisa"));
+		}
 	}
 
 	// Restore form values
@@ -511,6 +521,8 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		$this->siswa_id->CurrentValue = $this->siswa_id->FormValue;
 		$this->nonrutin_id->CurrentValue = $this->nonrutin_id->FormValue;
 		$this->Nilai->CurrentValue = $this->Nilai->FormValue;
+		$this->Terbayar->CurrentValue = $this->Terbayar->FormValue;
+		$this->Sisa->CurrentValue = $this->Sisa->FormValue;
 	}
 
 	// Load row based on key values
@@ -546,6 +558,8 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		$this->siswa_id->setDbValue($rs->fields('siswa_id'));
 		$this->nonrutin_id->setDbValue($rs->fields('nonrutin_id'));
 		$this->Nilai->setDbValue($rs->fields('Nilai'));
+		$this->Terbayar->setDbValue($rs->fields('Terbayar'));
+		$this->Sisa->setDbValue($rs->fields('Sisa'));
 	}
 
 	// Load DbValue from recordset
@@ -556,6 +570,8 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		$this->siswa_id->DbValue = $row['siswa_id'];
 		$this->nonrutin_id->DbValue = $row['nonrutin_id'];
 		$this->Nilai->DbValue = $row['Nilai'];
+		$this->Terbayar->DbValue = $row['Terbayar'];
+		$this->Sisa->DbValue = $row['Sisa'];
 	}
 
 	// Load old record
@@ -591,6 +607,14 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		if ($this->Nilai->FormValue == $this->Nilai->CurrentValue && is_numeric(ew_StrToFloat($this->Nilai->CurrentValue)))
 			$this->Nilai->CurrentValue = ew_StrToFloat($this->Nilai->CurrentValue);
 
+		// Convert decimal values if posted back
+		if ($this->Terbayar->FormValue == $this->Terbayar->CurrentValue && is_numeric(ew_StrToFloat($this->Terbayar->CurrentValue)))
+			$this->Terbayar->CurrentValue = ew_StrToFloat($this->Terbayar->CurrentValue);
+
+		// Convert decimal values if posted back
+		if ($this->Sisa->FormValue == $this->Sisa->CurrentValue && is_numeric(ew_StrToFloat($this->Sisa->CurrentValue)))
+			$this->Sisa->CurrentValue = ew_StrToFloat($this->Sisa->CurrentValue);
+
 		// Call Row_Rendering event
 		$this->Row_Rendering();
 
@@ -599,6 +623,8 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		// siswa_id
 		// nonrutin_id
 		// Nilai
+		// Terbayar
+		// Sisa
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -660,6 +686,14 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		$this->Nilai->CellCssStyle .= "text-align: right;";
 		$this->Nilai->ViewCustomAttributes = "";
 
+		// Terbayar
+		$this->Terbayar->ViewValue = $this->Terbayar->CurrentValue;
+		$this->Terbayar->ViewCustomAttributes = "";
+
+		// Sisa
+		$this->Sisa->ViewValue = $this->Sisa->CurrentValue;
+		$this->Sisa->ViewCustomAttributes = "";
+
 			// siswa_id
 			$this->siswa_id->LinkCustomAttributes = "";
 			$this->siswa_id->HrefValue = "";
@@ -674,6 +708,16 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 			$this->Nilai->LinkCustomAttributes = "";
 			$this->Nilai->HrefValue = "";
 			$this->Nilai->TooltipValue = "";
+
+			// Terbayar
+			$this->Terbayar->LinkCustomAttributes = "";
+			$this->Terbayar->HrefValue = "";
+			$this->Terbayar->TooltipValue = "";
+
+			// Sisa
+			$this->Sisa->LinkCustomAttributes = "";
+			$this->Sisa->HrefValue = "";
+			$this->Sisa->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
 
 			// siswa_id
@@ -762,6 +806,20 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 			$this->Nilai->PlaceHolder = ew_RemoveHtml($this->Nilai->FldCaption());
 			if (strval($this->Nilai->EditValue) <> "" && is_numeric($this->Nilai->EditValue)) $this->Nilai->EditValue = ew_FormatNumber($this->Nilai->EditValue, -2, -2, -2, -2);
 
+			// Terbayar
+			$this->Terbayar->EditAttrs["class"] = "form-control";
+			$this->Terbayar->EditCustomAttributes = "";
+			$this->Terbayar->EditValue = ew_HtmlEncode($this->Terbayar->CurrentValue);
+			$this->Terbayar->PlaceHolder = ew_RemoveHtml($this->Terbayar->FldCaption());
+			if (strval($this->Terbayar->EditValue) <> "" && is_numeric($this->Terbayar->EditValue)) $this->Terbayar->EditValue = ew_FormatNumber($this->Terbayar->EditValue, -2, -1, -2, 0);
+
+			// Sisa
+			$this->Sisa->EditAttrs["class"] = "form-control";
+			$this->Sisa->EditCustomAttributes = "";
+			$this->Sisa->EditValue = ew_HtmlEncode($this->Sisa->CurrentValue);
+			$this->Sisa->PlaceHolder = ew_RemoveHtml($this->Sisa->FldCaption());
+			if (strval($this->Sisa->EditValue) <> "" && is_numeric($this->Sisa->EditValue)) $this->Sisa->EditValue = ew_FormatNumber($this->Sisa->EditValue, -2, -1, -2, 0);
+
 			// Add refer script
 			// siswa_id
 
@@ -775,6 +833,14 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 			// Nilai
 			$this->Nilai->LinkCustomAttributes = "";
 			$this->Nilai->HrefValue = "";
+
+			// Terbayar
+			$this->Terbayar->LinkCustomAttributes = "";
+			$this->Terbayar->HrefValue = "";
+
+			// Sisa
+			$this->Sisa->LinkCustomAttributes = "";
+			$this->Sisa->HrefValue = "";
 		}
 		if ($this->RowType == EW_ROWTYPE_ADD ||
 			$this->RowType == EW_ROWTYPE_EDIT ||
@@ -812,6 +878,18 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 		if (!ew_CheckNumber($this->Nilai->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Nilai->FldErrMsg());
 		}
+		if (!$this->Terbayar->FldIsDetailKey && !is_null($this->Terbayar->FormValue) && $this->Terbayar->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->Terbayar->FldCaption(), $this->Terbayar->ReqErrMsg));
+		}
+		if (!ew_CheckNumber($this->Terbayar->FormValue)) {
+			ew_AddMessage($gsFormError, $this->Terbayar->FldErrMsg());
+		}
+		if (!$this->Sisa->FldIsDetailKey && !is_null($this->Sisa->FormValue) && $this->Sisa->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->Sisa->FldCaption(), $this->Sisa->ReqErrMsg));
+		}
+		if (!ew_CheckNumber($this->Sisa->FormValue)) {
+			ew_AddMessage($gsFormError, $this->Sisa->FldErrMsg());
+		}
 
 		// Return validate result
 		$ValidateForm = ($gsFormError == "");
@@ -828,26 +906,6 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 	// Add record
 	function AddRow($rsold = NULL) {
 		global $Language, $Security;
-
-		// Check referential integrity for master table 't03_siswa'
-		$bValidMasterRecord = TRUE;
-		$sMasterFilter = $this->SqlMasterFilter_t03_siswa();
-		if (strval($this->siswa_id->CurrentValue) <> "") {
-			$sMasterFilter = str_replace("@id@", ew_AdjustSql($this->siswa_id->CurrentValue, "DB"), $sMasterFilter);
-		} else {
-			$bValidMasterRecord = FALSE;
-		}
-		if ($bValidMasterRecord) {
-			if (!isset($GLOBALS["t03_siswa"])) $GLOBALS["t03_siswa"] = new ct03_siswa();
-			$rsmaster = $GLOBALS["t03_siswa"]->LoadRs($sMasterFilter);
-			$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
-			$rsmaster->Close();
-		}
-		if (!$bValidMasterRecord) {
-			$sRelatedRecordMsg = str_replace("%t", "t03_siswa", $Language->Phrase("RelatedRecordRequired"));
-			$this->setFailureMessage($sRelatedRecordMsg);
-			return FALSE;
-		}
 		$conn = &$this->Connection();
 
 		// Load db values from rsold
@@ -864,6 +922,12 @@ class ct08_siswanonrutin_add extends ct08_siswanonrutin {
 
 		// Nilai
 		$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, 0, strval($this->Nilai->CurrentValue) == "");
+
+		// Terbayar
+		$this->Terbayar->SetDbValueDef($rsnew, $this->Terbayar->CurrentValue, 0, strval($this->Terbayar->CurrentValue) == "");
+
+		// Sisa
+		$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, 0, strval($this->Sisa->CurrentValue) == "");
 
 		// Call Row Inserting event
 		$rs = ($rsold == NULL) ? NULL : $rsold->fields;
@@ -1141,6 +1205,18 @@ ft08_siswanonrutinadd.Validate = function() {
 			elm = this.GetElements("x" + infix + "_Nilai");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Nilai->FldErrMsg()) ?>");
+			elm = this.GetElements("x" + infix + "_Terbayar");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Terbayar->FldCaption(), $t08_siswanonrutin->Terbayar->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_Terbayar");
+			if (elm && !ew_CheckNumber(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Terbayar->FldErrMsg()) ?>");
+			elm = this.GetElements("x" + infix + "_Sisa");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Sisa->FldCaption(), $t08_siswanonrutin->Sisa->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_Sisa");
+			if (elm && !ew_CheckNumber(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Sisa->FldErrMsg()) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -1263,6 +1339,26 @@ ft08_siswanonrutinadd.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":false})
 <input type="text" data-table="t08_siswanonrutin" data-field="x_Nilai" name="x_Nilai" id="x_Nilai" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Nilai->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Nilai->EditValue ?>"<?php echo $t08_siswanonrutin->Nilai->EditAttributes() ?>>
 </span>
 <?php echo $t08_siswanonrutin->Nilai->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t08_siswanonrutin->Terbayar->Visible) { // Terbayar ?>
+	<div id="r_Terbayar" class="form-group">
+		<label id="elh_t08_siswanonrutin_Terbayar" for="x_Terbayar" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->Terbayar->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="col-sm-10"><div<?php echo $t08_siswanonrutin->Terbayar->CellAttributes() ?>>
+<span id="el_t08_siswanonrutin_Terbayar">
+<input type="text" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="x_Terbayar" id="x_Terbayar" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Terbayar->EditValue ?>"<?php echo $t08_siswanonrutin->Terbayar->EditAttributes() ?>>
+</span>
+<?php echo $t08_siswanonrutin->Terbayar->CustomMsg ?></div></div>
+	</div>
+<?php } ?>
+<?php if ($t08_siswanonrutin->Sisa->Visible) { // Sisa ?>
+	<div id="r_Sisa" class="form-group">
+		<label id="elh_t08_siswanonrutin_Sisa" for="x_Sisa" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->Sisa->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="col-sm-10"><div<?php echo $t08_siswanonrutin->Sisa->CellAttributes() ?>>
+<span id="el_t08_siswanonrutin_Sisa">
+<input type="text" data-table="t08_siswanonrutin" data-field="x_Sisa" name="x_Sisa" id="x_Sisa" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Sisa->EditValue ?>"<?php echo $t08_siswanonrutin->Sisa->EditAttributes() ?>>
+</span>
+<?php echo $t08_siswanonrutin->Sisa->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 </div>

@@ -17,6 +17,8 @@ class ct08_siswanonrutin extends cTable {
 	var $siswa_id;
 	var $nonrutin_id;
 	var $Nilai;
+	var $Terbayar;
+	var $Sisa;
 
 	//
 	// Table class constructor
@@ -73,6 +75,18 @@ class ct08_siswanonrutin extends cTable {
 		$this->Nilai->Sortable = TRUE; // Allow sort
 		$this->Nilai->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
 		$this->fields['Nilai'] = &$this->Nilai;
+
+		// Terbayar
+		$this->Terbayar = new cField('t08_siswanonrutin', 't08_siswanonrutin', 'x_Terbayar', 'Terbayar', '`Terbayar`', '`Terbayar`', 4, -1, FALSE, '`Terbayar`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->Terbayar->Sortable = TRUE; // Allow sort
+		$this->Terbayar->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['Terbayar'] = &$this->Terbayar;
+
+		// Sisa
+		$this->Sisa = new cField('t08_siswanonrutin', 't08_siswanonrutin', 'x_Sisa', 'Sisa', '`Sisa`', '`Sisa`', 4, -1, FALSE, '`Sisa`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->Sisa->Sortable = TRUE; // Allow sort
+		$this->Sisa->FldDefaultErrMsg = $Language->Phrase("IncorrectFloat");
+		$this->fields['Sisa'] = &$this->Sisa;
 	}
 
 	// Set Field Visibility
@@ -640,6 +654,8 @@ class ct08_siswanonrutin extends cTable {
 		$this->siswa_id->setDbValue($rs->fields('siswa_id'));
 		$this->nonrutin_id->setDbValue($rs->fields('nonrutin_id'));
 		$this->Nilai->setDbValue($rs->fields('Nilai'));
+		$this->Terbayar->setDbValue($rs->fields('Terbayar'));
+		$this->Sisa->setDbValue($rs->fields('Sisa'));
 	}
 
 	// Render list row values
@@ -654,6 +670,8 @@ class ct08_siswanonrutin extends cTable {
 		// siswa_id
 		// nonrutin_id
 		// Nilai
+		// Terbayar
+		// Sisa
 		// id
 
 		$this->id->ViewValue = $this->id->CurrentValue;
@@ -713,6 +731,14 @@ class ct08_siswanonrutin extends cTable {
 		$this->Nilai->CellCssStyle .= "text-align: right;";
 		$this->Nilai->ViewCustomAttributes = "";
 
+		// Terbayar
+		$this->Terbayar->ViewValue = $this->Terbayar->CurrentValue;
+		$this->Terbayar->ViewCustomAttributes = "";
+
+		// Sisa
+		$this->Sisa->ViewValue = $this->Sisa->CurrentValue;
+		$this->Sisa->ViewCustomAttributes = "";
+
 		// id
 		$this->id->LinkCustomAttributes = "";
 		$this->id->HrefValue = "";
@@ -732,6 +758,16 @@ class ct08_siswanonrutin extends cTable {
 		$this->Nilai->LinkCustomAttributes = "";
 		$this->Nilai->HrefValue = "";
 		$this->Nilai->TooltipValue = "";
+
+		// Terbayar
+		$this->Terbayar->LinkCustomAttributes = "";
+		$this->Terbayar->HrefValue = "";
+		$this->Terbayar->TooltipValue = "";
+
+		// Sisa
+		$this->Sisa->LinkCustomAttributes = "";
+		$this->Sisa->HrefValue = "";
+		$this->Sisa->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -794,6 +830,20 @@ class ct08_siswanonrutin extends cTable {
 		$this->Nilai->PlaceHolder = ew_RemoveHtml($this->Nilai->FldCaption());
 		if (strval($this->Nilai->EditValue) <> "" && is_numeric($this->Nilai->EditValue)) $this->Nilai->EditValue = ew_FormatNumber($this->Nilai->EditValue, -2, -2, -2, -2);
 
+		// Terbayar
+		$this->Terbayar->EditAttrs["class"] = "form-control";
+		$this->Terbayar->EditCustomAttributes = "";
+		$this->Terbayar->EditValue = $this->Terbayar->CurrentValue;
+		$this->Terbayar->PlaceHolder = ew_RemoveHtml($this->Terbayar->FldCaption());
+		if (strval($this->Terbayar->EditValue) <> "" && is_numeric($this->Terbayar->EditValue)) $this->Terbayar->EditValue = ew_FormatNumber($this->Terbayar->EditValue, -2, -1, -2, 0);
+
+		// Sisa
+		$this->Sisa->EditAttrs["class"] = "form-control";
+		$this->Sisa->EditCustomAttributes = "";
+		$this->Sisa->EditValue = $this->Sisa->CurrentValue;
+		$this->Sisa->PlaceHolder = ew_RemoveHtml($this->Sisa->FldCaption());
+		if (strval($this->Sisa->EditValue) <> "" && is_numeric($this->Sisa->EditValue)) $this->Sisa->EditValue = ew_FormatNumber($this->Sisa->EditValue, -2, -1, -2, 0);
+
 		// Call Row Rendered event
 		$this->Row_Rendered();
 	}
@@ -823,11 +873,15 @@ class ct08_siswanonrutin extends cTable {
 				if ($ExportPageType == "view") {
 					if ($this->nonrutin_id->Exportable) $Doc->ExportCaption($this->nonrutin_id);
 					if ($this->Nilai->Exportable) $Doc->ExportCaption($this->Nilai);
+					if ($this->Terbayar->Exportable) $Doc->ExportCaption($this->Terbayar);
+					if ($this->Sisa->Exportable) $Doc->ExportCaption($this->Sisa);
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
 					if ($this->siswa_id->Exportable) $Doc->ExportCaption($this->siswa_id);
 					if ($this->nonrutin_id->Exportable) $Doc->ExportCaption($this->nonrutin_id);
 					if ($this->Nilai->Exportable) $Doc->ExportCaption($this->Nilai);
+					if ($this->Terbayar->Exportable) $Doc->ExportCaption($this->Terbayar);
+					if ($this->Sisa->Exportable) $Doc->ExportCaption($this->Sisa);
 				}
 				$Doc->EndExportRow();
 			}
@@ -861,11 +915,15 @@ class ct08_siswanonrutin extends cTable {
 					if ($ExportPageType == "view") {
 						if ($this->nonrutin_id->Exportable) $Doc->ExportField($this->nonrutin_id);
 						if ($this->Nilai->Exportable) $Doc->ExportField($this->Nilai);
+						if ($this->Terbayar->Exportable) $Doc->ExportField($this->Terbayar);
+						if ($this->Sisa->Exportable) $Doc->ExportField($this->Sisa);
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
 						if ($this->siswa_id->Exportable) $Doc->ExportField($this->siswa_id);
 						if ($this->nonrutin_id->Exportable) $Doc->ExportField($this->nonrutin_id);
 						if ($this->Nilai->Exportable) $Doc->ExportField($this->Nilai);
+						if ($this->Terbayar->Exportable) $Doc->ExportField($this->Terbayar);
+						if ($this->Sisa->Exportable) $Doc->ExportField($this->Sisa);
 					}
 					$Doc->EndExportRow();
 				}

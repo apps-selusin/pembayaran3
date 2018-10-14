@@ -288,6 +288,8 @@ class ct08_siswanonrutin_delete extends ct08_siswanonrutin {
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
 		$this->nonrutin_id->SetVisibility();
 		$this->Nilai->SetVisibility();
+		$this->Terbayar->SetVisibility();
+		$this->Sisa->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -469,6 +471,8 @@ class ct08_siswanonrutin_delete extends ct08_siswanonrutin {
 		$this->siswa_id->setDbValue($rs->fields('siswa_id'));
 		$this->nonrutin_id->setDbValue($rs->fields('nonrutin_id'));
 		$this->Nilai->setDbValue($rs->fields('Nilai'));
+		$this->Terbayar->setDbValue($rs->fields('Terbayar'));
+		$this->Sisa->setDbValue($rs->fields('Sisa'));
 	}
 
 	// Load DbValue from recordset
@@ -479,6 +483,8 @@ class ct08_siswanonrutin_delete extends ct08_siswanonrutin {
 		$this->siswa_id->DbValue = $row['siswa_id'];
 		$this->nonrutin_id->DbValue = $row['nonrutin_id'];
 		$this->Nilai->DbValue = $row['Nilai'];
+		$this->Terbayar->DbValue = $row['Terbayar'];
+		$this->Sisa->DbValue = $row['Sisa'];
 	}
 
 	// Render row values based on field settings
@@ -491,6 +497,14 @@ class ct08_siswanonrutin_delete extends ct08_siswanonrutin {
 		if ($this->Nilai->FormValue == $this->Nilai->CurrentValue && is_numeric(ew_StrToFloat($this->Nilai->CurrentValue)))
 			$this->Nilai->CurrentValue = ew_StrToFloat($this->Nilai->CurrentValue);
 
+		// Convert decimal values if posted back
+		if ($this->Terbayar->FormValue == $this->Terbayar->CurrentValue && is_numeric(ew_StrToFloat($this->Terbayar->CurrentValue)))
+			$this->Terbayar->CurrentValue = ew_StrToFloat($this->Terbayar->CurrentValue);
+
+		// Convert decimal values if posted back
+		if ($this->Sisa->FormValue == $this->Sisa->CurrentValue && is_numeric(ew_StrToFloat($this->Sisa->CurrentValue)))
+			$this->Sisa->CurrentValue = ew_StrToFloat($this->Sisa->CurrentValue);
+
 		// Call Row_Rendering event
 		$this->Row_Rendering();
 
@@ -499,6 +513,8 @@ class ct08_siswanonrutin_delete extends ct08_siswanonrutin {
 		// siswa_id
 		// nonrutin_id
 		// Nilai
+		// Terbayar
+		// Sisa
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
@@ -560,6 +576,14 @@ class ct08_siswanonrutin_delete extends ct08_siswanonrutin {
 		$this->Nilai->CellCssStyle .= "text-align: right;";
 		$this->Nilai->ViewCustomAttributes = "";
 
+		// Terbayar
+		$this->Terbayar->ViewValue = $this->Terbayar->CurrentValue;
+		$this->Terbayar->ViewCustomAttributes = "";
+
+		// Sisa
+		$this->Sisa->ViewValue = $this->Sisa->CurrentValue;
+		$this->Sisa->ViewCustomAttributes = "";
+
 			// nonrutin_id
 			$this->nonrutin_id->LinkCustomAttributes = "";
 			$this->nonrutin_id->HrefValue = "";
@@ -569,6 +593,16 @@ class ct08_siswanonrutin_delete extends ct08_siswanonrutin {
 			$this->Nilai->LinkCustomAttributes = "";
 			$this->Nilai->HrefValue = "";
 			$this->Nilai->TooltipValue = "";
+
+			// Terbayar
+			$this->Terbayar->LinkCustomAttributes = "";
+			$this->Terbayar->HrefValue = "";
+			$this->Terbayar->TooltipValue = "";
+
+			// Sisa
+			$this->Sisa->LinkCustomAttributes = "";
+			$this->Sisa->HrefValue = "";
+			$this->Sisa->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -889,6 +923,12 @@ $t08_siswanonrutin_delete->ShowMessage();
 <?php if ($t08_siswanonrutin->Nilai->Visible) { // Nilai ?>
 		<th><span id="elh_t08_siswanonrutin_Nilai" class="t08_siswanonrutin_Nilai"><?php echo $t08_siswanonrutin->Nilai->FldCaption() ?></span></th>
 <?php } ?>
+<?php if ($t08_siswanonrutin->Terbayar->Visible) { // Terbayar ?>
+		<th><span id="elh_t08_siswanonrutin_Terbayar" class="t08_siswanonrutin_Terbayar"><?php echo $t08_siswanonrutin->Terbayar->FldCaption() ?></span></th>
+<?php } ?>
+<?php if ($t08_siswanonrutin->Sisa->Visible) { // Sisa ?>
+		<th><span id="elh_t08_siswanonrutin_Sisa" class="t08_siswanonrutin_Sisa"><?php echo $t08_siswanonrutin->Sisa->FldCaption() ?></span></th>
+<?php } ?>
 	</tr>
 	</thead>
 	<tbody>
@@ -923,6 +963,22 @@ while (!$t08_siswanonrutin_delete->Recordset->EOF) {
 <span id="el<?php echo $t08_siswanonrutin_delete->RowCnt ?>_t08_siswanonrutin_Nilai" class="t08_siswanonrutin_Nilai">
 <span<?php echo $t08_siswanonrutin->Nilai->ViewAttributes() ?>>
 <?php echo $t08_siswanonrutin->Nilai->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
+<?php if ($t08_siswanonrutin->Terbayar->Visible) { // Terbayar ?>
+		<td<?php echo $t08_siswanonrutin->Terbayar->CellAttributes() ?>>
+<span id="el<?php echo $t08_siswanonrutin_delete->RowCnt ?>_t08_siswanonrutin_Terbayar" class="t08_siswanonrutin_Terbayar">
+<span<?php echo $t08_siswanonrutin->Terbayar->ViewAttributes() ?>>
+<?php echo $t08_siswanonrutin->Terbayar->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
+<?php if ($t08_siswanonrutin->Sisa->Visible) { // Sisa ?>
+		<td<?php echo $t08_siswanonrutin->Sisa->CellAttributes() ?>>
+<span id="el<?php echo $t08_siswanonrutin_delete->RowCnt ?>_t08_siswanonrutin_Sisa" class="t08_siswanonrutin_Sisa">
+<span<?php echo $t08_siswanonrutin->Sisa->ViewAttributes() ?>>
+<?php echo $t08_siswanonrutin->Sisa->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>

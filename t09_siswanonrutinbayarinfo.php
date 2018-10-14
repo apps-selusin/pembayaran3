@@ -14,10 +14,7 @@ class ct09_siswanonrutinbayar extends cTable {
 	var $AuditTrailOnViewData = FALSE;
 	var $AuditTrailOnSearch = FALSE;
 	var $id;
-	var $siswa_id;
-	var $Siswa_Nomor_Induk;
-	var $Siswa_Nama;
-	var $nonrutin_id;
+	var $siswanonrutin_id;
 	var $Bayar_Tgl;
 	var $Bayar_Jumlah;
 
@@ -42,7 +39,7 @@ class ct09_siswanonrutinbayar extends cTable {
 		$this->ExportPageSize = "a4"; // Page size (PDF only)
 		$this->ExportExcelPageOrientation = ""; // Page orientation (PHPExcel only)
 		$this->ExportExcelPageSize = ""; // Page size (PHPExcel only)
-		$this->DetailAdd = FALSE; // Allow detail add
+		$this->DetailAdd = TRUE; // Allow detail add
 		$this->DetailEdit = TRUE; // Allow detail edit
 		$this->DetailView = TRUE; // Allow detail view
 		$this->ShowMultipleDetails = FALSE; // Show multiple details
@@ -58,29 +55,11 @@ class ct09_siswanonrutinbayar extends cTable {
 		$this->id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
 		$this->fields['id'] = &$this->id;
 
-		// siswa_id
-		$this->siswa_id = new cField('t09_siswanonrutinbayar', 't09_siswanonrutinbayar', 'x_siswa_id', 'siswa_id', '`siswa_id`', '`siswa_id`', 3, -1, FALSE, '`siswa_id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->siswa_id->Sortable = TRUE; // Allow sort
-		$this->siswa_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
-		$this->fields['siswa_id'] = &$this->siswa_id;
-
-		// Siswa_Nomor_Induk
-		$this->Siswa_Nomor_Induk = new cField('t09_siswanonrutinbayar', 't09_siswanonrutinbayar', 'x_Siswa_Nomor_Induk', 'Siswa_Nomor_Induk', '(select Nomor_Induk from t03_siswa where id = siswa_id)', '(select Nomor_Induk from t03_siswa where id = siswa_id)', 200, -1, FALSE, '(select Nomor_Induk from t03_siswa where id = siswa_id)', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->Siswa_Nomor_Induk->FldIsCustom = TRUE; // Custom field
-		$this->Siswa_Nomor_Induk->Sortable = TRUE; // Allow sort
-		$this->fields['Siswa_Nomor_Induk'] = &$this->Siswa_Nomor_Induk;
-
-		// Siswa_Nama
-		$this->Siswa_Nama = new cField('t09_siswanonrutinbayar', 't09_siswanonrutinbayar', 'x_Siswa_Nama', 'Siswa_Nama', '(select Nama from t03_siswa where id = siswa_id)', '(select Nama from t03_siswa where id = siswa_id)', 200, -1, FALSE, '(select Nama from t03_siswa where id = siswa_id)', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->Siswa_Nama->FldIsCustom = TRUE; // Custom field
-		$this->Siswa_Nama->Sortable = TRUE; // Allow sort
-		$this->fields['Siswa_Nama'] = &$this->Siswa_Nama;
-
-		// nonrutin_id
-		$this->nonrutin_id = new cField('t09_siswanonrutinbayar', 't09_siswanonrutinbayar', 'x_nonrutin_id', 'nonrutin_id', '`nonrutin_id`', '`nonrutin_id`', 3, -1, FALSE, '`nonrutin_id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->nonrutin_id->Sortable = TRUE; // Allow sort
-		$this->nonrutin_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
-		$this->fields['nonrutin_id'] = &$this->nonrutin_id;
+		// siswanonrutin_id
+		$this->siswanonrutin_id = new cField('t09_siswanonrutinbayar', 't09_siswanonrutinbayar', 'x_siswanonrutin_id', 'siswanonrutin_id', '`siswanonrutin_id`', '`siswanonrutin_id`', 3, -1, FALSE, '`siswanonrutin_id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
+		$this->siswanonrutin_id->Sortable = TRUE; // Allow sort
+		$this->siswanonrutin_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['siswanonrutin_id'] = &$this->siswanonrutin_id;
 
 		// Bayar_Tgl
 		$this->Bayar_Tgl = new cField('t09_siswanonrutinbayar', 't09_siswanonrutinbayar', 'x_Bayar_Tgl', 'Bayar_Tgl', '`Bayar_Tgl`', ew_CastDateFieldForLike('`Bayar_Tgl`', 5, "DB"), 133, 5, FALSE, '`Bayar_Tgl`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
@@ -143,9 +122,9 @@ class ct09_siswanonrutinbayar extends cTable {
 
 		// Master filter
 		$sMasterFilter = "";
-		if ($this->getCurrentMasterTable() == "t03_siswa") {
-			if ($this->siswa_id->getSessionValue() <> "")
-				$sMasterFilter .= "`id`=" . ew_QuotedValue($this->siswa_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+		if ($this->getCurrentMasterTable() == "v01_siswanonrutin") {
+			if ($this->siswanonrutin_id->getSessionValue() <> "")
+				$sMasterFilter .= "`id`=" . ew_QuotedValue($this->siswanonrutin_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
 			else
 				return "";
 		}
@@ -157,9 +136,9 @@ class ct09_siswanonrutinbayar extends cTable {
 
 		// Detail filter
 		$sDetailFilter = "";
-		if ($this->getCurrentMasterTable() == "t03_siswa") {
-			if ($this->siswa_id->getSessionValue() <> "")
-				$sDetailFilter .= "`siswa_id`=" . ew_QuotedValue($this->siswa_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
+		if ($this->getCurrentMasterTable() == "v01_siswanonrutin") {
+			if ($this->siswanonrutin_id->getSessionValue() <> "")
+				$sDetailFilter .= "`siswanonrutin_id`=" . ew_QuotedValue($this->siswanonrutin_id->getSessionValue(), EW_DATATYPE_NUMBER, "DB");
 			else
 				return "";
 		}
@@ -167,13 +146,13 @@ class ct09_siswanonrutinbayar extends cTable {
 	}
 
 	// Master filter
-	function SqlMasterFilter_t03_siswa() {
+	function SqlMasterFilter_v01_siswanonrutin() {
 		return "`id`=@id@";
 	}
 
 	// Detail filter
-	function SqlDetailFilter_t03_siswa() {
-		return "`siswa_id`=@siswa_id@";
+	function SqlDetailFilter_v01_siswanonrutin() {
+		return "`siswanonrutin_id`=@siswanonrutin_id@";
 	}
 
 	// Table level SQL
@@ -193,7 +172,7 @@ class ct09_siswanonrutinbayar extends cTable {
 	var $_SqlSelect = "";
 
 	function getSqlSelect() { // Select
-		return ($this->_SqlSelect <> "") ? $this->_SqlSelect : "SELECT *, (select Nomor_Induk from t03_siswa where id = siswa_id) AS `Siswa_Nomor_Induk`, (select Nama from t03_siswa where id = siswa_id) AS `Siswa_Nama` FROM " . $this->getSqlFrom();
+		return ($this->_SqlSelect <> "") ? $this->_SqlSelect : "SELECT * FROM " . $this->getSqlFrom();
 	}
 
 	function SqlSelect() { // For backward compatibility
@@ -556,9 +535,9 @@ class ct09_siswanonrutinbayar extends cTable {
 
 	// Add master url
 	function AddMasterUrl($url) {
-		if ($this->getCurrentMasterTable() == "t03_siswa" && strpos($url, EW_TABLE_SHOW_MASTER . "=") === FALSE) {
+		if ($this->getCurrentMasterTable() == "v01_siswanonrutin" && strpos($url, EW_TABLE_SHOW_MASTER . "=") === FALSE) {
 			$url .= (strpos($url, "?") !== FALSE ? "&" : "?") . EW_TABLE_SHOW_MASTER . "=" . $this->getCurrentMasterTable();
-			$url .= "&fk_id=" . urlencode($this->siswa_id->CurrentValue);
+			$url .= "&fk_id=" . urlencode($this->siswanonrutin_id->CurrentValue);
 		}
 		return $url;
 	}
@@ -657,10 +636,7 @@ class ct09_siswanonrutinbayar extends cTable {
 	// Load row values from recordset
 	function LoadListRowValues(&$rs) {
 		$this->id->setDbValue($rs->fields('id'));
-		$this->siswa_id->setDbValue($rs->fields('siswa_id'));
-		$this->Siswa_Nomor_Induk->setDbValue($rs->fields('Siswa_Nomor_Induk'));
-		$this->Siswa_Nama->setDbValue($rs->fields('Siswa_Nama'));
-		$this->nonrutin_id->setDbValue($rs->fields('nonrutin_id'));
+		$this->siswanonrutin_id->setDbValue($rs->fields('siswanonrutin_id'));
 		$this->Bayar_Tgl->setDbValue($rs->fields('Bayar_Tgl'));
 		$this->Bayar_Jumlah->setDbValue($rs->fields('Bayar_Jumlah'));
 	}
@@ -674,10 +650,7 @@ class ct09_siswanonrutinbayar extends cTable {
 
    // Common render codes
 		// id
-		// siswa_id
-		// Siswa_Nomor_Induk
-		// Siswa_Nama
-		// nonrutin_id
+		// siswanonrutin_id
 		// Bayar_Tgl
 		// Bayar_Jumlah
 		// id
@@ -685,41 +658,9 @@ class ct09_siswanonrutinbayar extends cTable {
 		$this->id->ViewValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// siswa_id
-		$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
-		$this->siswa_id->ViewCustomAttributes = "";
-
-		// Siswa_Nomor_Induk
-		$this->Siswa_Nomor_Induk->ViewValue = $this->Siswa_Nomor_Induk->CurrentValue;
-		$this->Siswa_Nomor_Induk->ViewCustomAttributes = "";
-
-		// Siswa_Nama
-		$this->Siswa_Nama->ViewValue = $this->Siswa_Nama->CurrentValue;
-		$this->Siswa_Nama->ViewCustomAttributes = "";
-
-		// nonrutin_id
-		$this->nonrutin_id->ViewValue = $this->nonrutin_id->CurrentValue;
-		if (strval($this->nonrutin_id->CurrentValue) <> "") {
-			$sFilterWrk = "`id`" . ew_SearchString("=", $this->nonrutin_id->CurrentValue, EW_DATATYPE_NUMBER, "");
-		$sSqlWrk = "SELECT `id`, `Nama` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t07_nonrutin`";
-		$sWhereWrk = "";
-		$this->nonrutin_id->LookupFilters = array();
-		ew_AddFilter($sWhereWrk, $sFilterWrk);
-		$this->Lookup_Selecting($this->nonrutin_id, $sWhereWrk); // Call Lookup selecting
-		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
-			$rswrk = Conn()->Execute($sSqlWrk);
-			if ($rswrk && !$rswrk->EOF) { // Lookup values found
-				$arwrk = array();
-				$arwrk[1] = $rswrk->fields('DispFld');
-				$this->nonrutin_id->ViewValue = $this->nonrutin_id->DisplayValue($arwrk);
-				$rswrk->Close();
-			} else {
-				$this->nonrutin_id->ViewValue = $this->nonrutin_id->CurrentValue;
-			}
-		} else {
-			$this->nonrutin_id->ViewValue = NULL;
-		}
-		$this->nonrutin_id->ViewCustomAttributes = "";
+		// siswanonrutin_id
+		$this->siswanonrutin_id->ViewValue = $this->siswanonrutin_id->CurrentValue;
+		$this->siswanonrutin_id->ViewCustomAttributes = "";
 
 		// Bayar_Tgl
 		$this->Bayar_Tgl->ViewValue = $this->Bayar_Tgl->CurrentValue;
@@ -737,25 +678,10 @@ class ct09_siswanonrutinbayar extends cTable {
 		$this->id->HrefValue = "";
 		$this->id->TooltipValue = "";
 
-		// siswa_id
-		$this->siswa_id->LinkCustomAttributes = "";
-		$this->siswa_id->HrefValue = "";
-		$this->siswa_id->TooltipValue = "";
-
-		// Siswa_Nomor_Induk
-		$this->Siswa_Nomor_Induk->LinkCustomAttributes = "";
-		$this->Siswa_Nomor_Induk->HrefValue = "";
-		$this->Siswa_Nomor_Induk->TooltipValue = "";
-
-		// Siswa_Nama
-		$this->Siswa_Nama->LinkCustomAttributes = "";
-		$this->Siswa_Nama->HrefValue = "";
-		$this->Siswa_Nama->TooltipValue = "";
-
-		// nonrutin_id
-		$this->nonrutin_id->LinkCustomAttributes = "";
-		$this->nonrutin_id->HrefValue = "";
-		$this->nonrutin_id->TooltipValue = "";
+		// siswanonrutin_id
+		$this->siswanonrutin_id->LinkCustomAttributes = "";
+		$this->siswanonrutin_id->HrefValue = "";
+		$this->siswanonrutin_id->TooltipValue = "";
 
 		// Bayar_Tgl
 		$this->Bayar_Tgl->LinkCustomAttributes = "";
@@ -784,35 +710,17 @@ class ct09_siswanonrutinbayar extends cTable {
 		$this->id->EditValue = $this->id->CurrentValue;
 		$this->id->ViewCustomAttributes = "";
 
-		// siswa_id
-		$this->siswa_id->EditAttrs["class"] = "form-control";
-		$this->siswa_id->EditCustomAttributes = "";
-		if ($this->siswa_id->getSessionValue() <> "") {
-			$this->siswa_id->CurrentValue = $this->siswa_id->getSessionValue();
-		$this->siswa_id->ViewValue = $this->siswa_id->CurrentValue;
-		$this->siswa_id->ViewCustomAttributes = "";
+		// siswanonrutin_id
+		$this->siswanonrutin_id->EditAttrs["class"] = "form-control";
+		$this->siswanonrutin_id->EditCustomAttributes = "";
+		if ($this->siswanonrutin_id->getSessionValue() <> "") {
+			$this->siswanonrutin_id->CurrentValue = $this->siswanonrutin_id->getSessionValue();
+		$this->siswanonrutin_id->ViewValue = $this->siswanonrutin_id->CurrentValue;
+		$this->siswanonrutin_id->ViewCustomAttributes = "";
 		} else {
-		$this->siswa_id->EditValue = $this->siswa_id->CurrentValue;
-		$this->siswa_id->PlaceHolder = ew_RemoveHtml($this->siswa_id->FldCaption());
+		$this->siswanonrutin_id->EditValue = $this->siswanonrutin_id->CurrentValue;
+		$this->siswanonrutin_id->PlaceHolder = ew_RemoveHtml($this->siswanonrutin_id->FldCaption());
 		}
-
-		// Siswa_Nomor_Induk
-		$this->Siswa_Nomor_Induk->EditAttrs["class"] = "form-control";
-		$this->Siswa_Nomor_Induk->EditCustomAttributes = "";
-		$this->Siswa_Nomor_Induk->EditValue = $this->Siswa_Nomor_Induk->CurrentValue;
-		$this->Siswa_Nomor_Induk->PlaceHolder = ew_RemoveHtml($this->Siswa_Nomor_Induk->FldCaption());
-
-		// Siswa_Nama
-		$this->Siswa_Nama->EditAttrs["class"] = "form-control";
-		$this->Siswa_Nama->EditCustomAttributes = "";
-		$this->Siswa_Nama->EditValue = $this->Siswa_Nama->CurrentValue;
-		$this->Siswa_Nama->PlaceHolder = ew_RemoveHtml($this->Siswa_Nama->FldCaption());
-
-		// nonrutin_id
-		$this->nonrutin_id->EditAttrs["class"] = "form-control";
-		$this->nonrutin_id->EditCustomAttributes = "";
-		$this->nonrutin_id->EditValue = $this->nonrutin_id->CurrentValue;
-		$this->nonrutin_id->PlaceHolder = ew_RemoveHtml($this->nonrutin_id->FldCaption());
 
 		// Bayar_Tgl
 		$this->Bayar_Tgl->EditAttrs["class"] = "form-control";
@@ -854,17 +762,11 @@ class ct09_siswanonrutinbayar extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
-					if ($this->Siswa_Nomor_Induk->Exportable) $Doc->ExportCaption($this->Siswa_Nomor_Induk);
-					if ($this->Siswa_Nama->Exportable) $Doc->ExportCaption($this->Siswa_Nama);
-					if ($this->nonrutin_id->Exportable) $Doc->ExportCaption($this->nonrutin_id);
 					if ($this->Bayar_Tgl->Exportable) $Doc->ExportCaption($this->Bayar_Tgl);
 					if ($this->Bayar_Jumlah->Exportable) $Doc->ExportCaption($this->Bayar_Jumlah);
 				} else {
 					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
-					if ($this->siswa_id->Exportable) $Doc->ExportCaption($this->siswa_id);
-					if ($this->Siswa_Nomor_Induk->Exportable) $Doc->ExportCaption($this->Siswa_Nomor_Induk);
-					if ($this->Siswa_Nama->Exportable) $Doc->ExportCaption($this->Siswa_Nama);
-					if ($this->nonrutin_id->Exportable) $Doc->ExportCaption($this->nonrutin_id);
+					if ($this->siswanonrutin_id->Exportable) $Doc->ExportCaption($this->siswanonrutin_id);
 					if ($this->Bayar_Tgl->Exportable) $Doc->ExportCaption($this->Bayar_Tgl);
 					if ($this->Bayar_Jumlah->Exportable) $Doc->ExportCaption($this->Bayar_Jumlah);
 				}
@@ -898,17 +800,11 @@ class ct09_siswanonrutinbayar extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
-						if ($this->Siswa_Nomor_Induk->Exportable) $Doc->ExportField($this->Siswa_Nomor_Induk);
-						if ($this->Siswa_Nama->Exportable) $Doc->ExportField($this->Siswa_Nama);
-						if ($this->nonrutin_id->Exportable) $Doc->ExportField($this->nonrutin_id);
 						if ($this->Bayar_Tgl->Exportable) $Doc->ExportField($this->Bayar_Tgl);
 						if ($this->Bayar_Jumlah->Exportable) $Doc->ExportField($this->Bayar_Jumlah);
 					} else {
 						if ($this->id->Exportable) $Doc->ExportField($this->id);
-						if ($this->siswa_id->Exportable) $Doc->ExportField($this->siswa_id);
-						if ($this->Siswa_Nomor_Induk->Exportable) $Doc->ExportField($this->Siswa_Nomor_Induk);
-						if ($this->Siswa_Nama->Exportable) $Doc->ExportField($this->Siswa_Nama);
-						if ($this->nonrutin_id->Exportable) $Doc->ExportField($this->nonrutin_id);
+						if ($this->siswanonrutin_id->Exportable) $Doc->ExportField($this->siswanonrutin_id);
 						if ($this->Bayar_Tgl->Exportable) $Doc->ExportField($this->Bayar_Tgl);
 						if ($this->Bayar_Jumlah->Exportable) $Doc->ExportField($this->Bayar_Jumlah);
 					}
@@ -1127,6 +1023,18 @@ class ct09_siswanonrutinbayar extends cTable {
 	function Row_Inserted($rsold, &$rsnew) {
 
 		//echo "Row Inserted"
+		// ambil nilai total bayar
+
+		$q = "select sum(Bayar_Jumlah) from t09_siswanonrutinbayar where id = ".$rsnew["id"]."";
+		$tot_det = ew_ExecuteScalar($q);
+
+		// update nilai total bayar di tabel t08_siswanonrutin
+		$q = "update t08_siswanonrutin set Terbayar = ".$tot_det." where id = ".$rsnew["siswanonrutin_id"]."";
+		ew_Execute($q);
+
+		// update nilai sisa di tabel t08_siswanonrutin
+		$q = "update t08_siswanonrutin set Sisa = Nilai - Terbayar where id = ".$rsnew["siswanonrutin_id"]."";
+		ew_Execute($q);
 	}
 
 	// Row Updating event
@@ -1142,6 +1050,18 @@ class ct09_siswanonrutinbayar extends cTable {
 	function Row_Updated($rsold, &$rsnew) {
 
 		//echo "Row Updated";
+		// ambil nilai total bayar
+
+		$q = "select sum(Bayar_Jumlah) from t09_siswanonrutinbayar where id = ".$rsold["id"]."";
+		$tot_det = ew_ExecuteScalar($q);
+
+		// update nilai total bayar di tabel t08_siswanonrutin
+		$q = "update t08_siswanonrutin set Terbayar = ".$tot_det." where id = ".$rsold["siswanonrutin_id"]."";
+		ew_Execute($q);
+
+		// update nilai sisa di tabel t08_siswanonrutin
+		$q = "update t08_siswanonrutin set Sisa = Nilai - Terbayar where id = ".$rsold["siswanonrutin_id"]."";
+		ew_Execute($q);
 	}
 
 	// Row Update Conflict event
@@ -1196,6 +1116,30 @@ class ct09_siswanonrutinbayar extends cTable {
 	function Row_Deleted(&$rs) {
 
 		//echo "Row Deleted";
+		// check jumlah record
+
+		$q = "select count(Bayar_Jumlah) from t09_siswanonrutinbayar where id = ".$rs["id"]."";
+		$rec_cnt_det = ew_ExecuteScalar($q);
+		if ($rec_cnt_det > 0) {
+
+			// ambil nilai total bayar
+			$q = "select sum(Bayar_Jumlah) from t09_siswanonrutinbayar where id = ".$rs["id"]."";
+			$tot_det = ew_ExecuteScalar($q);
+
+			// update nilai total bayar di tabel t08_siswanonrutin
+			$q = "update t08_siswanonrutin set Terbayar = ".$tot_det." where id = ".$rs["siswanonrutin_id"]."";
+			ew_Execute($q);
+
+			// update nilai sisa di tabel t08_siswanonrutin
+			$q = "update t08_siswanonrutin set Sisa = Nilai - Terbayar where id = ".$rs["siswanonrutin_id"]."";
+			ew_Execute($q);
+		}
+		else {
+
+			// update nilai total bayar di tabel t08_siswanonrutin
+			$q = "update t08_siswanonrutin set Terbayar = 0, Sisa = Nilai where id = ".$rs["siswanonrutin_id"]."";
+			ew_Execute($q);
+		}
 	}
 
 	// Email Sending event

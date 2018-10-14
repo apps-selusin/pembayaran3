@@ -15,12 +15,12 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$t09_siswanonrutinbayar_add = NULL; // Initialize page object first
+$t09_siswanonrutinbayar_delete = NULL; // Initialize page object first
 
-class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
+class ct09_siswanonrutinbayar_delete extends ct09_siswanonrutinbayar {
 
 	// Page ID
-	var $PageID = 'add';
+	var $PageID = 'delete';
 
 	// Project ID
 	var $ProjectID = "{9A296957-6EE4-4785-AB71-310FFD71D6FE}";
@@ -29,7 +29,7 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 	var $TableName = 't09_siswanonrutinbayar';
 
 	// Page object name
-	var $PageObjName = 't09_siswanonrutinbayar_add';
+	var $PageObjName = 't09_siswanonrutinbayar_delete';
 
 	// Page name
 	function PageName() {
@@ -241,7 +241,7 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 
 		// Page ID
 		if (!defined("EW_PAGE_ID"))
-			define("EW_PAGE_ID", 'add', TRUE);
+			define("EW_PAGE_ID", 'delete', TRUE);
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
@@ -272,7 +272,7 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 		if ($Security->IsLoggedIn()) $Security->TablePermission_Loading();
 		$Security->LoadCurrentUserLevel($this->ProjectID . $this->TableName);
 		if ($Security->IsLoggedIn()) $Security->TablePermission_Loaded();
-		if (!$Security->CanAdd()) {
+		if (!$Security->CanDelete()) {
 			$Security->SaveLastUrl();
 			$this->setFailureMessage(ew_DeniedMsg()); // Set no permission
 			if ($Security->CanList())
@@ -285,9 +285,6 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 			$Security->LoadUserID();
 			$Security->UserID_Loaded();
 		}
-
-		// Create form object
-		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
 		$this->Bayar_Tgl->SetVisibility();
 		$this->Bayar_Jumlah->SetVisibility();
@@ -303,20 +300,6 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 			echo $Language->Phrase("InvalidPostRequest");
 			$this->Page_Terminate();
 			exit();
-		}
-
-		// Process auto fill
-		if (@$_POST["ajax"] == "autofill") {
-			$results = $this->GetAutoFill(@$_POST["name"], @$_POST["q"]);
-			if ($results) {
-
-				// Clean output buffer
-				if (!EW_DEBUG_ENABLED && ob_get_length())
-					ob_end_clean();
-				echo $results;
-				$this->Page_Terminate();
-				exit();
-			}
 		}
 
 		// Create Token
@@ -361,151 +344,96 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 		if ($url <> "") {
 			if (!EW_DEBUG_ENABLED && ob_get_length())
 				ob_end_clean();
-
-			// Handle modal response
-			if ($this->IsModal) {
-				$row = array();
-				$row["url"] = $url;
-				echo ew_ArrayToJson(array($row));
-			} else {
-				header("Location: " . $url);
-			}
+			header("Location: " . $url);
 		}
 		exit();
 	}
-	var $FormClassName = "form-horizontal ewForm ewAddForm";
-	var $IsModal = FALSE;
 	var $DbMasterFilter = "";
 	var $DbDetailFilter = "";
 	var $StartRec;
-	var $Priv = 0;
-	var $OldRecordset;
-	var $CopyRecord;
+	var $TotalRecs = 0;
+	var $RecCnt;
+	var $RecKeys = array();
+	var $Recordset;
+	var $StartRowCnt = 1;
+	var $RowCnt = 0;
 
-	// 
+	//
 	// Page main
 	//
 	function Page_Main() {
-		global $objForm, $Language, $gsFormError;
-		global $gbSkipHeaderFooter;
-
-		// Check modal
-		$this->IsModal = (@$_GET["modal"] == "1" || @$_POST["modal"] == "1");
-		if ($this->IsModal)
-			$gbSkipHeaderFooter = TRUE;
+		global $Language;
 
 		// Set up master/detail parameters
 		$this->SetUpMasterParms();
 
-		// Process form if post back
-		if (@$_POST["a_add"] <> "") {
-			$this->CurrentAction = $_POST["a_add"]; // Get form action
-			$this->CopyRecord = $this->LoadOldRecord(); // Load old recordset
-			$this->LoadFormValues(); // Load form values
-		} else { // Not post back
-
-			// Load key values from QueryString
-			$this->CopyRecord = TRUE;
-			if (@$_GET["id"] != "") {
-				$this->id->setQueryStringValue($_GET["id"]);
-				$this->setKey("id", $this->id->CurrentValue); // Set up key
-			} else {
-				$this->setKey("id", ""); // Clear key
-				$this->CopyRecord = FALSE;
-			}
-			if ($this->CopyRecord) {
-				$this->CurrentAction = "C"; // Copy record
-			} else {
-				$this->CurrentAction = "I"; // Display blank record
-			}
-		}
-
 		// Set up Breadcrumb
 		$this->SetupBreadcrumb();
 
-		// Validate form if post back
-		if (@$_POST["a_add"] <> "") {
-			if (!$this->ValidateForm()) {
-				$this->CurrentAction = "I"; // Form error, reset action
-				$this->EventCancelled = TRUE; // Event cancelled
-				$this->RestoreFormValues(); // Restore form values
-				$this->setFailureMessage($gsFormError);
-			}
+		// Load key parameters
+		$this->RecKeys = $this->GetRecordKeys(); // Load record keys
+		$sFilter = $this->GetKeyFilter();
+		if ($sFilter == "")
+			$this->Page_Terminate("t09_siswanonrutinbayarlist.php"); // Prevent SQL injection, return to list
+
+		// Set up filter (SQL WHHERE clause) and get return SQL
+		// SQL constructor in t09_siswanonrutinbayar class, t09_siswanonrutinbayarinfo.php
+
+		$this->CurrentFilter = $sFilter;
+
+		// Get action
+		if (@$_POST["a_delete"] <> "") {
+			$this->CurrentAction = $_POST["a_delete"];
+		} elseif (@$_GET["a_delete"] == "1") {
+			$this->CurrentAction = "D"; // Delete record directly
 		} else {
-			if ($this->CurrentAction == "I") // Load default values for blank record
-				$this->LoadDefaultValues();
+			$this->CurrentAction = "I"; // Display record
 		}
-
-		// Perform action based on action code
-		switch ($this->CurrentAction) {
-			case "I": // Blank record, no action required
-				break;
-			case "C": // Copy an existing record
-				if (!$this->LoadRow()) { // Load record based on key
-					if ($this->getFailureMessage() == "") $this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
-					$this->Page_Terminate("t09_siswanonrutinbayarlist.php"); // No matching record, return to list
-				}
-				break;
-			case "A": // Add new record
-				$this->SendEmail = TRUE; // Send email on add success
-				if ($this->AddRow($this->OldRecordset)) { // Add successful
-					if ($this->getSuccessMessage() == "")
-						$this->setSuccessMessage($Language->Phrase("AddSuccess")); // Set up success message
-					$sReturnUrl = $this->getReturnUrl();
-					if (ew_GetPageName($sReturnUrl) == "t09_siswanonrutinbayarlist.php")
-						$sReturnUrl = $this->AddMasterUrl($sReturnUrl); // List page, return to list page with correct master key if necessary
-					elseif (ew_GetPageName($sReturnUrl) == "t09_siswanonrutinbayarview.php")
-						$sReturnUrl = $this->GetViewUrl(); // View page, return to view page with keyurl directly
-					$this->Page_Terminate($sReturnUrl); // Clean up and return
-				} else {
-					$this->EventCancelled = TRUE; // Event cancelled
-					$this->RestoreFormValues(); // Add failed, restore form values
-				}
+		if ($this->CurrentAction == "D") {
+			$this->SendEmail = TRUE; // Send email on delete success
+			if ($this->DeleteRows()) { // Delete rows
+				if ($this->getSuccessMessage() == "")
+					$this->setSuccessMessage($Language->Phrase("DeleteSuccess")); // Set up success message
+				$this->Page_Terminate($this->getReturnUrl()); // Return to caller
+			} else { // Delete failed
+				$this->CurrentAction = "I"; // Display record
+			}
 		}
-
-		// Render row based on row type
-		$this->RowType = EW_ROWTYPE_ADD; // Render add type
-
-		// Render row
-		$this->ResetAttrs();
-		$this->RenderRow();
-	}
-
-	// Get upload files
-	function GetUploadFiles() {
-		global $objForm, $Language;
-
-		// Get upload data
-	}
-
-	// Load default values
-	function LoadDefaultValues() {
-		$this->Bayar_Tgl->CurrentValue = NULL;
-		$this->Bayar_Tgl->OldValue = $this->Bayar_Tgl->CurrentValue;
-		$this->Bayar_Jumlah->CurrentValue = 0.00;
-	}
-
-	// Load form values
-	function LoadFormValues() {
-
-		// Load from form
-		global $objForm;
-		if (!$this->Bayar_Tgl->FldIsDetailKey) {
-			$this->Bayar_Tgl->setFormValue($objForm->GetValue("x_Bayar_Tgl"));
-			$this->Bayar_Tgl->CurrentValue = ew_UnFormatDateTime($this->Bayar_Tgl->CurrentValue, 5);
-		}
-		if (!$this->Bayar_Jumlah->FldIsDetailKey) {
-			$this->Bayar_Jumlah->setFormValue($objForm->GetValue("x_Bayar_Jumlah"));
+		if ($this->CurrentAction == "I") { // Load records for display
+			if ($this->Recordset = $this->LoadRecordset())
+				$this->TotalRecs = $this->Recordset->RecordCount(); // Get record count
+			if ($this->TotalRecs <= 0) { // No record found, exit
+				if ($this->Recordset)
+					$this->Recordset->Close();
+				$this->Page_Terminate("t09_siswanonrutinbayarlist.php"); // Return to list
+			}
 		}
 	}
 
-	// Restore form values
-	function RestoreFormValues() {
-		global $objForm;
-		$this->LoadOldRecord();
-		$this->Bayar_Tgl->CurrentValue = $this->Bayar_Tgl->FormValue;
-		$this->Bayar_Tgl->CurrentValue = ew_UnFormatDateTime($this->Bayar_Tgl->CurrentValue, 5);
-		$this->Bayar_Jumlah->CurrentValue = $this->Bayar_Jumlah->FormValue;
+	// Load recordset
+	function LoadRecordset($offset = -1, $rowcnt = -1) {
+
+		// Load List page SQL
+		$sSql = $this->SelectSQL();
+		$conn = &$this->Connection();
+
+		// Load recordset
+		$dbtype = ew_GetConnectionType($this->DBID);
+		if ($this->UseSelectLimit) {
+			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+			if ($dbtype == "MSSQL") {
+				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset, array("_hasOrderBy" => trim($this->getOrderBy()) || trim($this->getSessionOrderBy())));
+			} else {
+				$rs = $conn->SelectLimit($sSql, $rowcnt, $offset);
+			}
+			$conn->raiseErrorFn = '';
+		} else {
+			$rs = ew_LoadRecordset($sSql, $conn);
+		}
+
+		// Call Recordset Selected event
+		$this->Recordset_Selected($rs);
+		return $rs;
 	}
 
 	// Load row based on key values
@@ -551,29 +479,6 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 		$this->siswanonrutin_id->DbValue = $row['siswanonrutin_id'];
 		$this->Bayar_Tgl->DbValue = $row['Bayar_Tgl'];
 		$this->Bayar_Jumlah->DbValue = $row['Bayar_Jumlah'];
-	}
-
-	// Load old record
-	function LoadOldRecord() {
-
-		// Load key values from Session
-		$bValidKey = TRUE;
-		if (strval($this->getKey("id")) <> "")
-			$this->id->CurrentValue = $this->getKey("id"); // id
-		else
-			$bValidKey = FALSE;
-
-		// Load old recordset
-		if ($bValidKey) {
-			$this->CurrentFilter = $this->KeyFilter();
-			$sSql = $this->SQL();
-			$conn = &$this->Connection();
-			$this->OldRecordset = ew_LoadRecordset($sSql, $conn);
-			$this->LoadRowValues($this->OldRecordset); // Load row values
-		} else {
-			$this->OldRecordset = NULL;
-		}
-		return $bValidKey;
 	}
 
 	// Render row values based on field settings
@@ -625,35 +530,6 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 			$this->Bayar_Jumlah->LinkCustomAttributes = "";
 			$this->Bayar_Jumlah->HrefValue = "";
 			$this->Bayar_Jumlah->TooltipValue = "";
-		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
-
-			// Bayar_Tgl
-			$this->Bayar_Tgl->EditAttrs["class"] = "form-control";
-			$this->Bayar_Tgl->EditCustomAttributes = "";
-			$this->Bayar_Tgl->EditValue = ew_HtmlEncode(ew_FormatDateTime($this->Bayar_Tgl->CurrentValue, 5));
-			$this->Bayar_Tgl->PlaceHolder = ew_RemoveHtml($this->Bayar_Tgl->FldCaption());
-
-			// Bayar_Jumlah
-			$this->Bayar_Jumlah->EditAttrs["class"] = "form-control";
-			$this->Bayar_Jumlah->EditCustomAttributes = "";
-			$this->Bayar_Jumlah->EditValue = ew_HtmlEncode($this->Bayar_Jumlah->CurrentValue);
-			$this->Bayar_Jumlah->PlaceHolder = ew_RemoveHtml($this->Bayar_Jumlah->FldCaption());
-			if (strval($this->Bayar_Jumlah->EditValue) <> "" && is_numeric($this->Bayar_Jumlah->EditValue)) $this->Bayar_Jumlah->EditValue = ew_FormatNumber($this->Bayar_Jumlah->EditValue, -2, -2, -2, -2);
-
-			// Add refer script
-			// Bayar_Tgl
-
-			$this->Bayar_Tgl->LinkCustomAttributes = "";
-			$this->Bayar_Tgl->HrefValue = "";
-
-			// Bayar_Jumlah
-			$this->Bayar_Jumlah->LinkCustomAttributes = "";
-			$this->Bayar_Jumlah->HrefValue = "";
-		}
-		if ($this->RowType == EW_ROWTYPE_ADD ||
-			$this->RowType == EW_ROWTYPE_EDIT ||
-			$this->RowType == EW_ROWTYPE_SEARCH) { // Add / Edit / Search row
-			$this->SetupFieldTitles();
 		}
 
 		// Call Row Rendered event
@@ -661,87 +537,65 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 			$this->Row_Rendered();
 	}
 
-	// Validate form
-	function ValidateForm() {
-		global $Language, $gsFormError;
-
-		// Initialize form error message
-		$gsFormError = "";
-
-		// Check if validation required
-		if (!EW_SERVER_VALIDATE)
-			return ($gsFormError == "");
-		if (!ew_CheckDate($this->Bayar_Tgl->FormValue)) {
-			ew_AddMessage($gsFormError, $this->Bayar_Tgl->FldErrMsg());
-		}
-		if (!ew_CheckNumber($this->Bayar_Jumlah->FormValue)) {
-			ew_AddMessage($gsFormError, $this->Bayar_Jumlah->FldErrMsg());
-		}
-
-		// Return validate result
-		$ValidateForm = ($gsFormError == "");
-
-		// Call Form_CustomValidate event
-		$sFormCustomError = "";
-		$ValidateForm = $ValidateForm && $this->Form_CustomValidate($sFormCustomError);
-		if ($sFormCustomError <> "") {
-			ew_AddMessage($gsFormError, $sFormCustomError);
-		}
-		return $ValidateForm;
-	}
-
-	// Add record
-	function AddRow($rsold = NULL) {
+	//
+	// Delete records based on current filter
+	//
+	function DeleteRows() {
 		global $Language, $Security;
-
-		// Check referential integrity for master table 'v01_siswanonrutin'
-		$bValidMasterRecord = TRUE;
-		$sMasterFilter = $this->SqlMasterFilter_v01_siswanonrutin();
-		if ($this->siswanonrutin_id->getSessionValue() <> "") {
-			$sMasterFilter = str_replace("@id@", ew_AdjustSql($this->siswanonrutin_id->getSessionValue(), "DB"), $sMasterFilter);
-		} else {
-			$bValidMasterRecord = FALSE;
-		}
-		if ($bValidMasterRecord) {
-			if (!isset($GLOBALS["v01_siswanonrutin"])) $GLOBALS["v01_siswanonrutin"] = new cv01_siswanonrutin();
-			$rsmaster = $GLOBALS["v01_siswanonrutin"]->LoadRs($sMasterFilter);
-			$bValidMasterRecord = ($rsmaster && !$rsmaster->EOF);
-			$rsmaster->Close();
-		}
-		if (!$bValidMasterRecord) {
-			$sRelatedRecordMsg = str_replace("%t", "v01_siswanonrutin", $Language->Phrase("RelatedRecordRequired"));
-			$this->setFailureMessage($sRelatedRecordMsg);
+		if (!$Security->CanDelete()) {
+			$this->setFailureMessage($Language->Phrase("NoDeletePermission")); // No delete permission
 			return FALSE;
 		}
+		$DeleteRows = TRUE;
+		$sSql = $this->SQL();
 		$conn = &$this->Connection();
+		$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+		$rs = $conn->Execute($sSql);
+		$conn->raiseErrorFn = '';
+		if ($rs === FALSE) {
+			return FALSE;
+		} elseif ($rs->EOF) {
+			$this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
+			$rs->Close();
+			return FALSE;
 
-		// Load db values from rsold
-		if ($rsold) {
-			$this->LoadDbValues($rsold);
+		//} else {
+		//	$this->LoadRowValues($rs); // Load row values
+
 		}
-		$rsnew = array();
+		$rows = ($rs) ? $rs->GetRows() : array();
+		$conn->BeginTrans();
+		if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteBegin")); // Batch delete begin
 
-		// Bayar_Tgl
-		$this->Bayar_Tgl->SetDbValueDef($rsnew, ew_UnFormatDateTime($this->Bayar_Tgl->CurrentValue, 5), NULL, FALSE);
+		// Clone old rows
+		$rsold = $rows;
+		if ($rs)
+			$rs->Close();
 
-		// Bayar_Jumlah
-		$this->Bayar_Jumlah->SetDbValueDef($rsnew, $this->Bayar_Jumlah->CurrentValue, NULL, strval($this->Bayar_Jumlah->CurrentValue) == "");
-
-		// siswanonrutin_id
-		if ($this->siswanonrutin_id->getSessionValue() <> "") {
-			$rsnew['siswanonrutin_id'] = $this->siswanonrutin_id->getSessionValue();
+		// Call row deleting event
+		if ($DeleteRows) {
+			foreach ($rsold as $row) {
+				$DeleteRows = $this->Row_Deleting($row);
+				if (!$DeleteRows) break;
+			}
 		}
-
-		// Call Row Inserting event
-		$rs = ($rsold == NULL) ? NULL : $rsold->fields;
-		$bInsertRow = $this->Row_Inserting($rs, $rsnew);
-		if ($bInsertRow) {
-			$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
-			$AddRow = $this->Insert($rsnew);
-			$conn->raiseErrorFn = '';
-			if ($AddRow) {
+		if ($DeleteRows) {
+			$sKey = "";
+			foreach ($rsold as $row) {
+				$sThisKey = "";
+				if ($sThisKey <> "") $sThisKey .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
+				$sThisKey .= $row['id'];
+				$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
+				$DeleteRows = $this->Delete($row); // Delete
+				$conn->raiseErrorFn = '';
+				if ($DeleteRows === FALSE)
+					break;
+				if ($sKey <> "") $sKey .= ", ";
+				$sKey .= $sThisKey;
 			}
 		} else {
+
+			// Set up error message
 			if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
 
 				// Use the message, do nothing
@@ -749,17 +603,24 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 				$this->setFailureMessage($this->CancelMessage);
 				$this->CancelMessage = "";
 			} else {
-				$this->setFailureMessage($Language->Phrase("InsertCancelled"));
+				$this->setFailureMessage($Language->Phrase("DeleteCancelled"));
 			}
-			$AddRow = FALSE;
 		}
-		if ($AddRow) {
+		if ($DeleteRows) {
+			$conn->CommitTrans(); // Commit the changes
+			if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteSuccess")); // Batch delete success
+		} else {
+			$conn->RollbackTrans(); // Rollback changes
+			if ($this->AuditTrailOnDelete) $this->WriteAuditTrailDummy($Language->Phrase("BatchDeleteRollback")); // Batch delete rollback
+		}
 
-			// Call Row Inserted event
-			$rs = ($rsold == NULL) ? NULL : $rsold->fields;
-			$this->Row_Inserted($rs, $rsnew);
+		// Call Row Deleted event
+		if ($DeleteRows) {
+			foreach ($rsold as $row) {
+				$this->Row_Deleted($row);
+			}
 		}
-		return $AddRow;
+		return $DeleteRows;
 	}
 
 	// Set up master/detail based on QueryString
@@ -828,8 +689,8 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 		$Breadcrumb = new cBreadcrumb();
 		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
 		$Breadcrumb->Add("list", $this->TableVar, $this->AddMasterUrl("t09_siswanonrutinbayarlist.php"), "", $this->TableVar, TRUE);
-		$PageId = ($this->CurrentAction == "C") ? "Copy" : "Add";
-		$Breadcrumb->Add("add", $PageId, $url);
+		$PageId = "delete";
+		$Breadcrumb->Add("delete", $PageId, $url);
 	}
 
 	// Setup lookup filters of a field
@@ -907,80 +768,35 @@ class ct09_siswanonrutinbayar_add extends ct09_siswanonrutinbayar {
 		//$footer = "your footer";
 
 	}
-
-	// Form Custom Validate event
-	function Form_CustomValidate(&$CustomError) {
-
-		// Return error message in CustomError
-		return TRUE;
-	}
 }
 ?>
 <?php ew_Header(FALSE) ?>
 <?php
 
 // Create page object
-if (!isset($t09_siswanonrutinbayar_add)) $t09_siswanonrutinbayar_add = new ct09_siswanonrutinbayar_add();
+if (!isset($t09_siswanonrutinbayar_delete)) $t09_siswanonrutinbayar_delete = new ct09_siswanonrutinbayar_delete();
 
 // Page init
-$t09_siswanonrutinbayar_add->Page_Init();
+$t09_siswanonrutinbayar_delete->Page_Init();
 
 // Page main
-$t09_siswanonrutinbayar_add->Page_Main();
+$t09_siswanonrutinbayar_delete->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$t09_siswanonrutinbayar_add->Page_Render();
+$t09_siswanonrutinbayar_delete->Page_Render();
 ?>
 <?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
-var CurrentPageID = EW_PAGE_ID = "add";
-var CurrentForm = ft09_siswanonrutinbayaradd = new ew_Form("ft09_siswanonrutinbayaradd", "add");
-
-// Validate form
-ft09_siswanonrutinbayaradd.Validate = function() {
-	if (!this.ValidateRequired)
-		return true; // Ignore validation
-	var $ = jQuery, fobj = this.GetForm(), $fobj = $(fobj);
-	if ($fobj.find("#a_confirm").val() == "F")
-		return true;
-	var elm, felm, uelm, addcnt = 0;
-	var $k = $fobj.find("#" + this.FormKeyCountName); // Get key_count
-	var rowcnt = ($k[0]) ? parseInt($k.val(), 10) : 1;
-	var startcnt = (rowcnt == 0) ? 0 : 1; // Check rowcnt == 0 => Inline-Add
-	var gridinsert = $fobj.find("#a_list").val() == "gridinsert";
-	for (var i = startcnt; i <= rowcnt; i++) {
-		var infix = ($k[0]) ? String(i) : "";
-		$fobj.data("rowindex", infix);
-			elm = this.GetElements("x" + infix + "_Bayar_Tgl");
-			if (elm && !ew_CheckDate(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t09_siswanonrutinbayar->Bayar_Tgl->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_Bayar_Jumlah");
-			if (elm && !ew_CheckNumber(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t09_siswanonrutinbayar->Bayar_Jumlah->FldErrMsg()) ?>");
-
-			// Fire Form_CustomValidate event
-			if (!this.Form_CustomValidate(fobj))
-				return false;
-	}
-
-	// Process detail forms
-	var dfs = $fobj.find("input[name='detailpage']").get();
-	for (var i = 0; i < dfs.length; i++) {
-		var df = dfs[i], val = df.value;
-		if (val && ewForms[val])
-			if (!ewForms[val].Validate())
-				return false;
-	}
-	return true;
-}
+var CurrentPageID = EW_PAGE_ID = "delete";
+var CurrentForm = ft09_siswanonrutinbayardelete = new ew_Form("ft09_siswanonrutinbayardelete", "delete");
 
 // Form_CustomValidate event
-ft09_siswanonrutinbayaradd.Form_CustomValidate = 
+ft09_siswanonrutinbayardelete.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid. 
@@ -989,9 +805,9 @@ ft09_siswanonrutinbayaradd.Form_CustomValidate =
 
 // Use JavaScript validation or not
 <?php if (EW_CLIENT_VALIDATE) { ?>
-ft09_siswanonrutinbayaradd.ValidateRequired = true;
+ft09_siswanonrutinbayardelete.ValidateRequired = true;
 <?php } else { ?>
-ft09_siswanonrutinbayaradd.ValidateRequired = false; 
+ft09_siswanonrutinbayardelete.ValidateRequired = false; 
 <?php } ?>
 
 // Dynamic selection lists
@@ -1002,74 +818,94 @@ ft09_siswanonrutinbayaradd.ValidateRequired = false;
 
 // Write your client script here, no need to add script tags.
 </script>
-<?php if (!$t09_siswanonrutinbayar_add->IsModal) { ?>
 <div class="ewToolbar">
 <?php $Breadcrumb->Render(); ?>
 <?php echo $Language->SelectionForm(); ?>
 <div class="clearfix"></div>
 </div>
-<?php } ?>
-<?php $t09_siswanonrutinbayar_add->ShowPageHeader(); ?>
+<?php $t09_siswanonrutinbayar_delete->ShowPageHeader(); ?>
 <?php
-$t09_siswanonrutinbayar_add->ShowMessage();
+$t09_siswanonrutinbayar_delete->ShowMessage();
 ?>
-<form name="ft09_siswanonrutinbayaradd" id="ft09_siswanonrutinbayaradd" class="<?php echo $t09_siswanonrutinbayar_add->FormClassName ?>" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($t09_siswanonrutinbayar_add->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t09_siswanonrutinbayar_add->Token ?>">
+<form name="ft09_siswanonrutinbayardelete" id="ft09_siswanonrutinbayardelete" class="form-inline ewForm ewDeleteForm" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($t09_siswanonrutinbayar_delete->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $t09_siswanonrutinbayar_delete->Token ?>">
 <?php } ?>
 <input type="hidden" name="t" value="t09_siswanonrutinbayar">
-<input type="hidden" name="a_add" id="a_add" value="A">
-<?php if ($t09_siswanonrutinbayar_add->IsModal) { ?>
-<input type="hidden" name="modal" value="1">
+<input type="hidden" name="a_delete" id="a_delete" value="D">
+<?php foreach ($t09_siswanonrutinbayar_delete->RecKeys as $key) { ?>
+<?php $keyvalue = is_array($key) ? implode($EW_COMPOSITE_KEY_SEPARATOR, $key) : $key; ?>
+<input type="hidden" name="key_m[]" value="<?php echo ew_HtmlEncode($keyvalue) ?>">
 <?php } ?>
-<?php if ($t09_siswanonrutinbayar->getCurrentMasterTable() == "v01_siswanonrutin") { ?>
-<input type="hidden" name="<?php echo EW_TABLE_SHOW_MASTER ?>" value="v01_siswanonrutin">
-<input type="hidden" name="fk_id" value="<?php echo $t09_siswanonrutinbayar->siswanonrutin_id->getSessionValue() ?>">
-<?php } ?>
-<div>
+<div class="ewGrid">
+<div class="<?php if (ew_IsResponsiveLayout()) { echo "table-responsive "; } ?>ewGridMiddlePanel">
+<table class="table ewTable">
+<?php echo $t09_siswanonrutinbayar->TableCustomInnerHtml ?>
+	<thead>
+	<tr class="ewTableHeader">
 <?php if ($t09_siswanonrutinbayar->Bayar_Tgl->Visible) { // Bayar_Tgl ?>
-	<div id="r_Bayar_Tgl" class="form-group">
-		<label id="elh_t09_siswanonrutinbayar_Bayar_Tgl" for="x_Bayar_Tgl" class="col-sm-2 control-label ewLabel"><?php echo $t09_siswanonrutinbayar->Bayar_Tgl->FldCaption() ?></label>
-		<div class="col-sm-10"><div<?php echo $t09_siswanonrutinbayar->Bayar_Tgl->CellAttributes() ?>>
-<span id="el_t09_siswanonrutinbayar_Bayar_Tgl">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Bayar_Tgl" data-format="5" name="x_Bayar_Tgl" id="x_Bayar_Tgl" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Bayar_Tgl->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Bayar_Tgl->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Bayar_Tgl->EditAttributes() ?>>
-<?php if (!$t09_siswanonrutinbayar->Bayar_Tgl->ReadOnly && !$t09_siswanonrutinbayar->Bayar_Tgl->Disabled && !isset($t09_siswanonrutinbayar->Bayar_Tgl->EditAttrs["readonly"]) && !isset($t09_siswanonrutinbayar->Bayar_Tgl->EditAttrs["disabled"])) { ?>
-<script type="text/javascript">
-ew_CreateCalendar("ft09_siswanonrutinbayaradd", "x_Bayar_Tgl", 5);
-</script>
-<?php } ?>
-</span>
-<?php echo $t09_siswanonrutinbayar->Bayar_Tgl->CustomMsg ?></div></div>
-	</div>
+		<th><span id="elh_t09_siswanonrutinbayar_Bayar_Tgl" class="t09_siswanonrutinbayar_Bayar_Tgl"><?php echo $t09_siswanonrutinbayar->Bayar_Tgl->FldCaption() ?></span></th>
 <?php } ?>
 <?php if ($t09_siswanonrutinbayar->Bayar_Jumlah->Visible) { // Bayar_Jumlah ?>
-	<div id="r_Bayar_Jumlah" class="form-group">
-		<label id="elh_t09_siswanonrutinbayar_Bayar_Jumlah" for="x_Bayar_Jumlah" class="col-sm-2 control-label ewLabel"><?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->FldCaption() ?></label>
-		<div class="col-sm-10"><div<?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->CellAttributes() ?>>
-<span id="el_t09_siswanonrutinbayar_Bayar_Jumlah">
-<input type="text" data-table="t09_siswanonrutinbayar" data-field="x_Bayar_Jumlah" name="x_Bayar_Jumlah" id="x_Bayar_Jumlah" size="30" placeholder="<?php echo ew_HtmlEncode($t09_siswanonrutinbayar->Bayar_Jumlah->getPlaceHolder()) ?>" value="<?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->EditValue ?>"<?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->EditAttributes() ?>>
+		<th><span id="elh_t09_siswanonrutinbayar_Bayar_Jumlah" class="t09_siswanonrutinbayar_Bayar_Jumlah"><?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->FldCaption() ?></span></th>
+<?php } ?>
+	</tr>
+	</thead>
+	<tbody>
+<?php
+$t09_siswanonrutinbayar_delete->RecCnt = 0;
+$i = 0;
+while (!$t09_siswanonrutinbayar_delete->Recordset->EOF) {
+	$t09_siswanonrutinbayar_delete->RecCnt++;
+	$t09_siswanonrutinbayar_delete->RowCnt++;
+
+	// Set row properties
+	$t09_siswanonrutinbayar->ResetAttrs();
+	$t09_siswanonrutinbayar->RowType = EW_ROWTYPE_VIEW; // View
+
+	// Get the field contents
+	$t09_siswanonrutinbayar_delete->LoadRowValues($t09_siswanonrutinbayar_delete->Recordset);
+
+	// Render row
+	$t09_siswanonrutinbayar_delete->RenderRow();
+?>
+	<tr<?php echo $t09_siswanonrutinbayar->RowAttributes() ?>>
+<?php if ($t09_siswanonrutinbayar->Bayar_Tgl->Visible) { // Bayar_Tgl ?>
+		<td<?php echo $t09_siswanonrutinbayar->Bayar_Tgl->CellAttributes() ?>>
+<span id="el<?php echo $t09_siswanonrutinbayar_delete->RowCnt ?>_t09_siswanonrutinbayar_Bayar_Tgl" class="t09_siswanonrutinbayar_Bayar_Tgl">
+<span<?php echo $t09_siswanonrutinbayar->Bayar_Tgl->ViewAttributes() ?>>
+<?php echo $t09_siswanonrutinbayar->Bayar_Tgl->ListViewValue() ?></span>
 </span>
-<?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->CustomMsg ?></div></div>
-	</div>
+</td>
 <?php } ?>
+<?php if ($t09_siswanonrutinbayar->Bayar_Jumlah->Visible) { // Bayar_Jumlah ?>
+		<td<?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->CellAttributes() ?>>
+<span id="el<?php echo $t09_siswanonrutinbayar_delete->RowCnt ?>_t09_siswanonrutinbayar_Bayar_Jumlah" class="t09_siswanonrutinbayar_Bayar_Jumlah">
+<span<?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->ViewAttributes() ?>>
+<?php echo $t09_siswanonrutinbayar->Bayar_Jumlah->ListViewValue() ?></span>
+</span>
+</td>
+<?php } ?>
+	</tr>
+<?php
+	$t09_siswanonrutinbayar_delete->Recordset->MoveNext();
+}
+$t09_siswanonrutinbayar_delete->Recordset->Close();
+?>
+</tbody>
+</table>
 </div>
-<?php if (strval($t09_siswanonrutinbayar->siswanonrutin_id->getSessionValue()) <> "") { ?>
-<input type="hidden" name="x_siswanonrutin_id" id="x_siswanonrutin_id" value="<?php echo ew_HtmlEncode(strval($t09_siswanonrutinbayar->siswanonrutin_id->getSessionValue())) ?>">
-<?php } ?>
-<?php if (!$t09_siswanonrutinbayar_add->IsModal) { ?>
-<div class="form-group">
-	<div class="col-sm-offset-2 col-sm-10">
-<button class="btn btn-primary ewButton" name="btnAction" id="btnAction" type="submit"><?php echo $Language->Phrase("AddBtn") ?></button>
-<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $t09_siswanonrutinbayar_add->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
-	</div>
 </div>
-<?php } ?>
+<div>
+<button class="btn btn-primary ewButton" name="btnAction" id="btnAction" type="submit"><?php echo $Language->Phrase("DeleteBtn") ?></button>
+<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $t09_siswanonrutinbayar_delete->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
+</div>
 </form>
 <script type="text/javascript">
-ft09_siswanonrutinbayaradd.Init();
+ft09_siswanonrutinbayardelete.Init();
 </script>
 <?php
-$t09_siswanonrutinbayar_add->ShowPageFooter();
+$t09_siswanonrutinbayar_delete->ShowPageFooter();
 if (EW_DEBUG_ENABLED)
 	echo ew_DebugMsg();
 ?>
@@ -1081,5 +917,5 @@ if (EW_DEBUG_ENABLED)
 </script>
 <?php include_once "footer.php" ?>
 <?php
-$t09_siswanonrutinbayar_add->Page_Terminate();
+$t09_siswanonrutinbayar_delete->Page_Terminate();
 ?>

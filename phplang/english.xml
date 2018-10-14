@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2018/10/11" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2018/10/15" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -592,6 +592,12 @@
     <menu id="20">
       <phrase id="menutext" value="Rutin" />
     </menu>
+    <menu id="32">
+      <phrase id="menutext" value="Non-Rutin" />
+    </menu>
+    <menu id="30">
+      <phrase id="menutext" value="Non-Rutin" />
+    </menu>
     <menu id="31">
       <phrase id="menutext" value="Non-Rutin" />
     </menu>
@@ -621,9 +627,6 @@
     </menu>
     <menu id="19">
       <phrase id="menutext" value="Pembayaran Rutin" />
-    </menu>
-    <menu id="30">
-      <phrase id="menutext" value="Pembayaran Non-Rutin" />
     </menu>
     <menu id="1">
       <phrase id="menutext" value="User" />
@@ -868,7 +871,13 @@
         <phrase id="fldcaption" value="Jenis Pembayaran" />
       </field>
       <field id="nilai">
-        <phrase id="fldcaption" value="Nilai" />
+        <phrase id="fldcaption" value="Jumlah" />
+      </field>
+      <field id="terbayar">
+        <phrase id="fldcaption" value="Terbayar" />
+      </field>
+      <field id="sisa">
+        <phrase id="fldcaption" value="Sisa" />
       </field>
     </table>
     <table id="t09_siswanonrutinbayar">
@@ -876,17 +885,8 @@
       <field id="id">
         <phrase id="fldcaption" value="id" />
       </field>
-      <field id="siswa_id">
+      <field id="siswanonrutin_id">
         <phrase id="fldcaption" value="siswa id" />
-      </field>
-      <field id="siswa_nomor_induk">
-        <phrase id="fldcaption" value="Nomor Induk" />
-      </field>
-      <field id="siswa_nama">
-        <phrase id="fldcaption" value="Nama" />
-      </field>
-      <field id="nonrutin_id">
-        <phrase id="fldcaption" value="Jenis Pembayaran" />
       </field>
       <field id="bayar_tgl">
         <phrase id="fldcaption" value="Tgl. Bayar" />
@@ -1023,6 +1023,33 @@
       </field>
       <field id="newvalue">
         <phrase id="fldcaption" value="newvalue" />
+      </field>
+    </table>
+    <table id="v01_siswanonrutin">
+      <phrase id="tblcaption" value="Pembayaran Non-Rutin" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="siswa_id">
+        <phrase id="fldcaption" value="Siswa" />
+      </field>
+      <field id="siswa_nomor_induk">
+        <phrase id="fldcaption" value="No. Induk" />
+      </field>
+      <field id="siswa_nama">
+        <phrase id="fldcaption" value="Nama" />
+      </field>
+      <field id="nonrutin_id">
+        <phrase id="fldcaption" value="Jenis Pembayaran" />
+      </field>
+      <field id="nilai">
+        <phrase id="fldcaption" value="Nilai" />
+      </field>
+      <field id="terbayar">
+        <phrase id="fldcaption" value="Terbayar" />
+      </field>
+      <field id="sisa">
+        <phrase id="fldcaption" value="Sisa" />
       </field>
     </table>
   </project>

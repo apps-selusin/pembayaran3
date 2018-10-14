@@ -6,7 +6,7 @@ $RootMenu->IsRoot = TRUE;
 $RootMenu->AddMenuItem(4, "mmi_cf01_home_php", $Language->MenuPhrase("4", "MenuText"), "cf01_home.php", -1, "", AllowListMenu('{9A296957-6EE4-4785-AB71-310FFD71D6FE}cf01_home.php'), FALSE, TRUE);
 $RootMenu->AddMenuItem(28, "mmci_Pembayaran", $Language->MenuPhrase("28", "MenuText"), "", -1, "", IsLoggedIn(), FALSE, TRUE);
 $RootMenu->AddMenuItem(20, "mmi_t06_siswarutinbayar", $Language->MenuPhrase("20", "MenuText"), "t06_siswarutinbayarlist.php?cmd=resetall", 28, "", AllowListMenu('{9A296957-6EE4-4785-AB71-310FFD71D6FE}t06_siswarutinbayar'), FALSE, FALSE);
-$RootMenu->AddMenuItem(31, "mmi_t09_siswanonrutinbayar", $Language->MenuPhrase("31", "MenuText"), "t09_siswanonrutinbayarlist.php?cmd=resetall", 28, "", AllowListMenu('{9A296957-6EE4-4785-AB71-310FFD71D6FE}t09_siswanonrutinbayar'), FALSE, FALSE);
+$RootMenu->AddMenuItem(32, "mmi_v01_siswanonrutin", $Language->MenuPhrase("32", "MenuText"), "v01_siswanonrutinlist.php", 28, "", AllowListMenu('{9A296957-6EE4-4785-AB71-310FFD71D6FE}v01_siswanonrutin'), FALSE, FALSE);
 $RootMenu->AddMenuItem(6, "mmci_Setup", $Language->MenuPhrase("6", "MenuText"), "", -1, "", IsLoggedIn(), FALSE, TRUE);
 $RootMenu->AddMenuItem(8, "mmi_t00_tahunajaran", $Language->MenuPhrase("8", "MenuText"), "t00_tahunajaranlist.php", 6, "", AllowListMenu('{9A296957-6EE4-4785-AB71-310FFD71D6FE}t00_tahunajaran'), FALSE, FALSE);
 $RootMenu->AddMenuItem(9, "mmi_t01_sekolah", $Language->MenuPhrase("9", "MenuText"), "t01_sekolahlist.php", 6, "", AllowListMenu('{9A296957-6EE4-4785-AB71-310FFD71D6FE}t01_sekolah'), FALSE, FALSE);
