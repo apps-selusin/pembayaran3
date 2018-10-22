@@ -93,6 +93,8 @@ ft06_siswarutinbayar_2grid.Validate = function() {
 ft06_siswarutinbayar_2grid.EmptyRow = function(infix) {
 	var fobj = this.Form;
 	if (ew_ValueChanged(fobj, infix, "siswa_id", false)) return false;
+	if (ew_ValueChanged(fobj, infix, "Siswa_Nomor_Induk", false)) return false;
+	if (ew_ValueChanged(fobj, infix, "Siswa_Nama", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "rutin_id", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "Bulan", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "Tahun", false)) return false;
@@ -118,8 +120,10 @@ ft06_siswarutinbayar_2grid.ValidateRequired = false;
 <?php } ?>
 
 // Dynamic selection lists
-// Form object for search
+ft06_siswarutinbayar_2grid.Lists["x_siswa_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nomor_Induk","x_Nama","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t03_siswa"};
+ft06_siswarutinbayar_2grid.Lists["x_rutin_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nama","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t04_rutin"};
 
+// Form object for search
 </script>
 <?php } ?>
 <?php
@@ -215,6 +219,24 @@ $t06_siswarutinbayar_2_grid->ListOptions->Render("header", "left");
 	<?php } else { ?>
 		<th data-name="siswa_id"><div><div id="elh_t06_siswarutinbayar_2_siswa_id" class="t06_siswarutinbayar_2_siswa_id">
 			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->siswa_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar_2->siswa_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar_2->siswa_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php if ($t06_siswarutinbayar_2->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
+	<?php if ($t06_siswarutinbayar_2->SortUrl($t06_siswarutinbayar_2->Siswa_Nomor_Induk) == "") { ?>
+		<th data-name="Siswa_Nomor_Induk"><div id="elh_t06_siswarutinbayar_2_Siswa_Nomor_Induk" class="t06_siswarutinbayar_2_Siswa_Nomor_Induk"><div class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="Siswa_Nomor_Induk"><div><div id="elh_t06_siswarutinbayar_2_Siswa_Nomor_Induk" class="t06_siswarutinbayar_2_Siswa_Nomor_Induk">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar_2->Siswa_Nomor_Induk->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar_2->Siswa_Nomor_Induk->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php if ($t06_siswarutinbayar_2->Siswa_Nama->Visible) { // Siswa_Nama ?>
+	<?php if ($t06_siswarutinbayar_2->SortUrl($t06_siswarutinbayar_2->Siswa_Nama) == "") { ?>
+		<th data-name="Siswa_Nama"><div id="elh_t06_siswarutinbayar_2_Siswa_Nama" class="t06_siswarutinbayar_2_Siswa_Nama"><div class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->Siswa_Nama->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="Siswa_Nama"><div><div id="elh_t06_siswarutinbayar_2_Siswa_Nama" class="t06_siswarutinbayar_2_Siswa_Nama">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->Siswa_Nama->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar_2->Siswa_Nama->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar_2->Siswa_Nama->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
@@ -419,7 +441,19 @@ $t06_siswarutinbayar_2_grid->ListOptions->Render("body", "left", $t06_siswarutin
 <input type="hidden" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>">
 <?php } else { ?>
 <span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswa_id" class="form-group t06_siswarutinbayar_2_siswa_id">
-<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->siswa_id->EditValue ?>"<?php echo $t06_siswarutinbayar_2->siswa_id->EditAttributes() ?>>
+<?php
+$wrkonchange = trim(" " . @$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"]);
+if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
+$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"] = "";
+?>
+<span id="as_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t06_siswarutinbayar_2_grid->RowCnt * 10) ?>">
+	<input type="text" name="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar_2->siswa_id->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswa_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
+<input type="hidden" name="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->LookupFilterQuery(true) ?>">
+<script type="text/javascript">
+ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id","forceSelect":false});
+</script>
 </span>
 <?php } ?>
 <input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->OldValue) ?>">
@@ -433,7 +467,19 @@ $t06_siswarutinbayar_2_grid->ListOptions->Render("body", "left", $t06_siswarutin
 <input type="hidden" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>">
 <?php } else { ?>
 <span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswa_id" class="form-group t06_siswarutinbayar_2_siswa_id">
-<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->siswa_id->EditValue ?>"<?php echo $t06_siswarutinbayar_2->siswa_id->EditAttributes() ?>>
+<?php
+$wrkonchange = trim(" " . @$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"]);
+if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
+$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"] = "";
+?>
+<span id="as_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t06_siswarutinbayar_2_grid->RowCnt * 10) ?>">
+	<input type="text" name="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar_2->siswa_id->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswa_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
+<input type="hidden" name="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->LookupFilterQuery(true) ?>">
+<script type="text/javascript">
+ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id","forceSelect":false});
+</script>
 </span>
 <?php } ?>
 <?php } ?>
@@ -452,17 +498,97 @@ $t06_siswarutinbayar_2_grid->ListOptions->Render("body", "left", $t06_siswarutin
 <?php } ?>
 </td>
 	<?php } ?>
+	<?php if ($t06_siswarutinbayar_2->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
+		<td data-name="Siswa_Nomor_Induk"<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->CellAttributes() ?>>
+<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_Siswa_Nomor_Induk" class="form-group t06_siswarutinbayar_2_Siswa_Nomor_Induk">
+<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->EditValue ?>"<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->OldValue) ?>">
+<?php } ?>
+<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_Siswa_Nomor_Induk" class="form-group t06_siswarutinbayar_2_Siswa_Nomor_Induk">
+<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->EditValue ?>"<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_Siswa_Nomor_Induk" class="t06_siswarutinbayar_2_Siswa_Nomor_Induk">
+<span<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->ViewAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->ListViewValue() ?></span>
+</span>
+<?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->OldValue) ?>">
+<?php } else { ?>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->OldValue) ?>">
+<?php } ?>
+<?php } ?>
+</td>
+	<?php } ?>
+	<?php if ($t06_siswarutinbayar_2->Siswa_Nama->Visible) { // Siswa_Nama ?>
+		<td data-name="Siswa_Nama"<?php echo $t06_siswarutinbayar_2->Siswa_Nama->CellAttributes() ?>>
+<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_Siswa_Nama" class="form-group t06_siswarutinbayar_2_Siswa_Nama">
+<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->Siswa_Nama->EditValue ?>"<?php echo $t06_siswarutinbayar_2->Siswa_Nama->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->OldValue) ?>">
+<?php } ?>
+<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_Siswa_Nama" class="form-group t06_siswarutinbayar_2_Siswa_Nama">
+<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->Siswa_Nama->EditValue ?>"<?php echo $t06_siswarutinbayar_2->Siswa_Nama->EditAttributes() ?>>
+</span>
+<?php } ?>
+<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_Siswa_Nama" class="t06_siswarutinbayar_2_Siswa_Nama">
+<span<?php echo $t06_siswarutinbayar_2->Siswa_Nama->ViewAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->Siswa_Nama->ListViewValue() ?></span>
+</span>
+<?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->OldValue) ?>">
+<?php } else { ?>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->OldValue) ?>">
+<?php } ?>
+<?php } ?>
+</td>
+	<?php } ?>
 	<?php if ($t06_siswarutinbayar_2->rutin_id->Visible) { // rutin_id ?>
 		<td data-name="rutin_id"<?php echo $t06_siswarutinbayar_2->rutin_id->CellAttributes() ?>>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
 <span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_rutin_id" class="form-group t06_siswarutinbayar_2_rutin_id">
-<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_rutin_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->rutin_id->EditValue ?>"<?php echo $t06_siswarutinbayar_2->rutin_id->EditAttributes() ?>>
+<?php
+$wrkonchange = trim(" " . @$t06_siswarutinbayar_2->rutin_id->EditAttrs["onchange"]);
+if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
+$t06_siswarutinbayar_2->rutin_id->EditAttrs["onchange"] = "";
+?>
+<span id="as_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t06_siswarutinbayar_2_grid->RowCnt * 10) ?>">
+	<input type="text" name="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo $t06_siswarutinbayar_2->rutin_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar_2->rutin_id->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_rutin_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->rutin_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
+<input type="hidden" name="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo $t06_siswarutinbayar_2->rutin_id->LookupFilterQuery(true) ?>">
+<script type="text/javascript">
+ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id","forceSelect":false});
+</script>
 </span>
 <input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_rutin_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->OldValue) ?>">
 <?php } ?>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
 <span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_rutin_id" class="form-group t06_siswarutinbayar_2_rutin_id">
-<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_rutin_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->rutin_id->EditValue ?>"<?php echo $t06_siswarutinbayar_2->rutin_id->EditAttributes() ?>>
+<?php
+$wrkonchange = trim(" " . @$t06_siswarutinbayar_2->rutin_id->EditAttrs["onchange"]);
+if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
+$t06_siswarutinbayar_2->rutin_id->EditAttrs["onchange"] = "";
+?>
+<span id="as_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t06_siswarutinbayar_2_grid->RowCnt * 10) ?>">
+	<input type="text" name="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo $t06_siswarutinbayar_2->rutin_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar_2->rutin_id->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_rutin_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->rutin_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
+<input type="hidden" name="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo $t06_siswarutinbayar_2->rutin_id->LookupFilterQuery(true) ?>">
+<script type="text/javascript">
+ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id","forceSelect":false});
+</script>
 </span>
 <?php } ?>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_VIEW) { // View record ?>
@@ -686,7 +812,19 @@ $t06_siswarutinbayar_2_grid->ListOptions->Render("body", "left", $t06_siswarutin
 <input type="hidden" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>">
 <?php } else { ?>
 <span id="el$rowindex$_t06_siswarutinbayar_2_siswa_id" class="form-group t06_siswarutinbayar_2_siswa_id">
-<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->siswa_id->EditValue ?>"<?php echo $t06_siswarutinbayar_2->siswa_id->EditAttributes() ?>>
+<?php
+$wrkonchange = trim(" " . @$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"]);
+if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
+$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"] = "";
+?>
+<span id="as_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t06_siswarutinbayar_2_grid->RowCnt * 10) ?>">
+	<input type="text" name="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar_2->siswa_id->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswa_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
+<input type="hidden" name="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->LookupFilterQuery(true) ?>">
+<script type="text/javascript">
+ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id","forceSelect":false});
+</script>
 </span>
 <?php } ?>
 <?php } else { ?>
@@ -699,11 +837,55 @@ $t06_siswarutinbayar_2_grid->ListOptions->Render("body", "left", $t06_siswarutin
 <input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->OldValue) ?>">
 </td>
 	<?php } ?>
+	<?php if ($t06_siswarutinbayar_2->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
+		<td data-name="Siswa_Nomor_Induk">
+<?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
+<span id="el$rowindex$_t06_siswarutinbayar_2_Siswa_Nomor_Induk" class="form-group t06_siswarutinbayar_2_Siswa_Nomor_Induk">
+<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->EditValue ?>"<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->EditAttributes() ?>>
+</span>
+<?php } else { ?>
+<span id="el$rowindex$_t06_siswarutinbayar_2_Siswa_Nomor_Induk" class="form-group t06_siswarutinbayar_2_Siswa_Nomor_Induk">
+<span<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->ViewValue ?></p></span>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->FormValue) ?>">
+<?php } ?>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->OldValue) ?>">
+</td>
+	<?php } ?>
+	<?php if ($t06_siswarutinbayar_2->Siswa_Nama->Visible) { // Siswa_Nama ?>
+		<td data-name="Siswa_Nama">
+<?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
+<span id="el$rowindex$_t06_siswarutinbayar_2_Siswa_Nama" class="form-group t06_siswarutinbayar_2_Siswa_Nama">
+<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" size="30" maxlength="100" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->Siswa_Nama->EditValue ?>"<?php echo $t06_siswarutinbayar_2->Siswa_Nama->EditAttributes() ?>>
+</span>
+<?php } else { ?>
+<span id="el$rowindex$_t06_siswarutinbayar_2_Siswa_Nama" class="form-group t06_siswarutinbayar_2_Siswa_Nama">
+<span<?php echo $t06_siswarutinbayar_2->Siswa_Nama->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->Siswa_Nama->ViewValue ?></p></span>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->FormValue) ?>">
+<?php } ?>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nama" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nama" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nama->OldValue) ?>">
+</td>
+	<?php } ?>
 	<?php if ($t06_siswarutinbayar_2->rutin_id->Visible) { // rutin_id ?>
 		<td data-name="rutin_id">
 <?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
 <span id="el$rowindex$_t06_siswarutinbayar_2_rutin_id" class="form-group t06_siswarutinbayar_2_rutin_id">
-<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_rutin_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->rutin_id->EditValue ?>"<?php echo $t06_siswarutinbayar_2->rutin_id->EditAttributes() ?>>
+<?php
+$wrkonchange = trim(" " . @$t06_siswarutinbayar_2->rutin_id->EditAttrs["onchange"]);
+if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
+$t06_siswarutinbayar_2->rutin_id->EditAttrs["onchange"] = "";
+?>
+<span id="as_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t06_siswarutinbayar_2_grid->RowCnt * 10) ?>">
+	<input type="text" name="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo $t06_siswarutinbayar_2->rutin_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar_2->rutin_id->EditAttributes() ?>>
+</span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_rutin_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->rutin_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
+<input type="hidden" name="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo $t06_siswarutinbayar_2->rutin_id->LookupFilterQuery(true) ?>">
+<script type="text/javascript">
+ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id","forceSelect":false});
+</script>
 </span>
 <?php } else { ?>
 <span id="el$rowindex$_t06_siswarutinbayar_2_rutin_id" class="form-group t06_siswarutinbayar_2_rutin_id">
