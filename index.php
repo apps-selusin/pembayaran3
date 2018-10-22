@@ -282,6 +282,8 @@ class cdefault {
 			$this->Page_Terminate("t05_siswarutinlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't06_siswarutinbayar'))
 			$this->Page_Terminate("t06_siswarutinbayarlist.php");
+		if ($Security->AllowList(CurrentProjectID() . 't06_siswarutinbayar_2'))
+			$this->Page_Terminate("t06_siswarutinbayar_2list.php");
 		if ($Security->AllowList(CurrentProjectID() . 't07_nonrutin'))
 			$this->Page_Terminate("t07_nonrutinlist.php");
 		if ($Security->AllowList(CurrentProjectID() . 't08_siswanonrutin'))

@@ -1106,6 +1106,8 @@ class ct05_siswarutin extends cTable {
 		if ($reccount > 0) {
 			$q = "delete from t06_siswarutinbayar where siswa_id = ".$rsold["siswa_id"]."";
 			ew_Execute($q);
+			$q = "delete from t06_siswarutinbayar_2 where siswa_id = ".$rsold["siswa_id"]."";
+			ew_Execute($q);
 			f_isidetailpembayaranrutin($rsold, $rsnew);
 		}
 	}

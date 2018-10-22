@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2018/10/15" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2018/10/22" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -592,6 +592,9 @@
     <menu id="20">
       <phrase id="menutext" value="Rutin" />
     </menu>
+    <menu id="33">
+      <phrase id="menutext" value="Rutin 2" />
+    </menu>
     <menu id="32">
       <phrase id="menutext" value="Non-Rutin" />
     </menu>
@@ -848,6 +851,36 @@
       </field>
       <field id="bayar_jumlah">
         <phrase id="fldcaption" value="Jumlah" />
+      </field>
+    </table>
+    <table id="t06_siswarutinbayar_2">
+      <phrase id="tblcaption" value="Rincian Pembayaran Rutin 2" />
+      <field id="id">
+        <phrase id="fldcaption" value="id" />
+      </field>
+      <field id="siswa_id">
+        <phrase id="fldcaption" value="siswa id" />
+      </field>
+      <field id="rutin_id">
+        <phrase id="fldcaption" value="rutin id" />
+      </field>
+      <field id="bulan">
+        <phrase id="fldcaption" value="Bulan" />
+      </field>
+      <field id="tahun">
+        <phrase id="fldcaption" value="Tahun" />
+      </field>
+      <field id="bulan2">
+        <phrase id="fldcaption" value="Bulan 2" />
+      </field>
+      <field id="tahun2">
+        <phrase id="fldcaption" value="Tahun 2" />
+      </field>
+      <field id="bayar_tgl">
+        <phrase id="fldcaption" value="Bayar Tgl" />
+      </field>
+      <field id="bayar_jumlah">
+        <phrase id="fldcaption" value="Bayar Jumlah" />
       </field>
     </table>
     <table id="t07_nonrutin">
