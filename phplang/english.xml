@@ -870,17 +870,11 @@
       <field id="rutin_id">
         <phrase id="fldcaption" value="rutin id" />
       </field>
-      <field id="bulan">
-        <phrase id="fldcaption" value="Bulan" />
+      <field id="siswarutin_id">
+        <phrase id="fldcaption" value="siswarutin id" />
       </field>
-      <field id="tahun">
-        <phrase id="fldcaption" value="Tahun" />
-      </field>
-      <field id="bulan2">
-        <phrase id="fldcaption" value="Bulan 2" />
-      </field>
-      <field id="tahun2">
-        <phrase id="fldcaption" value="Tahun 2" />
+      <field id="siswarutin2_id">
+        <phrase id="fldcaption" value="siswarutin 2 id" />
       </field>
       <field id="bayar_tgl">
         <phrase id="fldcaption" value="Bayar Tgl" />

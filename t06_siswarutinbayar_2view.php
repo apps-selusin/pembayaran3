@@ -343,16 +343,12 @@ class ct06_siswarutinbayar_2_view extends ct06_siswarutinbayar_2 {
 			$Security->UserID_Loaded();
 		}
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->SetVisibility();
-		$this->id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
 		$this->siswa_id->SetVisibility();
 		$this->Siswa_Nomor_Induk->SetVisibility();
 		$this->Siswa_Nama->SetVisibility();
 		$this->rutin_id->SetVisibility();
-		$this->Bulan->SetVisibility();
-		$this->Tahun->SetVisibility();
-		$this->Bulan2->SetVisibility();
-		$this->Tahun2->SetVisibility();
+		$this->siswarutin_id->SetVisibility();
+		$this->siswarutin2_id->SetVisibility();
 		$this->Bayar_Jumlah->SetVisibility();
 
 		// Global Page Loading event (in userfn*.php)
@@ -645,10 +641,8 @@ class ct06_siswarutinbayar_2_view extends ct06_siswarutinbayar_2 {
 		$this->Siswa_Nomor_Induk->setDbValue($rs->fields('Siswa_Nomor_Induk'));
 		$this->Siswa_Nama->setDbValue($rs->fields('Siswa_Nama'));
 		$this->rutin_id->setDbValue($rs->fields('rutin_id'));
-		$this->Bulan->setDbValue($rs->fields('Bulan'));
-		$this->Tahun->setDbValue($rs->fields('Tahun'));
-		$this->Bulan2->setDbValue($rs->fields('Bulan2'));
-		$this->Tahun2->setDbValue($rs->fields('Tahun2'));
+		$this->siswarutin_id->setDbValue($rs->fields('siswarutin_id'));
+		$this->siswarutin2_id->setDbValue($rs->fields('siswarutin2_id'));
 		$this->Bayar_Tgl->setDbValue($rs->fields('Bayar_Tgl'));
 		$this->Bayar_Jumlah->setDbValue($rs->fields('Bayar_Jumlah'));
 	}
@@ -662,10 +656,8 @@ class ct06_siswarutinbayar_2_view extends ct06_siswarutinbayar_2 {
 		$this->Siswa_Nomor_Induk->DbValue = $row['Siswa_Nomor_Induk'];
 		$this->Siswa_Nama->DbValue = $row['Siswa_Nama'];
 		$this->rutin_id->DbValue = $row['rutin_id'];
-		$this->Bulan->DbValue = $row['Bulan'];
-		$this->Tahun->DbValue = $row['Tahun'];
-		$this->Bulan2->DbValue = $row['Bulan2'];
-		$this->Tahun2->DbValue = $row['Tahun2'];
+		$this->siswarutin_id->DbValue = $row['siswarutin_id'];
+		$this->siswarutin2_id->DbValue = $row['siswarutin2_id'];
 		$this->Bayar_Tgl->DbValue = $row['Bayar_Tgl'];
 		$this->Bayar_Jumlah->DbValue = $row['Bayar_Jumlah'];
 	}
@@ -695,10 +687,8 @@ class ct06_siswarutinbayar_2_view extends ct06_siswarutinbayar_2 {
 		// Siswa_Nomor_Induk
 		// Siswa_Nama
 		// rutin_id
-		// Bulan
-		// Tahun
-		// Bulan2
-		// Tahun2
+		// siswarutin_id
+		// siswarutin2_id
 		// Bayar_Tgl
 		// Bayar_Jumlah
 
@@ -765,21 +755,63 @@ class ct06_siswarutinbayar_2_view extends ct06_siswarutinbayar_2 {
 		}
 		$this->rutin_id->ViewCustomAttributes = "";
 
-		// Bulan
-		$this->Bulan->ViewValue = $this->Bulan->CurrentValue;
-		$this->Bulan->ViewCustomAttributes = "";
+		// siswarutin_id
+		if (strval($this->siswarutin_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswarutin_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `Bulan` AS `DispFld`, `Tahun` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t06_siswarutinbayar`";
+		$sWhereWrk = "";
+		$this->siswarutin_id->LookupFilters = array();
+		$lookuptblfilter = (strval(CurrentPage()->siswa_id->CurrentValue) <> "" and strval(CurrentPage()->rutin_id->CurrentValue) <> "") ? 
+  " `Bayar_Tgl` is null and `siswa_id` = " . CurrentPage()->siswa_id->CurrentValue . " and `rutin_id` = " . CurrentPage()->rutin_id->CurrentValue
+: 
+  " `Bayar_Tgl` is null ";
+		ew_AddFilter($sWhereWrk, $lookuptblfilter);
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->siswarutin_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = $rswrk->fields('Disp2Fld');
+				$this->siswarutin_id->ViewValue = $this->siswarutin_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->siswarutin_id->ViewValue = $this->siswarutin_id->CurrentValue;
+			}
+		} else {
+			$this->siswarutin_id->ViewValue = NULL;
+		}
+		$this->siswarutin_id->ViewCustomAttributes = "";
 
-		// Tahun
-		$this->Tahun->ViewValue = $this->Tahun->CurrentValue;
-		$this->Tahun->ViewCustomAttributes = "";
-
-		// Bulan2
-		$this->Bulan2->ViewValue = $this->Bulan2->CurrentValue;
-		$this->Bulan2->ViewCustomAttributes = "";
-
-		// Tahun2
-		$this->Tahun2->ViewValue = $this->Tahun2->CurrentValue;
-		$this->Tahun2->ViewCustomAttributes = "";
+		// siswarutin2_id
+		if (strval($this->siswarutin2_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->siswarutin2_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `Bulan` AS `DispFld`, `Tahun` AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `t06_siswarutinbayar`";
+		$sWhereWrk = "";
+		$this->siswarutin2_id->LookupFilters = array();
+		$lookuptblfilter = (strval(CurrentPage()->siswa_id->CurrentValue) <> "" and strval(CurrentPage()->rutin_id->CurrentValue) <> "") ? 
+  " `Bayar_Tgl` is null and `siswa_id` = " . CurrentPage()->siswa_id->CurrentValue . " and `rutin_id` = " . CurrentPage()->rutin_id->CurrentValue
+: 
+  " `Bayar_Tgl` is null ";
+		ew_AddFilter($sWhereWrk, $lookuptblfilter);
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->siswarutin2_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$arwrk[2] = $rswrk->fields('Disp2Fld');
+				$this->siswarutin2_id->ViewValue = $this->siswarutin2_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->siswarutin2_id->ViewValue = $this->siswarutin2_id->CurrentValue;
+			}
+		} else {
+			$this->siswarutin2_id->ViewValue = NULL;
+		}
+		$this->siswarutin2_id->ViewCustomAttributes = "";
 
 		// Bayar_Tgl
 		$this->Bayar_Tgl->ViewValue = $this->Bayar_Tgl->CurrentValue;
@@ -789,11 +821,6 @@ class ct06_siswarutinbayar_2_view extends ct06_siswarutinbayar_2 {
 		// Bayar_Jumlah
 		$this->Bayar_Jumlah->ViewValue = $this->Bayar_Jumlah->CurrentValue;
 		$this->Bayar_Jumlah->ViewCustomAttributes = "";
-
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
 
 			// siswa_id
 			$this->siswa_id->LinkCustomAttributes = "";
@@ -815,25 +842,15 @@ class ct06_siswarutinbayar_2_view extends ct06_siswarutinbayar_2 {
 			$this->rutin_id->HrefValue = "";
 			$this->rutin_id->TooltipValue = "";
 
-			// Bulan
-			$this->Bulan->LinkCustomAttributes = "";
-			$this->Bulan->HrefValue = "";
-			$this->Bulan->TooltipValue = "";
+			// siswarutin_id
+			$this->siswarutin_id->LinkCustomAttributes = "";
+			$this->siswarutin_id->HrefValue = "";
+			$this->siswarutin_id->TooltipValue = "";
 
-			// Tahun
-			$this->Tahun->LinkCustomAttributes = "";
-			$this->Tahun->HrefValue = "";
-			$this->Tahun->TooltipValue = "";
-
-			// Bulan2
-			$this->Bulan2->LinkCustomAttributes = "";
-			$this->Bulan2->HrefValue = "";
-			$this->Bulan2->TooltipValue = "";
-
-			// Tahun2
-			$this->Tahun2->LinkCustomAttributes = "";
-			$this->Tahun2->HrefValue = "";
-			$this->Tahun2->TooltipValue = "";
+			// siswarutin2_id
+			$this->siswarutin2_id->LinkCustomAttributes = "";
+			$this->siswarutin2_id->HrefValue = "";
+			$this->siswarutin2_id->TooltipValue = "";
 
 			// Bayar_Jumlah
 			$this->Bayar_Jumlah->LinkCustomAttributes = "";
@@ -1063,6 +1080,8 @@ ft06_siswarutinbayar_2view.ValidateRequired = false;
 // Dynamic selection lists
 ft06_siswarutinbayar_2view.Lists["x_siswa_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nomor_Induk","x_Nama","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t03_siswa"};
 ft06_siswarutinbayar_2view.Lists["x_rutin_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nama","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t04_rutin"};
+ft06_siswarutinbayar_2view.Lists["x_siswarutin_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Bulan","x_Tahun","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t06_siswarutinbayar"};
+ft06_siswarutinbayar_2view.Lists["x_siswarutin2_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Bulan","x_Tahun","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t06_siswarutinbayar"};
 
 // Form object for search
 </script>
@@ -1142,17 +1161,6 @@ $t06_siswarutinbayar_2_view->ShowMessage();
 <input type="hidden" name="modal" value="1">
 <?php } ?>
 <table class="table table-bordered table-striped ewViewTable">
-<?php if ($t06_siswarutinbayar_2->id->Visible) { // id ?>
-	<tr id="r_id">
-		<td><span id="elh_t06_siswarutinbayar_2_id"><?php echo $t06_siswarutinbayar_2->id->FldCaption() ?></span></td>
-		<td data-name="id"<?php echo $t06_siswarutinbayar_2->id->CellAttributes() ?>>
-<span id="el_t06_siswarutinbayar_2_id">
-<span<?php echo $t06_siswarutinbayar_2->id->ViewAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->id->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
 <?php if ($t06_siswarutinbayar_2->siswa_id->Visible) { // siswa_id ?>
 	<tr id="r_siswa_id">
 		<td><span id="elh_t06_siswarutinbayar_2_siswa_id"><?php echo $t06_siswarutinbayar_2->siswa_id->FldCaption() ?></span></td>
@@ -1197,46 +1205,24 @@ $t06_siswarutinbayar_2_view->ShowMessage();
 </td>
 	</tr>
 <?php } ?>
-<?php if ($t06_siswarutinbayar_2->Bulan->Visible) { // Bulan ?>
-	<tr id="r_Bulan">
-		<td><span id="elh_t06_siswarutinbayar_2_Bulan"><?php echo $t06_siswarutinbayar_2->Bulan->FldCaption() ?></span></td>
-		<td data-name="Bulan"<?php echo $t06_siswarutinbayar_2->Bulan->CellAttributes() ?>>
-<span id="el_t06_siswarutinbayar_2_Bulan">
-<span<?php echo $t06_siswarutinbayar_2->Bulan->ViewAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->Bulan->ViewValue ?></span>
+<?php if ($t06_siswarutinbayar_2->siswarutin_id->Visible) { // siswarutin_id ?>
+	<tr id="r_siswarutin_id">
+		<td><span id="elh_t06_siswarutinbayar_2_siswarutin_id"><?php echo $t06_siswarutinbayar_2->siswarutin_id->FldCaption() ?></span></td>
+		<td data-name="siswarutin_id"<?php echo $t06_siswarutinbayar_2->siswarutin_id->CellAttributes() ?>>
+<span id="el_t06_siswarutinbayar_2_siswarutin_id">
+<span<?php echo $t06_siswarutinbayar_2->siswarutin_id->ViewAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutin_id->ViewValue ?></span>
 </span>
 </td>
 	</tr>
 <?php } ?>
-<?php if ($t06_siswarutinbayar_2->Tahun->Visible) { // Tahun ?>
-	<tr id="r_Tahun">
-		<td><span id="elh_t06_siswarutinbayar_2_Tahun"><?php echo $t06_siswarutinbayar_2->Tahun->FldCaption() ?></span></td>
-		<td data-name="Tahun"<?php echo $t06_siswarutinbayar_2->Tahun->CellAttributes() ?>>
-<span id="el_t06_siswarutinbayar_2_Tahun">
-<span<?php echo $t06_siswarutinbayar_2->Tahun->ViewAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->Tahun->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t06_siswarutinbayar_2->Bulan2->Visible) { // Bulan2 ?>
-	<tr id="r_Bulan2">
-		<td><span id="elh_t06_siswarutinbayar_2_Bulan2"><?php echo $t06_siswarutinbayar_2->Bulan2->FldCaption() ?></span></td>
-		<td data-name="Bulan2"<?php echo $t06_siswarutinbayar_2->Bulan2->CellAttributes() ?>>
-<span id="el_t06_siswarutinbayar_2_Bulan2">
-<span<?php echo $t06_siswarutinbayar_2->Bulan2->ViewAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->Bulan2->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($t06_siswarutinbayar_2->Tahun2->Visible) { // Tahun2 ?>
-	<tr id="r_Tahun2">
-		<td><span id="elh_t06_siswarutinbayar_2_Tahun2"><?php echo $t06_siswarutinbayar_2->Tahun2->FldCaption() ?></span></td>
-		<td data-name="Tahun2"<?php echo $t06_siswarutinbayar_2->Tahun2->CellAttributes() ?>>
-<span id="el_t06_siswarutinbayar_2_Tahun2">
-<span<?php echo $t06_siswarutinbayar_2->Tahun2->ViewAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->Tahun2->ViewValue ?></span>
+<?php if ($t06_siswarutinbayar_2->siswarutin2_id->Visible) { // siswarutin2_id ?>
+	<tr id="r_siswarutin2_id">
+		<td><span id="elh_t06_siswarutinbayar_2_siswarutin2_id"><?php echo $t06_siswarutinbayar_2->siswarutin2_id->FldCaption() ?></span></td>
+		<td data-name="siswarutin2_id"<?php echo $t06_siswarutinbayar_2->siswarutin2_id->CellAttributes() ?>>
+<span id="el_t06_siswarutinbayar_2_siswarutin2_id">
+<span<?php echo $t06_siswarutinbayar_2->siswarutin2_id->ViewAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutin2_id->ViewValue ?></span>
 </span>
 </td>
 	</tr>

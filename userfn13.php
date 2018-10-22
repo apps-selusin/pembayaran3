@@ -21,27 +21,6 @@ function Page_Unloaded() {
 
 function f_isidetailpembayaranrutin($rsold, $rsnew) {
 
-	// simpan data di tabel temporary untuk proses pembayaran rutin
-	$q = "insert into
-		t06_siswarutinbayar_2 (
-			siswa_id,
-			rutin_id,
-			bulan,
-			tahun,
-			bulan2,
-			tahun2,
-			bayar_jumlah
-		) values (
-		".$rsnew["siswa_id"].",
-		".$rsnew["rutin_id"].",
-		null,
-		null,
-		null,
-		null,
-		0
-		)";
-	Conn()->Execute($q);
-
 	// ambil data tahun ajaran dan diloop selama satu periode tahun ajaran
 	// mulai awal tahun ajaran hingga akhir tahun ajaran
 
@@ -51,6 +30,21 @@ function f_isidetailpembayaranrutin($rsold, $rsnew) {
 	$akhir = $r->fields["Akhir_Bulan"].$r->fields["Akhir_Tahun"]; // 62019
 	$bulan = $r->fields["Awal_Bulan"] - 1;
 	$tahun = $r->fields["Awal_Tahun"];
+
+	// simpan data di tabel [temporary pembayaran rutin]
+	$q = "insert into
+		t06_siswarutinbayar_2 (
+			siswa_id,
+			rutin_id,
+			bayar_jumlah
+		) values (
+		".$rsnew["siswa_id"].",
+		".$rsnew["rutin_id"].",
+		0
+		)";
+	Conn()->Execute($q);
+
+	// simpan data di tabel pembayaran rutin
 	while ($awal != $akhir) {
 		$bulan++;
 		if ($bulan == 13) {
