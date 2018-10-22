@@ -1799,12 +1799,8 @@ class ct06_siswarutinbayar_2_grid extends ct06_siswarutinbayar_2 {
 			// Bayar_Jumlah
 			$this->Bayar_Jumlah->EditAttrs["class"] = "form-control";
 			$this->Bayar_Jumlah->EditCustomAttributes = "";
-			$this->Bayar_Jumlah->EditValue = ew_HtmlEncode($this->Bayar_Jumlah->CurrentValue);
-			$this->Bayar_Jumlah->PlaceHolder = ew_RemoveHtml($this->Bayar_Jumlah->FldCaption());
-			if (strval($this->Bayar_Jumlah->EditValue) <> "" && is_numeric($this->Bayar_Jumlah->EditValue)) {
-			$this->Bayar_Jumlah->EditValue = ew_FormatNumber($this->Bayar_Jumlah->EditValue, -2, -1, -2, 0);
-			$this->Bayar_Jumlah->OldValue = $this->Bayar_Jumlah->EditValue;
-			}
+			$this->Bayar_Jumlah->EditValue = $this->Bayar_Jumlah->CurrentValue;
+			$this->Bayar_Jumlah->ViewCustomAttributes = "";
 
 			// Edit refer script
 			// siswa_id
@@ -1839,6 +1835,7 @@ class ct06_siswarutinbayar_2_grid extends ct06_siswarutinbayar_2 {
 			// Bayar_Jumlah
 			$this->Bayar_Jumlah->LinkCustomAttributes = "";
 			$this->Bayar_Jumlah->HrefValue = "";
+			$this->Bayar_Jumlah->TooltipValue = "";
 		}
 		if ($this->RowType == EW_ROWTYPE_ADD ||
 			$this->RowType == EW_ROWTYPE_EDIT ||
@@ -1869,9 +1866,6 @@ class ct06_siswarutinbayar_2_grid extends ct06_siswarutinbayar_2 {
 		}
 		if (!$this->siswarutin2_id->FldIsDetailKey && !is_null($this->siswarutin2_id->FormValue) && $this->siswarutin2_id->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->siswarutin2_id->FldCaption(), $this->siswarutin2_id->ReqErrMsg));
-		}
-		if (!ew_CheckNumber($this->Bayar_Jumlah->FormValue)) {
-			ew_AddMessage($gsFormError, $this->Bayar_Jumlah->FldErrMsg());
 		}
 
 		// Return validate result
@@ -1996,9 +1990,6 @@ class ct06_siswarutinbayar_2_grid extends ct06_siswarutinbayar_2 {
 
 			// siswarutin2_id
 			$this->siswarutin2_id->SetDbValueDef($rsnew, $this->siswarutin2_id->CurrentValue, 0, $this->siswarutin2_id->ReadOnly);
-
-			// Bayar_Jumlah
-			$this->Bayar_Jumlah->SetDbValueDef($rsnew, $this->Bayar_Jumlah->CurrentValue, NULL, $this->Bayar_Jumlah->ReadOnly);
 
 			// Check referential integrity for master table 't03_siswa'
 			$bValidMasterRecord = TRUE;

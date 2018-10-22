@@ -975,8 +975,7 @@ class ct06_siswarutinbayar_2 extends cTable {
 		$this->Bayar_Jumlah->EditAttrs["class"] = "form-control";
 		$this->Bayar_Jumlah->EditCustomAttributes = "";
 		$this->Bayar_Jumlah->EditValue = $this->Bayar_Jumlah->CurrentValue;
-		$this->Bayar_Jumlah->PlaceHolder = ew_RemoveHtml($this->Bayar_Jumlah->FldCaption());
-		if (strval($this->Bayar_Jumlah->EditValue) <> "" && is_numeric($this->Bayar_Jumlah->EditValue)) $this->Bayar_Jumlah->EditValue = ew_FormatNumber($this->Bayar_Jumlah->EditValue, -2, -1, -2, 0);
+		$this->Bayar_Jumlah->ViewCustomAttributes = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -1286,6 +1285,8 @@ class ct06_siswarutinbayar_2 extends cTable {
 	function Row_Inserted($rsold, &$rsnew) {
 
 		//echo "Row Inserted"
+		//$periode_awal = f_perioderutinbayar($rsnew["siswarutin_id"]);
+
 	}
 
 	// Row Updating event
@@ -1382,8 +1383,17 @@ class ct06_siswarutinbayar_2 extends cTable {
 	function Row_Rendered() {
 
 		// To view properties of field class, use:
-		//var_dump($this-><FieldName>); 
+		//var_dump($this-><FieldName>);
+		//$this->siswarutin_id->EditAttrs["onchange"] = "siswarutin_id_onchange(event);";
 
+		$this->siswarutin_id->EditAttrs["onchange"] = "siswarutin_id(this, " . $this->RowIndex . ");";
+
+		//$this->nilaim_debet->EditAttrs["onfocus"] = "debet_onfocus(event);";
+		//$this->siswarutin2_id->EditAttrs["onchange"] = "siswarutin2_id_onchange(event);";
+
+		$this->siswarutin2_id->EditAttrs["onchange"] = "siswarutin2_id(this, ".$this->RowIndex.");";
+
+		//$this->nilaim_kredit->EditAttrs["onfocus"] = "kredit_onfocus(event);";
 	}
 
 	// User ID Filtering event

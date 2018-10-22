@@ -69,4 +69,9 @@ function f_isidetailpembayaranrutin($rsold, $rsnew) {
 		$awal = $bulan.$tahun;
 	}
 }
+
+function f_perioderutinbayar($siswarutin_id) {
+	$q = "select * from t06_siswarutinbayar where id = ".$siswarutin_id."";
+	$r = Conn()->Execute($q);
+}
 ?>

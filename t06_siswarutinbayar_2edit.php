@@ -976,9 +976,8 @@ class ct06_siswarutinbayar_2_edit extends ct06_siswarutinbayar_2 {
 			// Bayar_Jumlah
 			$this->Bayar_Jumlah->EditAttrs["class"] = "form-control";
 			$this->Bayar_Jumlah->EditCustomAttributes = "";
-			$this->Bayar_Jumlah->EditValue = ew_HtmlEncode($this->Bayar_Jumlah->CurrentValue);
-			$this->Bayar_Jumlah->PlaceHolder = ew_RemoveHtml($this->Bayar_Jumlah->FldCaption());
-			if (strval($this->Bayar_Jumlah->EditValue) <> "" && is_numeric($this->Bayar_Jumlah->EditValue)) $this->Bayar_Jumlah->EditValue = ew_FormatNumber($this->Bayar_Jumlah->EditValue, -2, -1, -2, 0);
+			$this->Bayar_Jumlah->EditValue = $this->Bayar_Jumlah->CurrentValue;
+			$this->Bayar_Jumlah->ViewCustomAttributes = "";
 
 			// Edit refer script
 			// siswa_id
@@ -1013,6 +1012,7 @@ class ct06_siswarutinbayar_2_edit extends ct06_siswarutinbayar_2 {
 			// Bayar_Jumlah
 			$this->Bayar_Jumlah->LinkCustomAttributes = "";
 			$this->Bayar_Jumlah->HrefValue = "";
+			$this->Bayar_Jumlah->TooltipValue = "";
 		}
 		if ($this->RowType == EW_ROWTYPE_ADD ||
 			$this->RowType == EW_ROWTYPE_EDIT ||
@@ -1040,9 +1040,6 @@ class ct06_siswarutinbayar_2_edit extends ct06_siswarutinbayar_2 {
 		}
 		if (!$this->siswarutin2_id->FldIsDetailKey && !is_null($this->siswarutin2_id->FormValue) && $this->siswarutin2_id->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->siswarutin2_id->FldCaption(), $this->siswarutin2_id->ReqErrMsg));
-		}
-		if (!ew_CheckNumber($this->Bayar_Jumlah->FormValue)) {
-			ew_AddMessage($gsFormError, $this->Bayar_Jumlah->FldErrMsg());
 		}
 
 		// Return validate result
@@ -1085,9 +1082,6 @@ class ct06_siswarutinbayar_2_edit extends ct06_siswarutinbayar_2 {
 
 			// siswarutin2_id
 			$this->siswarutin2_id->SetDbValueDef($rsnew, $this->siswarutin2_id->CurrentValue, 0, $this->siswarutin2_id->ReadOnly);
-
-			// Bayar_Jumlah
-			$this->Bayar_Jumlah->SetDbValueDef($rsnew, $this->Bayar_Jumlah->CurrentValue, NULL, $this->Bayar_Jumlah->ReadOnly);
 
 			// Check referential integrity for master table 't03_siswa'
 			$bValidMasterRecord = TRUE;
@@ -1378,9 +1372,6 @@ ft06_siswarutinbayar_2edit.Validate = function() {
 			elm = this.GetElements("x" + infix + "_siswarutin2_id");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t06_siswarutinbayar_2->siswarutin2_id->FldCaption(), $t06_siswarutinbayar_2->siswarutin2_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Bayar_Jumlah");
-			if (elm && !ew_CheckNumber(elm.value))
-				return this.OnError(elm, "<?php echo ew_JsEncode2($t06_siswarutinbayar_2->Bayar_Jumlah->FldErrMsg()) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -1574,8 +1565,10 @@ $t06_siswarutinbayar_2_edit->ShowMessage();
 		<label id="elh_t06_siswarutinbayar_2_Bayar_Jumlah" for="x_Bayar_Jumlah" class="col-sm-2 control-label ewLabel"><?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->CellAttributes() ?>>
 <span id="el_t06_siswarutinbayar_2_Bayar_Jumlah">
-<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_Bayar_Jumlah" name="x_Bayar_Jumlah" id="x_Bayar_Jumlah" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Bayar_Jumlah->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->EditValue ?>"<?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->EditAttributes() ?>>
+<span<?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->EditValue ?></p></span>
 </span>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Bayar_Jumlah" name="x_Bayar_Jumlah" id="x_Bayar_Jumlah" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Bayar_Jumlah->CurrentValue) ?>">
 <?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
@@ -1602,7 +1595,51 @@ if (EW_DEBUG_ENABLED)
 
 // Write your table-specific startup script here
 // document.write("page loaded");
+function siswarutin_id_onchange(event) {
+	var elm_name = $(event.target).val();
 
+	//nilai = parseInt(elm_name);
+	/*debet_new = parseInt(elm_name);
+	if(isNaN(debet_old)) debet_old = 0;
+	if(isNaN(debet_new)) debet_new = 0;
+	debet_total = debet_total - debet_old + debet_new;
+	alert('debet : '+debet_total);*/
+	alert(elm_name);
+}
+
+function siswarutin_id(rowindex) {
+	var form = this.form;
+	var nilai = form.elements["x" + rowindex + "_siswarutin_id"];
+	alert(nilai.value);
+
+	//var elm_name = $(event.target).val();
+	//nilai = parseInt(elm_name);
+
+	/*debet_new = parseInt(elm_name);
+	if(isNaN(debet_old)) debet_old = 0;
+	if(isNaN(debet_new)) debet_new = 0;
+	debet_total = debet_total - debet_old + debet_new;
+	alert('debet : '+debet_total);*/
+
+	//alert(elm_name);
+}
+
+function siswarutin2_id(rowindex) {
+	var form = this.form;
+	var nilai = form.elements["x" + rowindex + "_siswarutin2_id"];
+	alert(nilai.value);
+
+	//var elm_name = $(event.target).val();
+	//nilai = parseInt(elm_name);
+
+	/*debet_new = parseInt(elm_name);
+	if(isNaN(debet_old)) debet_old = 0;
+	if(isNaN(debet_new)) debet_new = 0;
+	debet_total = debet_total - debet_old + debet_new;
+	alert('debet : '+debet_total);*/
+
+	//alert(elm_name);
+}
 </script>
 <?php include_once "footer.php" ?>
 <?php
