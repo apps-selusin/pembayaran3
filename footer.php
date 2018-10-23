@@ -41,6 +41,9 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt13.js");
 		{ // keys = event types, values = handler functions
 			"change keyup": function(e) {
 				var $row = $(this).fields();
+				var all = $row["periode_awal"].find("option:selected").text();
+
+				//$row["Bayar_Titipan"].val($row["pinjamantitipan_id"].find("option:selected").text());
 				/*// denda
 				var denda_asli = $row["TotalDenda"].val();
 				var denda_clean = denda_asli.replace(/,/g, '');
@@ -61,7 +64,9 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt13.js");
 				$row["Bayar_Total"].val(bayar_total);*/
 
 				//alert($row["periode_awal"].val());
-				alert($row["Bayar_Jumlah"].val());
+				//alert($row["id"].val());
+
+				alert(all);
 			}
 		}
 	);
@@ -91,7 +96,7 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt13.js");
 				$row["Bayar_Total"].val(bayar_total);*/
 
 				//alert($row["periode_akhir"].val());
-				alert($row["Bayar_Jumlah"].val());
+				alert($row["id"].val());
 			}
 		}
 	);

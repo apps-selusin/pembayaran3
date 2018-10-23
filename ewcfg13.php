@@ -7,7 +7,7 @@
 if (!isset($EW_RELATIVE_PATH)) $EW_RELATIVE_PATH = "";
 
 // Show SQL for debug
-define("EW_DEBUG_ENABLED", FALSE, TRUE); // TRUE to debug
+define("EW_DEBUG_ENABLED", TRUE, TRUE); // TRUE to debug
 if (EW_DEBUG_ENABLED) {
 	@ini_set("display_errors", "1"); // Display errors
 	error_reporting(E_ALL ^ E_NOTICE); // Report all errors except E_NOTICE
@@ -25,7 +25,7 @@ define("EW_CONFIG_FILE_FOLDER", EW_PROJECT_NAME, TRUE); // Config file name
 define("EW_PROJECT_ID", "{9A296957-6EE4-4785-AB71-310FFD71D6FE}", TRUE); // Project ID (GUID)
 $EW_RELATED_PROJECT_ID = "";
 $EW_RELATED_LANGUAGE_FOLDER = "";
-define("EW_RANDOM_KEY", 'qmw9i1404HsOQLa5', TRUE); // Random key for encryption
+define("EW_RANDOM_KEY", 'zoKiLQg8S5fMYg8e', TRUE); // Random key for encryption
 define("EW_PROJECT_STYLESHEET_FILENAME", "phpcss/pembayaran3_prj.css", TRUE); // Project stylesheet file name
 define("EW_CHARSET", "", TRUE); // Project charset
 define("EW_EMAIL_CHARSET", EW_CHARSET, TRUE); // Email charset
