@@ -35,7 +35,66 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt13.js");
 
 // Write your global startup script here
 // document.write("page loaded");
+	// Table 't06_siswarutinbayar_2' Field 'periode_awal'
 
+	$('[data-table=t06_siswarutinbayar_2][data-field=x_periode_awal]').on(
+		{ // keys = event types, values = handler functions
+			"change keyup": function(e) {
+				var $row = $(this).fields();
+				/*// denda
+				var denda_asli = $row["TotalDenda"].val();
+				var denda_clean = denda_asli.replace(/,/g, '');
+				var denda = parseFloat(denda_clean);
+
+				// bayar titipan
+				var titipan_asli = $row["Bayar_Titipan"].val();
+				var titipan_clean = titipan_asli.replace(/,/g, '');
+				var titipan = parseFloat(titipan_clean);
+
+				// bayar non titipan
+				var nontitipan_asli = $row["Bayar_Non_Titipan"].val();
+				var nontitipan_clean = nontitipan_asli.replace(/,/g, '');
+				var nontitipan = parseFloat(nontitipan_clean);
+
+				// bayar_total
+				var bayar_total = denda + titipan + nontitipan;
+				$row["Bayar_Total"].val(bayar_total);*/
+
+				//alert($row["periode_awal"].val());
+				alert($row["Bayar_Jumlah"].val());
+			}
+		}
+	);
+
+	// Table 't06_siswarutinbayar_2' Field 'periode_akhir'
+	$('[data-table=t06_siswarutinbayar_2][data-field=x_periode_akhir]').on(
+		{ // keys = event types, values = handler functions
+			"change keyup": function(e) {
+				var $row = $(this).fields();
+				/*// denda
+				var denda_asli = $row["TotalDenda"].val();
+				var denda_clean = denda_asli.replace(/,/g, '');
+				var denda = parseFloat(denda_clean);
+
+				// bayar titipan
+				var titipan_asli = $row["Bayar_Titipan"].val();
+				var titipan_clean = titipan_asli.replace(/,/g, '');
+				var titipan = parseFloat(titipan_clean);
+
+				// bayar non titipan
+				var nontitipan_asli = $row["Bayar_Non_Titipan"].val();
+				var nontitipan_clean = nontitipan_asli.replace(/,/g, '');
+				var nontitipan = parseFloat(nontitipan_clean);
+
+				// bayar_total
+				var bayar_total = denda + titipan + nontitipan;
+				$row["Bayar_Total"].val(bayar_total);*/
+
+				//alert($row["periode_akhir"].val());
+				alert($row["Bayar_Jumlah"].val());
+			}
+		}
+	);
 </script>
 <?php } ?>
 </body>

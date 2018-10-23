@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<ew-language date="2018/10/22" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2018/10/23" version="13.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
   <!-- 
 	*** Important Notes:
 	1. Language ID should follow: https://developers.google.com/recaptcha/docs/language,
@@ -873,11 +873,11 @@
       <field id="rutin_id">
         <phrase id="fldcaption" value="rutin id" />
       </field>
-      <field id="siswarutin_id">
-        <phrase id="fldcaption" value="siswarutin id" />
+      <field id="periode_awal">
+        <phrase id="fldcaption" value="periode awal" />
       </field>
-      <field id="siswarutin2_id">
-        <phrase id="fldcaption" value="siswarutin 2 id" />
+      <field id="periode_akhir">
+        <phrase id="fldcaption" value="periode akhir" />
       </field>
       <field id="bayar_tgl">
         <phrase id="fldcaption" value="Bayar Tgl" />
@@ -1102,9 +1102,6 @@
       <field id="bulan">
         <phrase id="fldcaption" value="Bulan" />
       </field>
-      <field id="bulan2">
-        <phrase id="fldcaption" value="Bulan 2" />
-      </field>
       <field id="tahun">
         <phrase id="fldcaption" value="Tahun" />
       </field>
@@ -1113,6 +1110,12 @@
       </field>
       <field id="bayar_jumlah">
         <phrase id="fldcaption" value="Bayar Jumlah" />
+      </field>
+      <field id="periode">
+        <phrase id="fldcaption" value="Periode" />
+      </field>
+      <field id="periode2">
+        <phrase id="fldcaption" value="Periode 2" />
       </field>
     </table>
   </project>
