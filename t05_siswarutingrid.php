@@ -41,12 +41,6 @@ ft05_siswarutingrid.Validate = function() {
 		var checkrow = (gridinsert) ? !this.EmptyRow(infix) : true;
 		if (checkrow) {
 			addcnt++;
-			elm = this.GetElements("x" + infix + "_rutin_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t05_siswarutin->rutin_id->FldCaption(), $t05_siswarutin->rutin_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Nilai");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t05_siswarutin->Nilai->FldCaption(), $t05_siswarutin->Nilai->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_Nilai");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t05_siswarutin->Nilai->FldErrMsg()) ?>");

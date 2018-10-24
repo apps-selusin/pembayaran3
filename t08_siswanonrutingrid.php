@@ -41,24 +41,12 @@ ft08_siswanonrutingrid.Validate = function() {
 		var checkrow = (gridinsert) ? !this.EmptyRow(infix) : true;
 		if (checkrow) {
 			addcnt++;
-			elm = this.GetElements("x" + infix + "_nonrutin_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->nonrutin_id->FldCaption(), $t08_siswanonrutin->nonrutin_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Nilai");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Nilai->FldCaption(), $t08_siswanonrutin->Nilai->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_Nilai");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Nilai->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_Terbayar");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Terbayar->FldCaption(), $t08_siswanonrutin->Terbayar->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Terbayar");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Terbayar->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_Sisa");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Sisa->FldCaption(), $t08_siswanonrutin->Sisa->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_Sisa");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Sisa->FldErrMsg()) ?>");

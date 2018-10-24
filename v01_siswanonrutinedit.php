@@ -1004,16 +1004,16 @@ class cv01_siswanonrutin_edit extends cv01_siswanonrutin {
 			$this->Siswa_Nama->SetDbValueDef($rsnew, $this->Siswa_Nama->CurrentValue, NULL, $this->Siswa_Nama->ReadOnly);
 
 			// nonrutin_id
-			$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, 0, $this->nonrutin_id->ReadOnly);
+			$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, NULL, $this->nonrutin_id->ReadOnly);
 
 			// Nilai
-			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, 0, $this->Nilai->ReadOnly);
+			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, NULL, $this->Nilai->ReadOnly);
 
 			// Terbayar
-			$this->Terbayar->SetDbValueDef($rsnew, $this->Terbayar->CurrentValue, 0, $this->Terbayar->ReadOnly);
+			$this->Terbayar->SetDbValueDef($rsnew, $this->Terbayar->CurrentValue, NULL, $this->Terbayar->ReadOnly);
 
 			// Sisa
-			$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, 0, $this->Sisa->ReadOnly);
+			$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, NULL, $this->Sisa->ReadOnly);
 
 			// Call Row Updating event
 			$bUpdateRow = $this->Row_Updating($rsold, $rsnew);

@@ -41,18 +41,12 @@ ft06_siswarutinbayar_2grid.Validate = function() {
 		var checkrow = (gridinsert) ? !this.EmptyRow(infix) : true;
 		if (checkrow) {
 			addcnt++;
-			elm = this.GetElements("x" + infix + "_siswa_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t06_siswarutinbayar_2->siswa_id->FldCaption(), $t06_siswarutinbayar_2->siswa_id->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_rutin_id");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t06_siswarutinbayar_2->rutin_id->FldCaption(), $t06_siswarutinbayar_2->rutin_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_periode_awal");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t06_siswarutinbayar_2->periode_awal->FldCaption(), $t06_siswarutinbayar_2->periode_awal->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_periode_akhir");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t06_siswarutinbayar_2->periode_akhir->FldCaption(), $t06_siswarutinbayar_2->periode_akhir->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_Bayar_Jumlah");
+			if (elm && !ew_CheckNumber(elm.value))
+				return this.OnError(elm, "<?php echo ew_JsEncode2($t06_siswarutinbayar_2->Bayar_Jumlah->FldErrMsg()) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -65,12 +59,11 @@ ft06_siswarutinbayar_2grid.Validate = function() {
 // Check empty row
 ft06_siswarutinbayar_2grid.EmptyRow = function(infix) {
 	var fobj = this.Form;
-	if (ew_ValueChanged(fobj, infix, "siswa_id", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "Siswa_Nomor_Induk", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "Siswa_Nama", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "rutin_id", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "periode_awal", false)) return false;
-	if (ew_ValueChanged(fobj, infix, "periode_akhir", false)) return false;
+	if (ew_ValueChanged(fobj, infix, "siswarutinbayar1_id", false)) return false;
+	if (ew_ValueChanged(fobj, infix, "siswarutinbayar2_id", false)) return false;
 	if (ew_ValueChanged(fobj, infix, "Bayar_Jumlah", false)) return false;
 	return true;
 }
@@ -91,10 +84,9 @@ ft06_siswarutinbayar_2grid.ValidateRequired = false;
 <?php } ?>
 
 // Dynamic selection lists
-ft06_siswarutinbayar_2grid.Lists["x_siswa_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nomor_Induk","x_Nama","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t03_siswa"};
 ft06_siswarutinbayar_2grid.Lists["x_rutin_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Nama","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"t04_rutin"};
-ft06_siswarutinbayar_2grid.Lists["x_periode_awal"] = {"LinkField":"x_Periode","Ajax":true,"AutoFill":false,"DisplayFields":["x_Periode2","x_id","x_Bayar_Jumlah",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"v02_siswarutinbayar"};
-ft06_siswarutinbayar_2grid.Lists["x_periode_akhir"] = {"LinkField":"x_Periode","Ajax":true,"AutoFill":false,"DisplayFields":["x_Periode2","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"v02_siswarutinbayar"};
+ft06_siswarutinbayar_2grid.Lists["x_siswarutinbayar1_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Periode2","x_Periode","x_Bayar_Jumlah",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"v02_siswarutinbayar"};
+ft06_siswarutinbayar_2grid.Lists["x_siswarutinbayar2_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_Periode2","x_Periode","x_Bayar_Jumlah",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":"","LinkTable":"v02_siswarutinbayar"};
 
 // Form object for search
 </script>
@@ -177,15 +169,6 @@ $t06_siswarutinbayar_2_grid->RenderListOptions();
 // Render list options (header, left)
 $t06_siswarutinbayar_2_grid->ListOptions->Render("header", "left");
 ?>
-<?php if ($t06_siswarutinbayar_2->siswa_id->Visible) { // siswa_id ?>
-	<?php if ($t06_siswarutinbayar_2->SortUrl($t06_siswarutinbayar_2->siswa_id) == "") { ?>
-		<th data-name="siswa_id"><div id="elh_t06_siswarutinbayar_2_siswa_id" class="t06_siswarutinbayar_2_siswa_id"><div class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->siswa_id->FldCaption() ?></div></div></th>
-	<?php } else { ?>
-		<th data-name="siswa_id"><div><div id="elh_t06_siswarutinbayar_2_siswa_id" class="t06_siswarutinbayar_2_siswa_id">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->siswa_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar_2->siswa_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar_2->siswa_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
-        </div></div></th>
-	<?php } ?>
-<?php } ?>		
 <?php if ($t06_siswarutinbayar_2->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
 	<?php if ($t06_siswarutinbayar_2->SortUrl($t06_siswarutinbayar_2->Siswa_Nomor_Induk) == "") { ?>
 		<th data-name="Siswa_Nomor_Induk"><div id="elh_t06_siswarutinbayar_2_Siswa_Nomor_Induk" class="t06_siswarutinbayar_2_Siswa_Nomor_Induk"><div class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->FldCaption() ?></div></div></th>
@@ -213,21 +196,21 @@ $t06_siswarutinbayar_2_grid->ListOptions->Render("header", "left");
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
-<?php if ($t06_siswarutinbayar_2->periode_awal->Visible) { // periode_awal ?>
-	<?php if ($t06_siswarutinbayar_2->SortUrl($t06_siswarutinbayar_2->periode_awal) == "") { ?>
-		<th data-name="periode_awal"><div id="elh_t06_siswarutinbayar_2_periode_awal" class="t06_siswarutinbayar_2_periode_awal"><div class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->periode_awal->FldCaption() ?></div></div></th>
+<?php if ($t06_siswarutinbayar_2->siswarutinbayar1_id->Visible) { // siswarutinbayar1_id ?>
+	<?php if ($t06_siswarutinbayar_2->SortUrl($t06_siswarutinbayar_2->siswarutinbayar1_id) == "") { ?>
+		<th data-name="siswarutinbayar1_id"><div id="elh_t06_siswarutinbayar_2_siswarutinbayar1_id" class="t06_siswarutinbayar_2_siswarutinbayar1_id"><div class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->FldCaption() ?></div></div></th>
 	<?php } else { ?>
-		<th data-name="periode_awal"><div><div id="elh_t06_siswarutinbayar_2_periode_awal" class="t06_siswarutinbayar_2_periode_awal">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->periode_awal->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar_2->periode_awal->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar_2->periode_awal->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+		<th data-name="siswarutinbayar1_id"><div><div id="elh_t06_siswarutinbayar_2_siswarutinbayar1_id" class="t06_siswarutinbayar_2_siswarutinbayar1_id">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar_2->siswarutinbayar1_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar_2->siswarutinbayar1_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
-<?php if ($t06_siswarutinbayar_2->periode_akhir->Visible) { // periode_akhir ?>
-	<?php if ($t06_siswarutinbayar_2->SortUrl($t06_siswarutinbayar_2->periode_akhir) == "") { ?>
-		<th data-name="periode_akhir"><div id="elh_t06_siswarutinbayar_2_periode_akhir" class="t06_siswarutinbayar_2_periode_akhir"><div class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->periode_akhir->FldCaption() ?></div></div></th>
+<?php if ($t06_siswarutinbayar_2->siswarutinbayar2_id->Visible) { // siswarutinbayar2_id ?>
+	<?php if ($t06_siswarutinbayar_2->SortUrl($t06_siswarutinbayar_2->siswarutinbayar2_id) == "") { ?>
+		<th data-name="siswarutinbayar2_id"><div id="elh_t06_siswarutinbayar_2_siswarutinbayar2_id" class="t06_siswarutinbayar_2_siswarutinbayar2_id"><div class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->FldCaption() ?></div></div></th>
 	<?php } else { ?>
-		<th data-name="periode_akhir"><div><div id="elh_t06_siswarutinbayar_2_periode_akhir" class="t06_siswarutinbayar_2_periode_akhir">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->periode_akhir->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar_2->periode_akhir->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar_2->periode_akhir->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+		<th data-name="siswarutinbayar2_id"><div><div id="elh_t06_siswarutinbayar_2_siswarutinbayar2_id" class="t06_siswarutinbayar_2_siswarutinbayar2_id">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($t06_siswarutinbayar_2->siswarutinbayar2_id->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($t06_siswarutinbayar_2->siswarutinbayar2_id->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
@@ -349,63 +332,6 @@ while ($t06_siswarutinbayar_2_grid->RecCnt < $t06_siswarutinbayar_2_grid->StopRe
 // Render list options (body, left)
 $t06_siswarutinbayar_2_grid->ListOptions->Render("body", "left", $t06_siswarutinbayar_2_grid->RowCnt);
 ?>
-	<?php if ($t06_siswarutinbayar_2->siswa_id->Visible) { // siswa_id ?>
-		<td data-name="siswa_id"<?php echo $t06_siswarutinbayar_2->siswa_id->CellAttributes() ?>>
-<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<?php if ($t06_siswarutinbayar_2->siswa_id->getSessionValue() <> "") { ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswa_id" class="form-group t06_siswarutinbayar_2_siswa_id">
-<span<?php echo $t06_siswarutinbayar_2->siswa_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->siswa_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>">
-<?php } else { ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswa_id" class="form-group t06_siswarutinbayar_2_siswa_id">
-<?php
-$wrkonchange = trim(" " . @$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"]);
-if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
-$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"] = "";
-?>
-<span id="as_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t06_siswarutinbayar_2_grid->RowCnt * 10) ?>">
-	<input type="text" name="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar_2->siswa_id->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswa_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
-<input type="hidden" name="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->LookupFilterQuery(true) ?>">
-<script type="text/javascript">
-ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id","forceSelect":false});
-</script>
-</span>
-<?php } ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->OldValue) ?>">
-<?php } ?>
-<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswa_id" class="form-group t06_siswarutinbayar_2_siswa_id">
-<span<?php echo $t06_siswarutinbayar_2->siswa_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->siswa_id->EditValue ?></p></span>
-</span>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>">
-<?php } ?>
-<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_VIEW) { // View record ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswa_id" class="t06_siswarutinbayar_2_siswa_id">
-<span<?php echo $t06_siswarutinbayar_2->siswa_id->ViewAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->siswa_id->ListViewValue() ?></span>
-</span>
-<?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->FormValue) ?>">
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->OldValue) ?>">
-<?php } else { ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->FormValue) ?>">
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->OldValue) ?>">
-<?php } ?>
-<?php } ?>
-<a id="<?php echo $t06_siswarutinbayar_2_grid->PageObjName . "_row_" . $t06_siswarutinbayar_2_grid->RowCnt ?>"></a></td>
-	<?php } ?>
-<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->id->CurrentValue) ?>">
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->id->OldValue) ?>">
-<?php } ?>
-<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_EDIT || $t06_siswarutinbayar_2->CurrentMode == "edit") { ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->id->CurrentValue) ?>">
-<?php } ?>
 	<?php if ($t06_siswarutinbayar_2->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
 		<td data-name="Siswa_Nomor_Induk"<?php echo $t06_siswarutinbayar_2->Siswa_Nomor_Induk->CellAttributes() ?>>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
@@ -434,8 +360,15 @@ ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinb
 <input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Siswa_Nomor_Induk" name="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" id="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Siswa_Nomor_Induk" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Siswa_Nomor_Induk->OldValue) ?>">
 <?php } ?>
 <?php } ?>
-</td>
+<a id="<?php echo $t06_siswarutinbayar_2_grid->PageObjName . "_row_" . $t06_siswarutinbayar_2_grid->RowCnt ?>"></a></td>
 	<?php } ?>
+<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->id->CurrentValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->id->OldValue) ?>">
+<?php } ?>
+<?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_EDIT || $t06_siswarutinbayar_2->CurrentMode == "edit") { ?>
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->id->CurrentValue) ?>">
+<?php } ?>
 	<?php if ($t06_siswarutinbayar_2->Siswa_Nama->Visible) { // Siswa_Nama ?>
 		<td data-name="Siswa_Nama"<?php echo $t06_siswarutinbayar_2->Siswa_Nama->CellAttributes() ?>>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
@@ -508,70 +441,70 @@ ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinb
 <?php } ?>
 </td>
 	<?php } ?>
-	<?php if ($t06_siswarutinbayar_2->periode_awal->Visible) { // periode_awal ?>
-		<td data-name="periode_awal"<?php echo $t06_siswarutinbayar_2->periode_awal->CellAttributes() ?>>
+	<?php if ($t06_siswarutinbayar_2->siswarutinbayar1_id->Visible) { // siswarutinbayar1_id ?>
+		<td data-name="siswarutinbayar1_id"<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->CellAttributes() ?>>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_periode_awal" class="form-group t06_siswarutinbayar_2_periode_awal">
-<select data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" data-value-separator="<?php echo $t06_siswarutinbayar_2->periode_awal->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal"<?php echo $t06_siswarutinbayar_2->periode_awal->EditAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->periode_awal->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal") ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswarutinbayar1_id" class="form-group t06_siswarutinbayar_2_siswarutinbayar1_id">
+<select data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id"<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->EditAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id") ?>
 </select>
-<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo $t06_siswarutinbayar_2->periode_awal->LookupFilterQuery() ?>">
+<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->LookupFilterQuery() ?>">
 </span>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_awal->OldValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar1_id->OldValue) ?>">
 <?php } ?>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_periode_awal" class="form-group t06_siswarutinbayar_2_periode_awal">
-<select data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" data-value-separator="<?php echo $t06_siswarutinbayar_2->periode_awal->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal"<?php echo $t06_siswarutinbayar_2->periode_awal->EditAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->periode_awal->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal") ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswarutinbayar1_id" class="form-group t06_siswarutinbayar_2_siswarutinbayar1_id">
+<select data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id"<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->EditAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id") ?>
 </select>
-<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo $t06_siswarutinbayar_2->periode_awal->LookupFilterQuery() ?>">
+<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->LookupFilterQuery() ?>">
 </span>
 <?php } ?>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_VIEW) { // View record ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_periode_awal" class="t06_siswarutinbayar_2_periode_awal">
-<span<?php echo $t06_siswarutinbayar_2->periode_awal->ViewAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->periode_awal->ListViewValue() ?></span>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswarutinbayar1_id" class="t06_siswarutinbayar_2_siswarutinbayar1_id">
+<span<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->ViewAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->ListViewValue() ?></span>
 </span>
 <?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_awal->FormValue) ?>">
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_awal->OldValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar1_id->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar1_id->OldValue) ?>">
 <?php } else { ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" name="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_awal->FormValue) ?>">
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" name="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_awal->OldValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" name="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar1_id->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" name="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar1_id->OldValue) ?>">
 <?php } ?>
 <?php } ?>
 </td>
 	<?php } ?>
-	<?php if ($t06_siswarutinbayar_2->periode_akhir->Visible) { // periode_akhir ?>
-		<td data-name="periode_akhir"<?php echo $t06_siswarutinbayar_2->periode_akhir->CellAttributes() ?>>
+	<?php if ($t06_siswarutinbayar_2->siswarutinbayar2_id->Visible) { // siswarutinbayar2_id ?>
+		<td data-name="siswarutinbayar2_id"<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->CellAttributes() ?>>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_ADD) { // Add record ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_periode_akhir" class="form-group t06_siswarutinbayar_2_periode_akhir">
-<select data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" data-value-separator="<?php echo $t06_siswarutinbayar_2->periode_akhir->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir"<?php echo $t06_siswarutinbayar_2->periode_akhir->EditAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->periode_akhir->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir") ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswarutinbayar2_id" class="form-group t06_siswarutinbayar_2_siswarutinbayar2_id">
+<select data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id"<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->EditAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id") ?>
 </select>
-<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo $t06_siswarutinbayar_2->periode_akhir->LookupFilterQuery() ?>">
+<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->LookupFilterQuery() ?>">
 </span>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_akhir->OldValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar2_id->OldValue) ?>">
 <?php } ?>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_periode_akhir" class="form-group t06_siswarutinbayar_2_periode_akhir">
-<select data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" data-value-separator="<?php echo $t06_siswarutinbayar_2->periode_akhir->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir"<?php echo $t06_siswarutinbayar_2->periode_akhir->EditAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->periode_akhir->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir") ?>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswarutinbayar2_id" class="form-group t06_siswarutinbayar_2_siswarutinbayar2_id">
+<select data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id"<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->EditAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id") ?>
 </select>
-<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo $t06_siswarutinbayar_2->periode_akhir->LookupFilterQuery() ?>">
+<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->LookupFilterQuery() ?>">
 </span>
 <?php } ?>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_VIEW) { // View record ?>
-<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_periode_akhir" class="t06_siswarutinbayar_2_periode_akhir">
-<span<?php echo $t06_siswarutinbayar_2->periode_akhir->ViewAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->periode_akhir->ListViewValue() ?></span>
+<span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_siswarutinbayar2_id" class="t06_siswarutinbayar_2_siswarutinbayar2_id">
+<span<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->ViewAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->ListViewValue() ?></span>
 </span>
 <?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_akhir->FormValue) ?>">
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_akhir->OldValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar2_id->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar2_id->OldValue) ?>">
 <?php } else { ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" name="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_akhir->FormValue) ?>">
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" name="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_akhir->OldValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" name="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="ft06_siswarutinbayar_2grid$x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar2_id->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" name="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="ft06_siswarutinbayar_2grid$o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar2_id->OldValue) ?>">
 <?php } ?>
 <?php } ?>
 </td>
@@ -586,10 +519,8 @@ ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinb
 <?php } ?>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
 <span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_Bayar_Jumlah" class="form-group t06_siswarutinbayar_2_Bayar_Jumlah">
-<span<?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->EditValue ?></p></span>
+<input type="text" data-table="t06_siswarutinbayar_2" data-field="x_Bayar_Jumlah" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Bayar_Jumlah" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Bayar_Jumlah" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Bayar_Jumlah->getPlaceHolder()) ?>" value="<?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->EditValue ?>"<?php echo $t06_siswarutinbayar_2->Bayar_Jumlah->EditAttributes() ?>>
 </span>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_Bayar_Jumlah" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Bayar_Jumlah" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_Bayar_Jumlah" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->Bayar_Jumlah->CurrentValue) ?>">
 <?php } ?>
 <?php if ($t06_siswarutinbayar_2->RowType == EW_ROWTYPE_VIEW) { // View record ?>
 <span id="el<?php echo $t06_siswarutinbayar_2_grid->RowCnt ?>_t06_siswarutinbayar_2_Bayar_Jumlah" class="t06_siswarutinbayar_2_Bayar_Jumlah">
@@ -648,42 +579,6 @@ ft06_siswarutinbayar_2grid.UpdateOpts(<?php echo $t06_siswarutinbayar_2_grid->Ro
 // Render list options (body, left)
 $t06_siswarutinbayar_2_grid->ListOptions->Render("body", "left", $t06_siswarutinbayar_2_grid->RowIndex);
 ?>
-	<?php if ($t06_siswarutinbayar_2->siswa_id->Visible) { // siswa_id ?>
-		<td data-name="siswa_id">
-<?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
-<?php if ($t06_siswarutinbayar_2->siswa_id->getSessionValue() <> "") { ?>
-<span id="el$rowindex$_t06_siswarutinbayar_2_siswa_id" class="form-group t06_siswarutinbayar_2_siswa_id">
-<span<?php echo $t06_siswarutinbayar_2->siswa_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->siswa_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>">
-<?php } else { ?>
-<span id="el$rowindex$_t06_siswarutinbayar_2_siswa_id" class="form-group t06_siswarutinbayar_2_siswa_id">
-<?php
-$wrkonchange = trim(" " . @$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"]);
-if ($wrkonchange <> "") $wrkonchange = " onchange=\"" . ew_JsEncode2($wrkonchange) . "\"";
-$t06_siswarutinbayar_2->siswa_id->EditAttrs["onchange"] = "";
-?>
-<span id="as_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" style="white-space: nowrap; z-index: <?php echo (9000 - $t06_siswarutinbayar_2_grid->RowCnt * 10) ?>">
-	<input type="text" name="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="sv_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->EditValue ?>" size="30" placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>" data-placeholder="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->getPlaceHolder()) ?>"<?php echo $t06_siswarutinbayar_2->siswa_id->EditAttributes() ?>>
-</span>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswa_id->DisplayValueSeparatorAttribute() ?>" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->CurrentValue) ?>"<?php echo $wrkonchange ?>>
-<input type="hidden" name="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="q_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo $t06_siswarutinbayar_2->siswa_id->LookupFilterQuery(true) ?>">
-<script type="text/javascript">
-ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id","forceSelect":false});
-</script>
-</span>
-<?php } ?>
-<?php } else { ?>
-<span id="el$rowindex$_t06_siswarutinbayar_2_siswa_id" class="form-group t06_siswarutinbayar_2_siswa_id">
-<span<?php echo $t06_siswarutinbayar_2->siswa_id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->siswa_id->ViewValue ?></p></span>
-</span>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->FormValue) ?>">
-<?php } ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswa_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswa_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswa_id->OldValue) ?>">
-</td>
-	<?php } ?>
 	<?php if ($t06_siswarutinbayar_2->Siswa_Nomor_Induk->Visible) { // Siswa_Nomor_Induk ?>
 		<td data-name="Siswa_Nomor_Induk">
 <?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
@@ -744,42 +639,42 @@ ft06_siswarutinbayar_2grid.CreateAutoSuggest({"id":"x<?php echo $t06_siswarutinb
 <input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_rutin_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_rutin_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->rutin_id->OldValue) ?>">
 </td>
 	<?php } ?>
-	<?php if ($t06_siswarutinbayar_2->periode_awal->Visible) { // periode_awal ?>
-		<td data-name="periode_awal">
+	<?php if ($t06_siswarutinbayar_2->siswarutinbayar1_id->Visible) { // siswarutinbayar1_id ?>
+		<td data-name="siswarutinbayar1_id">
 <?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
-<span id="el$rowindex$_t06_siswarutinbayar_2_periode_awal" class="form-group t06_siswarutinbayar_2_periode_awal">
-<select data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" data-value-separator="<?php echo $t06_siswarutinbayar_2->periode_awal->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal"<?php echo $t06_siswarutinbayar_2->periode_awal->EditAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->periode_awal->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal") ?>
+<span id="el$rowindex$_t06_siswarutinbayar_2_siswarutinbayar1_id" class="form-group t06_siswarutinbayar_2_siswarutinbayar1_id">
+<select data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id"<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->EditAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id") ?>
 </select>
-<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo $t06_siswarutinbayar_2->periode_awal->LookupFilterQuery() ?>">
+<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->LookupFilterQuery() ?>">
 </span>
 <?php } else { ?>
-<span id="el$rowindex$_t06_siswarutinbayar_2_periode_awal" class="form-group t06_siswarutinbayar_2_periode_awal">
-<span<?php echo $t06_siswarutinbayar_2->periode_awal->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->periode_awal->ViewValue ?></p></span>
+<span id="el$rowindex$_t06_siswarutinbayar_2_siswarutinbayar1_id" class="form-group t06_siswarutinbayar_2_siswarutinbayar1_id">
+<span<?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->siswarutinbayar1_id->ViewValue ?></p></span>
 </span>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_awal->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar1_id->FormValue) ?>">
 <?php } ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_awal" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_awal" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_awal->OldValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar1_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar1_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar1_id->OldValue) ?>">
 </td>
 	<?php } ?>
-	<?php if ($t06_siswarutinbayar_2->periode_akhir->Visible) { // periode_akhir ?>
-		<td data-name="periode_akhir">
+	<?php if ($t06_siswarutinbayar_2->siswarutinbayar2_id->Visible) { // siswarutinbayar2_id ?>
+		<td data-name="siswarutinbayar2_id">
 <?php if ($t06_siswarutinbayar_2->CurrentAction <> "F") { ?>
-<span id="el$rowindex$_t06_siswarutinbayar_2_periode_akhir" class="form-group t06_siswarutinbayar_2_periode_akhir">
-<select data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" data-value-separator="<?php echo $t06_siswarutinbayar_2->periode_akhir->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir"<?php echo $t06_siswarutinbayar_2->periode_akhir->EditAttributes() ?>>
-<?php echo $t06_siswarutinbayar_2->periode_akhir->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir") ?>
+<span id="el$rowindex$_t06_siswarutinbayar_2_siswarutinbayar2_id" class="form-group t06_siswarutinbayar_2_siswarutinbayar2_id">
+<select data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" data-value-separator="<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->DisplayValueSeparatorAttribute() ?>" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id"<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->EditAttributes() ?>>
+<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->SelectOptionListHtml("x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id") ?>
 </select>
-<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo $t06_siswarutinbayar_2->periode_akhir->LookupFilterQuery() ?>">
+<input type="hidden" name="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="s_x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->LookupFilterQuery() ?>">
 </span>
 <?php } else { ?>
-<span id="el$rowindex$_t06_siswarutinbayar_2_periode_akhir" class="form-group t06_siswarutinbayar_2_periode_akhir">
-<span<?php echo $t06_siswarutinbayar_2->periode_akhir->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->periode_akhir->ViewValue ?></p></span>
+<span id="el$rowindex$_t06_siswarutinbayar_2_siswarutinbayar2_id" class="form-group t06_siswarutinbayar_2_siswarutinbayar2_id">
+<span<?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $t06_siswarutinbayar_2->siswarutinbayar2_id->ViewValue ?></p></span>
 </span>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_akhir->FormValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" name="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="x<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar2_id->FormValue) ?>">
 <?php } ?>
-<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_periode_akhir" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_periode_akhir" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->periode_akhir->OldValue) ?>">
+<input type="hidden" data-table="t06_siswarutinbayar_2" data-field="x_siswarutinbayar2_id" name="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" id="o<?php echo $t06_siswarutinbayar_2_grid->RowIndex ?>_siswarutinbayar2_id" value="<?php echo ew_HtmlEncode($t06_siswarutinbayar_2->siswarutinbayar2_id->OldValue) ?>">
 </td>
 	<?php } ?>
 	<?php if ($t06_siswarutinbayar_2->Bayar_Jumlah->Visible) { // Bayar_Jumlah ?>

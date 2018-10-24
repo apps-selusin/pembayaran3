@@ -1443,12 +1443,6 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->rutin_id->FldIsDetailKey && !is_null($this->rutin_id->FormValue) && $this->rutin_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->rutin_id->FldCaption(), $this->rutin_id->ReqErrMsg));
-		}
-		if (!$this->Nilai->FldIsDetailKey && !is_null($this->Nilai->FormValue) && $this->Nilai->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Nilai->FldCaption(), $this->Nilai->ReqErrMsg));
-		}
 		if (!ew_CheckNumber($this->Nilai->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Nilai->FldErrMsg());
 		}
@@ -1571,10 +1565,10 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 			$rsnew = array();
 
 			// rutin_id
-			$this->rutin_id->SetDbValueDef($rsnew, $this->rutin_id->CurrentValue, 0, $this->rutin_id->ReadOnly);
+			$this->rutin_id->SetDbValueDef($rsnew, $this->rutin_id->CurrentValue, NULL, $this->rutin_id->ReadOnly);
 
 			// Nilai
-			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, 0, $this->Nilai->ReadOnly);
+			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, NULL, $this->Nilai->ReadOnly);
 
 			// Check referential integrity for master table 't03_siswa'
 			$bValidMasterRecord = TRUE;
@@ -1667,10 +1661,10 @@ class ct05_siswarutin_grid extends ct05_siswarutin {
 		$rsnew = array();
 
 		// rutin_id
-		$this->rutin_id->SetDbValueDef($rsnew, $this->rutin_id->CurrentValue, 0, FALSE);
+		$this->rutin_id->SetDbValueDef($rsnew, $this->rutin_id->CurrentValue, NULL, FALSE);
 
 		// Nilai
-		$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, 0, strval($this->Nilai->CurrentValue) == "");
+		$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, NULL, strval($this->Nilai->CurrentValue) == "");
 
 		// siswa_id
 		if ($this->siswa_id->getSessionValue() <> "") {

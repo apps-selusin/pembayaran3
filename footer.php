@@ -35,71 +35,92 @@ jQuery.get("<?php echo $EW_RELATIVE_PATH ?>phpjs/userevt13.js");
 
 // Write your global startup script here
 // document.write("page loaded");
-	// Table 't06_siswarutinbayar_2' Field 'periode_awal'
+	// Table 't06_siswarutinbayar_2' Field 'siswarutinbayar1_id'
 
-	$('[data-table=t06_siswarutinbayar_2][data-field=x_periode_awal]').on(
+	$('[data-table=t06_siswarutinbayar_2][data-field=x_siswarutinbayar1_id]').on(
 		{ // keys = event types, values = handler functions
 			"change keyup": function(e) {
 				var $row = $(this).fields();
-				var all = $row["periode_awal"].find("option:selected").text();
-
-				//$row["Bayar_Titipan"].val($row["pinjamantitipan_id"].find("option:selected").text());
-				/*// denda
-				var denda_asli = $row["TotalDenda"].val();
-				var denda_clean = denda_asli.replace(/,/g, '');
-				var denda = parseFloat(denda_clean);
-
-				// bayar titipan
-				var titipan_asli = $row["Bayar_Titipan"].val();
-				var titipan_clean = titipan_asli.replace(/,/g, '');
-				var titipan = parseFloat(titipan_clean);
-
-				// bayar non titipan
-				var nontitipan_asli = $row["Bayar_Non_Titipan"].val();
-				var nontitipan_clean = nontitipan_asli.replace(/,/g, '');
-				var nontitipan = parseFloat(nontitipan_clean);
-
-				// bayar_total
-				var bayar_total = denda + titipan + nontitipan;
-				$row["Bayar_Total"].val(bayar_total);*/
-
-				//alert($row["periode_awal"].val());
-				//alert($row["id"].val());
-
-				alert(all);
+				var allbayar1 = $row["siswarutinbayar1_id"].find("option:selected").text();
+				var allbayar1_2 = allbayar1.split(",");
+				tanggal1 = allbayar1_2[1];
+				var jumlah1_asli = allbayar1_2[2];
+				var jumlah1_clean = jumlah1_asli.replace(/,/g, '');
+				jumlah1 = parseFloat(jumlah1_clean);
+				var tanggal1_array = tanggal1.split("-");
+				dt1 = new Date(tanggal1_array[0], tanggal1_array[1], tanggal1_array[2]);
+				var allbayar2 = $row["siswarutinbayar2_id"].find("option:selected").text();
+				var allbayar2_2 = allbayar2.split(",");
+				tanggal2 = allbayar2_2[1];
+				var jumlah2_asli = allbayar2_2[2];
+				var jumlah2_clean = jumlah2_asli.replace(/,/g, '');
+				jumlah2 = parseFloat(jumlah2_clean);
+				var tanggal2_array = tanggal2.split("-");
+				dt2 = new Date(tanggal2_array[0], tanggal2_array[1], tanggal2_array[2]);
+				if (tanggal2 < tanggal1) {
+					alert("Periode kedua harus lebih besar atau sama dengan Periode pertama");
+					$row["Bayar_Jumlah"].val(0);
+				}
+				else {
+					var lama_periode = diff_months(dt2, dt1);
+					var bayar_jumlah = (diff_months(dt2, dt1) + 1) * jumlah1;
+					$row["Bayar_Jumlah"].val(format_koma(bayar_jumlah));
+				}
 			}
 		}
 	);
 
-	// Table 't06_siswarutinbayar_2' Field 'periode_akhir'
-	$('[data-table=t06_siswarutinbayar_2][data-field=x_periode_akhir]').on(
+	// Table 't06_siswarutinbayar_2' Field 'siswarutinbayar2_id'
+	$('[data-table=t06_siswarutinbayar_2][data-field=x_siswarutinbayar2_id]').on(
 		{ // keys = event types, values = handler functions
 			"change keyup": function(e) {
 				var $row = $(this).fields();
-				/*// denda
-				var denda_asli = $row["TotalDenda"].val();
-				var denda_clean = denda_asli.replace(/,/g, '');
-				var denda = parseFloat(denda_clean);
-
-				// bayar titipan
-				var titipan_asli = $row["Bayar_Titipan"].val();
-				var titipan_clean = titipan_asli.replace(/,/g, '');
-				var titipan = parseFloat(titipan_clean);
-
-				// bayar non titipan
-				var nontitipan_asli = $row["Bayar_Non_Titipan"].val();
-				var nontitipan_clean = nontitipan_asli.replace(/,/g, '');
-				var nontitipan = parseFloat(nontitipan_clean);
-
-				// bayar_total
-				var bayar_total = denda + titipan + nontitipan;
-				$row["Bayar_Total"].val(bayar_total);*/
-
-				//alert($row["periode_akhir"].val());
-				alert($row["id"].val());
+				var allbayar1 = $row["siswarutinbayar1_id"].find("option:selected").text();
+				var allbayar1_2 = allbayar1.split(",");
+				tanggal1 = allbayar1_2[1];
+				var jumlah1_asli = allbayar1_2[2];
+				var jumlah1_clean = jumlah1_asli.replace(/,/g, '');
+				jumlah1 = parseFloat(jumlah1_clean);
+				var tanggal1_array = tanggal1.split("-");
+				dt1 = new Date(tanggal1_array[0], tanggal1_array[1], tanggal1_array[2]);
+				var allbayar2 = $row["siswarutinbayar2_id"].find("option:selected").text();
+				var allbayar2_2 = allbayar2.split(",");
+				tanggal2 = allbayar2_2[1];
+				var jumlah2_asli = allbayar2_2[2];
+				var jumlah2_clean = jumlah2_asli.replace(/,/g, '');
+				jumlah2 = parseFloat(jumlah2_clean);
+				var tanggal2_array = tanggal2.split("-");
+				dt2 = new Date(tanggal2_array[0], tanggal2_array[1], tanggal2_array[2]);
+				if (tanggal2 < tanggal1) {
+					alert("Periode kedua harus lebih besar atau sama dengan Periode pertama");
+					$row["Bayar_Jumlah"].val(0);
+				}
+				else {
+					var lama_periode = diff_months(dt2, dt1);
+					var bayar_jumlah = (diff_months(dt2, dt1) + 1) * jumlah2;
+					$row["Bayar_Jumlah"].val(format_koma(bayar_jumlah));
+				}
 			}
 		}
 	);
+
+function diff_months(dt2, dt1) {
+	var diff =(dt2.getTime() - dt1.getTime()) / 1000;
+	diff /= (60 * 60 * 24 * 7 * 4);
+	return Math.abs(Math.round(diff));
+}
+
+function format_koma(p_bilangan) {
+	var bilangan = p_bilangan;
+	var	reverse = bilangan.toString().split('').reverse().join(''),
+	ribuan 	= reverse.match(/\d{1,3}/g);
+	ribuan	= ribuan.join(',').split('').reverse().join('');
+
+	// Cetak hasil	
+	//document.write(ribuan); // Hasil: 23.456.789
+
+	return ribuan;
+}
 </script>
 <?php } ?>
 </body>

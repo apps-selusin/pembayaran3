@@ -1553,23 +1553,11 @@ class ct08_siswanonrutin_grid extends ct08_siswanonrutin {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->nonrutin_id->FldIsDetailKey && !is_null($this->nonrutin_id->FormValue) && $this->nonrutin_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->nonrutin_id->FldCaption(), $this->nonrutin_id->ReqErrMsg));
-		}
-		if (!$this->Nilai->FldIsDetailKey && !is_null($this->Nilai->FormValue) && $this->Nilai->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Nilai->FldCaption(), $this->Nilai->ReqErrMsg));
-		}
 		if (!ew_CheckNumber($this->Nilai->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Nilai->FldErrMsg());
 		}
-		if (!$this->Terbayar->FldIsDetailKey && !is_null($this->Terbayar->FormValue) && $this->Terbayar->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Terbayar->FldCaption(), $this->Terbayar->ReqErrMsg));
-		}
 		if (!ew_CheckNumber($this->Terbayar->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Terbayar->FldErrMsg());
-		}
-		if (!$this->Sisa->FldIsDetailKey && !is_null($this->Sisa->FormValue) && $this->Sisa->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Sisa->FldCaption(), $this->Sisa->ReqErrMsg));
 		}
 		if (!ew_CheckNumber($this->Sisa->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Sisa->FldErrMsg());
@@ -1693,16 +1681,16 @@ class ct08_siswanonrutin_grid extends ct08_siswanonrutin {
 			$rsnew = array();
 
 			// nonrutin_id
-			$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, 0, $this->nonrutin_id->ReadOnly);
+			$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, NULL, $this->nonrutin_id->ReadOnly);
 
 			// Nilai
-			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, 0, $this->Nilai->ReadOnly);
+			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, NULL, $this->Nilai->ReadOnly);
 
 			// Terbayar
-			$this->Terbayar->SetDbValueDef($rsnew, $this->Terbayar->CurrentValue, 0, $this->Terbayar->ReadOnly);
+			$this->Terbayar->SetDbValueDef($rsnew, $this->Terbayar->CurrentValue, NULL, $this->Terbayar->ReadOnly);
 
 			// Sisa
-			$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, 0, $this->Sisa->ReadOnly);
+			$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, NULL, $this->Sisa->ReadOnly);
 
 			// Check referential integrity for master table 't03_siswa'
 			$bValidMasterRecord = TRUE;
@@ -1795,16 +1783,16 @@ class ct08_siswanonrutin_grid extends ct08_siswanonrutin {
 		$rsnew = array();
 
 		// nonrutin_id
-		$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, 0, FALSE);
+		$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, NULL, FALSE);
 
 		// Nilai
-		$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, 0, strval($this->Nilai->CurrentValue) == "");
+		$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, NULL, strval($this->Nilai->CurrentValue) == "");
 
 		// Terbayar
-		$this->Terbayar->SetDbValueDef($rsnew, $this->Terbayar->CurrentValue, 0, strval($this->Terbayar->CurrentValue) == "");
+		$this->Terbayar->SetDbValueDef($rsnew, $this->Terbayar->CurrentValue, NULL, strval($this->Terbayar->CurrentValue) == "");
 
 		// Sisa
-		$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, 0, strval($this->Sisa->CurrentValue) == "");
+		$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, NULL, strval($this->Sisa->CurrentValue) == "");
 
 		// siswa_id
 		if ($this->siswa_id->getSessionValue() <> "") {

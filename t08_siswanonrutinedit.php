@@ -926,23 +926,11 @@ class ct08_siswanonrutin_edit extends ct08_siswanonrutin {
 		if (!ew_CheckInteger($this->siswa_id->FormValue)) {
 			ew_AddMessage($gsFormError, $this->siswa_id->FldErrMsg());
 		}
-		if (!$this->nonrutin_id->FldIsDetailKey && !is_null($this->nonrutin_id->FormValue) && $this->nonrutin_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->nonrutin_id->FldCaption(), $this->nonrutin_id->ReqErrMsg));
-		}
-		if (!$this->Nilai->FldIsDetailKey && !is_null($this->Nilai->FormValue) && $this->Nilai->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Nilai->FldCaption(), $this->Nilai->ReqErrMsg));
-		}
 		if (!ew_CheckNumber($this->Nilai->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Nilai->FldErrMsg());
 		}
-		if (!$this->Terbayar->FldIsDetailKey && !is_null($this->Terbayar->FormValue) && $this->Terbayar->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Terbayar->FldCaption(), $this->Terbayar->ReqErrMsg));
-		}
 		if (!ew_CheckNumber($this->Terbayar->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Terbayar->FldErrMsg());
-		}
-		if (!$this->Sisa->FldIsDetailKey && !is_null($this->Sisa->FormValue) && $this->Sisa->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Sisa->FldCaption(), $this->Sisa->ReqErrMsg));
 		}
 		if (!ew_CheckNumber($this->Sisa->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Sisa->FldErrMsg());
@@ -987,16 +975,16 @@ class ct08_siswanonrutin_edit extends ct08_siswanonrutin {
 			$this->siswa_id->SetDbValueDef($rsnew, $this->siswa_id->CurrentValue, 0, $this->siswa_id->ReadOnly);
 
 			// nonrutin_id
-			$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, 0, $this->nonrutin_id->ReadOnly);
+			$this->nonrutin_id->SetDbValueDef($rsnew, $this->nonrutin_id->CurrentValue, NULL, $this->nonrutin_id->ReadOnly);
 
 			// Nilai
-			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, 0, $this->Nilai->ReadOnly);
+			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, NULL, $this->Nilai->ReadOnly);
 
 			// Terbayar
-			$this->Terbayar->SetDbValueDef($rsnew, $this->Terbayar->CurrentValue, 0, $this->Terbayar->ReadOnly);
+			$this->Terbayar->SetDbValueDef($rsnew, $this->Terbayar->CurrentValue, NULL, $this->Terbayar->ReadOnly);
 
 			// Sisa
-			$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, 0, $this->Sisa->ReadOnly);
+			$this->Sisa->SetDbValueDef($rsnew, $this->Sisa->CurrentValue, NULL, $this->Sisa->ReadOnly);
 
 			// Check referential integrity for master table 't03_siswa'
 			$bValidMasterRecord = TRUE;
@@ -1290,24 +1278,12 @@ ft08_siswanonrutinedit.Validate = function() {
 			elm = this.GetElements("x" + infix + "_siswa_id");
 			if (elm && !ew_CheckInteger(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->siswa_id->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_nonrutin_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->nonrutin_id->FldCaption(), $t08_siswanonrutin->nonrutin_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Nilai");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Nilai->FldCaption(), $t08_siswanonrutin->Nilai->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_Nilai");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Nilai->FldErrMsg()) ?>");
 			elm = this.GetElements("x" + infix + "_Terbayar");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Terbayar->FldCaption(), $t08_siswanonrutin->Terbayar->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Terbayar");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Terbayar->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_Sisa");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t08_siswanonrutin->Sisa->FldCaption(), $t08_siswanonrutin->Sisa->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_Sisa");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t08_siswanonrutin->Sisa->FldErrMsg()) ?>");
@@ -1457,7 +1433,7 @@ ft08_siswanonrutinedit.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":false}
 <?php } ?>
 <?php if ($t08_siswanonrutin->nonrutin_id->Visible) { // nonrutin_id ?>
 	<div id="r_nonrutin_id" class="form-group">
-		<label id="elh_t08_siswanonrutin_nonrutin_id" for="x_nonrutin_id" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->nonrutin_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t08_siswanonrutin_nonrutin_id" for="x_nonrutin_id" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->nonrutin_id->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t08_siswanonrutin->nonrutin_id->CellAttributes() ?>>
 <span id="el_t08_siswanonrutin_nonrutin_id">
 <span class="ewLookupList">
@@ -1472,7 +1448,7 @@ ft08_siswanonrutinedit.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":false}
 <?php } ?>
 <?php if ($t08_siswanonrutin->Nilai->Visible) { // Nilai ?>
 	<div id="r_Nilai" class="form-group">
-		<label id="elh_t08_siswanonrutin_Nilai" for="x_Nilai" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->Nilai->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t08_siswanonrutin_Nilai" for="x_Nilai" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->Nilai->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t08_siswanonrutin->Nilai->CellAttributes() ?>>
 <span id="el_t08_siswanonrutin_Nilai">
 <input type="text" data-table="t08_siswanonrutin" data-field="x_Nilai" name="x_Nilai" id="x_Nilai" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Nilai->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Nilai->EditValue ?>"<?php echo $t08_siswanonrutin->Nilai->EditAttributes() ?>>
@@ -1482,7 +1458,7 @@ ft08_siswanonrutinedit.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":false}
 <?php } ?>
 <?php if ($t08_siswanonrutin->Terbayar->Visible) { // Terbayar ?>
 	<div id="r_Terbayar" class="form-group">
-		<label id="elh_t08_siswanonrutin_Terbayar" for="x_Terbayar" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->Terbayar->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t08_siswanonrutin_Terbayar" for="x_Terbayar" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->Terbayar->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t08_siswanonrutin->Terbayar->CellAttributes() ?>>
 <span id="el_t08_siswanonrutin_Terbayar">
 <input type="text" data-table="t08_siswanonrutin" data-field="x_Terbayar" name="x_Terbayar" id="x_Terbayar" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Terbayar->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Terbayar->EditValue ?>"<?php echo $t08_siswanonrutin->Terbayar->EditAttributes() ?>>
@@ -1492,7 +1468,7 @@ ft08_siswanonrutinedit.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":false}
 <?php } ?>
 <?php if ($t08_siswanonrutin->Sisa->Visible) { // Sisa ?>
 	<div id="r_Sisa" class="form-group">
-		<label id="elh_t08_siswanonrutin_Sisa" for="x_Sisa" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->Sisa->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t08_siswanonrutin_Sisa" for="x_Sisa" class="col-sm-2 control-label ewLabel"><?php echo $t08_siswanonrutin->Sisa->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t08_siswanonrutin->Sisa->CellAttributes() ?>>
 <span id="el_t08_siswanonrutin_Sisa">
 <input type="text" data-table="t08_siswanonrutin" data-field="x_Sisa" name="x_Sisa" id="x_Sisa" size="30" placeholder="<?php echo ew_HtmlEncode($t08_siswanonrutin->Sisa->getPlaceHolder()) ?>" value="<?php echo $t08_siswanonrutin->Sisa->EditValue ?>"<?php echo $t08_siswanonrutin->Sisa->EditAttributes() ?>>

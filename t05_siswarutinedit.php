@@ -862,12 +862,6 @@ class ct05_siswarutin_edit extends ct05_siswarutin {
 		if (!ew_CheckInteger($this->siswa_id->FormValue)) {
 			ew_AddMessage($gsFormError, $this->siswa_id->FldErrMsg());
 		}
-		if (!$this->rutin_id->FldIsDetailKey && !is_null($this->rutin_id->FormValue) && $this->rutin_id->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->rutin_id->FldCaption(), $this->rutin_id->ReqErrMsg));
-		}
-		if (!$this->Nilai->FldIsDetailKey && !is_null($this->Nilai->FormValue) && $this->Nilai->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->Nilai->FldCaption(), $this->Nilai->ReqErrMsg));
-		}
 		if (!ew_CheckNumber($this->Nilai->FormValue)) {
 			ew_AddMessage($gsFormError, $this->Nilai->FldErrMsg());
 		}
@@ -911,10 +905,10 @@ class ct05_siswarutin_edit extends ct05_siswarutin {
 			$this->siswa_id->SetDbValueDef($rsnew, $this->siswa_id->CurrentValue, 0, $this->siswa_id->ReadOnly);
 
 			// rutin_id
-			$this->rutin_id->SetDbValueDef($rsnew, $this->rutin_id->CurrentValue, 0, $this->rutin_id->ReadOnly);
+			$this->rutin_id->SetDbValueDef($rsnew, $this->rutin_id->CurrentValue, NULL, $this->rutin_id->ReadOnly);
 
 			// Nilai
-			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, 0, $this->Nilai->ReadOnly);
+			$this->Nilai->SetDbValueDef($rsnew, $this->Nilai->CurrentValue, NULL, $this->Nilai->ReadOnly);
 
 			// Check referential integrity for master table 't03_siswa'
 			$bValidMasterRecord = TRUE;
@@ -1208,12 +1202,6 @@ ft05_siswarutinedit.Validate = function() {
 			elm = this.GetElements("x" + infix + "_siswa_id");
 			if (elm && !ew_CheckInteger(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t05_siswarutin->siswa_id->FldErrMsg()) ?>");
-			elm = this.GetElements("x" + infix + "_rutin_id");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t05_siswarutin->rutin_id->FldCaption(), $t05_siswarutin->rutin_id->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_Nilai");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $t05_siswarutin->Nilai->FldCaption(), $t05_siswarutin->Nilai->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_Nilai");
 			if (elm && !ew_CheckNumber(elm.value))
 				return this.OnError(elm, "<?php echo ew_JsEncode2($t05_siswarutin->Nilai->FldErrMsg()) ?>");
@@ -1363,7 +1351,7 @@ ft05_siswarutinedit.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":false});
 <?php } ?>
 <?php if ($t05_siswarutin->rutin_id->Visible) { // rutin_id ?>
 	<div id="r_rutin_id" class="form-group">
-		<label id="elh_t05_siswarutin_rutin_id" for="x_rutin_id" class="col-sm-2 control-label ewLabel"><?php echo $t05_siswarutin->rutin_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t05_siswarutin_rutin_id" for="x_rutin_id" class="col-sm-2 control-label ewLabel"><?php echo $t05_siswarutin->rutin_id->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t05_siswarutin->rutin_id->CellAttributes() ?>>
 <span id="el_t05_siswarutin_rutin_id">
 <span class="ewLookupList">
@@ -1378,7 +1366,7 @@ ft05_siswarutinedit.CreateAutoSuggest({"id":"x_siswa_id","forceSelect":false});
 <?php } ?>
 <?php if ($t05_siswarutin->Nilai->Visible) { // Nilai ?>
 	<div id="r_Nilai" class="form-group">
-		<label id="elh_t05_siswarutin_Nilai" for="x_Nilai" class="col-sm-2 control-label ewLabel"><?php echo $t05_siswarutin->Nilai->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_t05_siswarutin_Nilai" for="x_Nilai" class="col-sm-2 control-label ewLabel"><?php echo $t05_siswarutin->Nilai->FldCaption() ?></label>
 		<div class="col-sm-10"><div<?php echo $t05_siswarutin->Nilai->CellAttributes() ?>>
 <span id="el_t05_siswarutin_Nilai">
 <input type="text" data-table="t05_siswarutin" data-field="x_Nilai" name="x_Nilai" id="x_Nilai" size="30" placeholder="<?php echo ew_HtmlEncode($t05_siswarutin->Nilai->getPlaceHolder()) ?>" value="<?php echo $t05_siswarutin->Nilai->EditValue ?>"<?php echo $t05_siswarutin->Nilai->EditAttributes() ?>>
